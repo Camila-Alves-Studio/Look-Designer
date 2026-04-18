@@ -1551,7 +1551,7 @@
                 </div>
                 <label class="field-label">${st === 'Aguardando Pagamento' || st === 'Ocupado' ? 'Dados do Cliente' : 'Agendar manualmente'}</label>
                 <input id="aName" class="inp" placeholder="Nome do cliente" value="${reg ? reg.cliente : ''}">
-                <input id="aPhone" class="inp" placeholder="(92) 9 0000-0000" type="tel" value="${reg && reg.telefone ? reg.telefone : ''}" oninput="handlePhoneInput(this)" onpaste="handlePhonePaste(this)">
+                <input id="aPhone" class="inp" placeholder="(92) 9 0000-0000" type="tel" value="${reg && reg.telefone ? reg.telefone : ''}" oninput="handlePhoneInput(this)" onpaste="handlePhonePaste(event, this)">
                 <label class="field-label">Duração do procedimento</label>
                 <div class="dur-grid" id="durGrid">${durOpts}</div>
             `;
@@ -2032,22 +2032,17 @@
             try { el.setSelectionRange(cur + (el.value.length - prev), cur + (el.value.length - prev)); } catch(e) {}
         }
 
-        // Ao colar: intercepta ANTES do valor chegar ao campo, pega raw do clipboard
+        // Ao colar: recebe o evento diretamente, pega raw do clipboard e abre box
         let _pasteTarget = null;
 
-        function handlePhonePaste(el) {
-            // O evento paste ainda não aplicou nada no campo
-            // Usamos event listener capturado no elemento para pegar clipboardData
-            el.addEventListener('paste', function _onpaste(e) {
-                el.removeEventListener('paste', _onpaste);
-                e.preventDefault(); // impede que o valor entre no campo
-                const raw = (e.clipboardData || window.clipboardData).getData('text');
-                _pasteTarget = el;
-                const inp = document.getElementById('phoneEditInput');
-                inp.value = raw.trim(); // mostra exatamente o que foi copiado
-                document.getElementById('phoneEditBox').style.display = 'flex';
-                setTimeout(() => { inp.focus(); inp.select(); }, 50);
-            });
+        function handlePhonePaste(e, el) {
+            e.preventDefault(); // impede que o valor vá pro campo
+            const raw = (e.clipboardData || window.clipboardData).getData('text');
+            _pasteTarget = el;
+            const inp = document.getElementById('phoneEditInput');
+            inp.value = raw.trim(); // exatamente o que foi copiado, sem tocar
+            document.getElementById('phoneEditBox').style.display = 'flex';
+            setTimeout(() => { inp.focus(); inp.select(); }, 50);
         }
 
         function confirmPaste() {
