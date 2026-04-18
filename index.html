@@ -31,10 +31,10 @@
             --st-block: #B0A8A8;
 
             /* ADMIN: tema escuro diferenciado */
-            --admin-bg: #1C1218;
-            --admin-surface: #261A20;
-            --admin-border: rgba(201, 168, 108, 0.18);
-            --admin-accent: #C9A86C;
+            --admin-bg: #FDF0F2;
+            --admin-surface: #FFFFFF;
+            --admin-border: rgba(196, 132, 138, 0.3);
+            --admin-accent: #C4848A;
         }
 
         * {
@@ -58,7 +58,7 @@
         ═══════════════════════════════════════════ */
         body.admin-on {
             background: var(--admin-bg);
-            color: #EDE8E0;
+            color: #2A2020;
         }
 
         body.admin-on::before {
@@ -68,11 +68,11 @@
         }
 
         body.admin-on .app header .logo-main {
-            color: #EDE8E0;
+            color: var(--ink);
         }
 
         body.admin-on .app header .logo-lash {
-            color: var(--gold);
+            color: var(--rose);
         }
 
         body.admin-on .section-label {
@@ -80,17 +80,17 @@
         }
 
         body.admin-on .day-pill {
-            background: var(--admin-surface);
-            border-color: var(--admin-border);
+            background: white;
+            border-color: rgba(196,132,138,0.2);
         }
 
         body.admin-on .day-pill .dw,
         body.admin-on .day-pill .dm {
-            color: rgba(237, 232, 224, 0.5);
+            color: var(--ink-soft);
         }
 
         body.admin-on .day-pill .dn {
-            color: #EDE8E0;
+            color: var(--ink);
         }
 
         body.admin-on .slot-card {
@@ -99,33 +99,34 @@
         }
 
         body.admin-on .slot-time {
-            color: #EDE8E0;
+            color: var(--ink);
         }
 
         body.admin-on .slot-client {
-            color: #EDE8E0;
+            color: var(--ink);
         }
 
         body.admin-on .nav-float {
-            background: var(--admin-surface);
-            border-color: var(--admin-border);
+            background: white;
+            border-color: rgba(196,132,138,0.4);
+            box-shadow: 0 8px 40px rgba(196,132,138,0.2);
         }
 
         body.admin-on .nav-btn {
-            color: #EDE8E0;
+            color: var(--ink);
         }
 
         body.admin-on .signature-section {
-            background: var(--admin-surface);
-            border: 1px solid var(--admin-border);
+            background: white;
+            border: 1px solid rgba(196,132,138,0.2);
         }
 
         body.admin-on .sig-name {
-            color: #EDE8E0;
+            color: var(--ink);
         }
 
         body.admin-on .grid-date {
-            color: #EDE8E0;
+            color: var(--ink);
         }
 
         /* Banner admin — topo rosa choque */
@@ -327,13 +328,14 @@
         }
 
         .admin-card {
-            background: var(--admin-surface);
+            background: white;
             border-radius: 16px;
             padding: 18px 14px;
             text-align: center;
             cursor: pointer;
-            border: 1px solid var(--admin-border);
+            border: 1.5px solid rgba(196,132,138,0.2);
             transition: all 0.3s var(--ease);
+            box-shadow: 0 2px 12px rgba(196,132,138,0.08);
         }
 
         .admin-card:hover {
@@ -343,7 +345,7 @@
 
         .admin-card .ac-icon { font-size: 1.4rem; margin-bottom: 8px; display: block; }
         .admin-card .ac-label { font-size: 0.55rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); margin-bottom: 4px; }
-        .admin-card .ac-desc { font-size: 0.68rem; color: rgba(237, 232, 224, 0.5); line-height: 1.4; }
+        .admin-card .ac-desc { font-size: 0.68rem; color: var(--ink-soft); line-height: 1.4; }
 
         /* BOTÃO ESPECIAL: VAGAS DO DIA */
         .admin-card.card-vagas {
@@ -367,19 +369,20 @@
         .admin-card.card-vagas .ac-desc { color: rgba(237, 232, 224, 0.6); font-size: 0.72rem; }
 
         .admin-stats {
-            background: rgba(255,255,255,0.04);
-            border: 1px solid var(--admin-border);
+            background: white;
+            border: 1.5px solid rgba(196,132,138,0.25);
             border-radius: 16px;
             padding: 20px;
             display: grid;
             grid-template-columns: repeat(5, 1fr);
             gap: 8px;
             margin-bottom: 12px;
+            box-shadow: 0 4px 20px rgba(196,132,138,0.1);
         }
 
         .stat-item { text-align: center; }
         .stat-num { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; color: var(--gold); display: block; line-height: 1; }
-        .stat-lbl { font-size: 0.48rem; letter-spacing: 2px; color: rgba(237, 232, 224, 0.4); text-transform: uppercase; margin-top: 4px; display: block; }
+        .stat-lbl { font-size: 0.48rem; letter-spacing: 2px; color: var(--ink-soft); text-transform: uppercase; margin-top: 4px; display: block; }
 
         /* APP */
         .app { max-width: 480px; margin: 0 auto; padding: 0 20px 160px; position: relative; z-index: 1; }
@@ -415,7 +418,7 @@
         .scroll-arrow.left { left: 2px; }
         .scroll-arrow.right { right: 2px; }
 
-        body.admin-on .scroll-arrow { background: var(--admin-surface); border-color: var(--admin-border); }
+        body.admin-on .scroll-arrow { background: white; border-color: rgba(196,132,138,0.2); }
 
         .day-scroller { display: flex; gap: 12px; overflow-x: auto; padding: 8px 80px 24px; scrollbar-width: none; opacity: 0; animation: fadeUp 1s 4.2s var(--ease) forwards; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; width: 100%; mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent); -webkit-mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent); }
         .day-scroller::-webkit-scrollbar { display: none; }
@@ -435,7 +438,7 @@
         .grid-head { display: flex; align-items: center; justify-content: space-between; padding: 0 4px 24px; }
         .grid-date { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-style: italic; transition: color 0.5s; }
         .back-btn { font-size: 0.55rem; letter-spacing: 3px; font-weight: 700; color: var(--rose); text-transform: uppercase; cursor: pointer; background: none; border: none; }
-        body.admin-on .back-btn { color: var(--gold); }
+        body.admin-on .back-btn { color: var(--rose); }
 
         /* Multi-select bar */
         #multiSelectBar { display: none; align-items: center; justify-content: space-between; background: var(--ink); color: white; border-radius: 20px; padding: 10px 15px; margin-bottom: 20px; font-size: 0.65rem; font-weight: 500; position: sticky; top: 10px; z-index: 100; box-shadow: 0 10px 30px rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); }
@@ -454,8 +457,8 @@
         .slot-card.past { opacity: 0.3; pointer-events: none; }
         .slot-card.selected { border-color: var(--rose); background: rgba(196,132,138,0.05); }
 
-        body.admin-on .slot-card { background: var(--admin-surface); border-color: var(--admin-border); }
-        body.admin-on .slot-card:hover { border-color: var(--gold); }
+        body.admin-on .slot-card { background: white; border-color: rgba(196,132,138,0.15); }
+        body.admin-on .slot-card:hover { border-color: var(--rose); box-shadow: 0 8px 24px rgba(196,132,138,0.15); }
         body.admin-on .slot-card.selected { border-color: var(--rose); background: rgba(196,132,138,0.08); }
 
         .slot-check { display: none; width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--rose); align-items: center; justify-content: center; color: white; font-size: 0.7rem; flex-shrink: 0; transition: all 0.3s; }
@@ -469,7 +472,7 @@
         .slot-client { font-size: 0.95rem; font-weight: 500; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: color 0.5s; }
         .slot-dur { font-size: 0.65rem; color: var(--ink-soft); margin-top: 2px; }
 
-        body.admin-on .slot-dur { color: rgba(237, 232, 224, 0.45); }
+        body.admin-on .slot-dur { color: var(--ink-soft); }
 
         .countdown-pill { display: inline-block; background: linear-gradient(90deg, var(--gold), var(--rose)); color: white; padding: 4px 10px; border-radius: 10px; font-size: 0.55rem; font-weight: 700; margin-top: 6px; animation: pulse 2s ease-in-out infinite; }
         @keyframes pulse { 0%, 100% { opacity: 0.8; transform: scale(1); } 50% { opacity: 1; transform: scale(1.02); } }
@@ -494,64 +497,64 @@
         body.admin-on #logPanel { display: block; }
         .log-title { font-size: 0.5rem; letter-spacing: 4px; font-weight: 700; color: var(--gold); text-transform: uppercase; margin-bottom: 12px; }
         .log-entry { background: white; border-radius: 14px; padding: 14px 18px; margin-bottom: 8px; border-left: 3px solid var(--rose); font-size: 0.75rem; line-height: 1.5; color: var(--ink-soft); }
-        body.admin-on .log-entry { background: var(--admin-surface); color: rgba(237,232,224,0.6); }
+        body.admin-on .log-entry { background: white; color: var(--ink-soft); }
         .log-entry strong { color: var(--ink); display: block; margin-bottom: 2px; }
-        body.admin-on .log-entry strong { color: #EDE8E0; }
+        body.admin-on .log-entry strong { color: var(--ink); }
         .log-entry .log-meta { font-size: 0.6rem; color: var(--rose); margin-top: 4px; }
 
         /* SHEET */
         .overlay { position: fixed; inset: 0; background: rgba(42,32,32,0.4); backdrop-filter: blur(12px); z-index: 8000; display: none; align-items: flex-end; justify-content: center; }
         .overlay.vis { display: flex; }
         .sheet { background: white; width: 100%; max-width: 480px; border-radius: 32px 32px 0 0; padding: 36px 32px 48px; animation: sheetUp 0.6s var(--ease); max-height: 90vh; overflow-y: auto; }
-        body.admin-on .sheet { background: #201618; color: #EDE8E0; }
+        body.admin-on .sheet { background: #FDF0F2; color: var(--ink); }
 
         @keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
         .sheet-handle { width: 40px; height: 4px; background: var(--cream-dark); border-radius: 4px; margin: 0 auto 28px; }
-        body.admin-on .sheet-handle { background: rgba(255,255,255,0.1); }
+        body.admin-on .sheet-handle { background: rgba(196,132,138,0.25); }
         .sheet-title { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 300; margin-bottom: 4px; }
         .sheet-sub { font-size: 0.8rem; color: var(--ink-soft); margin-bottom: 28px; line-height: 1.6; }
-        body.admin-on .sheet-sub { color: rgba(237,232,224,0.5); }
+        body.admin-on .sheet-sub { color: var(--ink-soft); }
 
         .field-label { font-size: 0.55rem; letter-spacing: 2px; font-weight: 700; color: var(--gold); text-transform: uppercase; margin-bottom: 8px; display: block; }
         .inp { width: 100%; padding: 16px 20px; border-radius: 14px; border: 1.5px solid var(--cream-dark); background: var(--cream); font-family: 'DM Sans', sans-serif; font-size: 0.9rem; margin-bottom: 16px; outline: none; transition: all 0.3s; color: var(--ink); }
         .inp:focus { border-color: var(--rose); background: white; }
-        body.admin-on .inp { background: rgba(255,255,255,0.05); border-color: var(--admin-border); color: #EDE8E0; }
-        body.admin-on .inp:focus { border-color: var(--gold); background: rgba(255,255,255,0.08); }
-        body.admin-on .inp::placeholder { color: rgba(237,232,224,0.3); }
+        body.admin-on .inp { background: white; border-color: rgba(196,132,138,0.3); color: var(--ink); }
+        body.admin-on .inp:focus { border-color: var(--rose); background: white; }
+        body.admin-on .inp::placeholder { color: rgba(92,79,79,0.4); }
 
         .dur-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
         .dur-opt { padding: 12px; border-radius: 12px; border: 1.5px solid var(--cream-dark); text-align: center; cursor: pointer; font-size: 0.75rem; font-weight: 500; transition: all 0.3s; background: var(--cream); }
         .dur-opt.sel { border-color: var(--rose); background: rgba(196,132,138,0.08); color: var(--rose); font-weight: 700; }
-        body.admin-on .dur-opt { background: rgba(255,255,255,0.04); border-color: var(--admin-border); color: rgba(237,232,224,0.7); }
-        body.admin-on .dur-opt.sel { border-color: var(--gold); background: rgba(201,168,108,0.12); color: var(--gold); }
+        body.admin-on .dur-opt { background: var(--cream); border-color: rgba(196,132,138,0.2); color: var(--ink-soft); }
+        body.admin-on .dur-opt.sel { border-color: var(--rose); background: rgba(196,132,138,0.1); color: var(--rose); }
 
         .btn { width: 100%; padding: 18px; border-radius: 14px; border: none; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; font-weight: 700; letter-spacing: 1px; cursor: pointer; transition: all 0.3s; }
         .btn-primary { background: linear-gradient(135deg, var(--rose) 0%, var(--deep-rose) 100%); color: white; box-shadow: 0 8px 24px rgba(139,79,85,0.3); margin-bottom: 12px; }
         .btn-primary:active { transform: scale(0.98); }
         .btn-secondary { background: var(--cream-dark); color: var(--ink); }
-        body.admin-on .btn-secondary { background: rgba(255,255,255,0.08); color: rgba(237,232,224,0.8); }
+        body.admin-on .btn-secondary { background: var(--cream-dark); color: var(--ink); }
         .btn-danger { background: linear-gradient(135deg, #C94848, #8B2020); color: white; box-shadow: 0 8px 24px rgba(139,32,32,0.3); margin-bottom: 12px; }
         .btn-gold { background: linear-gradient(135deg, var(--gold), #A07840); color: white; box-shadow: 0 8px 24px rgba(160,120,64,0.3); margin-bottom: 12px; }
 
         /* PIX BOX */
         .pix-box { background: var(--cream); border-radius: 20px; padding: 24px; text-align: center; margin-bottom: 20px; border: 1.5px dashed var(--gold); }
-        body.admin-on .pix-box { background: rgba(255,255,255,0.04); }
+        body.admin-on .pix-box { background: var(--cream); }
         .pix-label { font-size: 0.5rem; letter-spacing: 4px; font-weight: 700; color: var(--gold); text-transform: uppercase; margin-bottom: 10px; }
         .pix-key { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; font-weight: 400; color: var(--ink); margin-bottom: 6px; }
-        body.admin-on .pix-key { color: #EDE8E0; }
+        body.admin-on .pix-key { color: var(--ink); }
         .pix-holder { font-size: 0.8rem; color: var(--ink-soft); }
-        body.admin-on .pix-holder { color: rgba(237,232,224,0.5); }
+        body.admin-on .pix-holder { color: var(--ink-soft); }
         .wa-link { display: block; background: #25D366; color: white; text-decoration: none; padding: 18px; border-radius: 14px; font-weight: 700; font-size: 0.85rem; text-align: center; margin-top: 16px; box-shadow: 0 8px 24px rgba(37,211,102,0.3); transition: all 0.3s; }
         .wa-link:active { transform: scale(0.98); }
         .info-box { background: rgba(201,168,108,0.1); border-radius: 14px; padding: 16px 18px; margin-bottom: 20px; border-left: 3px solid var(--gold); font-size: 0.78rem; line-height: 1.6; color: var(--ink-soft); }
-        body.admin-on .info-box { background: rgba(201,168,108,0.06); color: rgba(237,232,224,0.6); }
+        body.admin-on .info-box { background: rgba(201,168,108,0.1); color: var(--ink-soft); }
         .booking-sum { background: var(--cream); border-radius: 14px; padding: 16px 20px; margin-bottom: 20px; }
-        body.admin-on .booking-sum { background: rgba(255,255,255,0.04); }
+        body.admin-on .booking-sum { background: var(--cream); }
         .booking-sum p { font-size: 0.8rem; color: var(--ink-soft); margin-bottom: 4px; }
-        body.admin-on .booking-sum p { color: rgba(237,232,224,0.5); }
+        body.admin-on .booking-sum p { color: var(--ink-soft); }
         .booking-sum p strong { color: var(--ink); }
-        body.admin-on .booking-sum p strong { color: #EDE8E0; }
+        body.admin-on .booking-sum p strong { color: var(--ink); }
         .booking-sum .token { display: inline-block; background: var(--ink); color: var(--gold); padding: 4px 10px; border-radius: 8px; font-size: 0.6rem; font-weight: 700; letter-spacing: 3px; margin-top: 6px; }
         .admin-action-grid { display: grid; gap: 10px; margin-bottom: 16px; }
 
@@ -1949,48 +1952,41 @@
         // ─── HELPERS ──────────────────────────────────────────
         // Normaliza numero bruto para 11 digitos (DDD + 9 + 8 digitos)
         // Aceita: +55 92 9615-0540, 92 9615-0540, 9296150540, etc.
-        // normalizePhone: usado apenas para salvar/enviar (nunca na digitação)
-        // Corrige números colados no formato +55 92 9615-0540 ou 92 9615-0540
-        function normalizePhone(phone) {
-            let v = (phone || '').replace(/\D/g, '');
-            // Remove DDI 55 se sobrar mais de 11 dígitos
-            if (v.startsWith('55') && v.length > 11) v = v.slice(2);
-            // Insere 9 adicional SOMENTE se tiver exatamente 10 dígitos após limpeza
-            // (significa que veio sem o nono dígito, ex: números antigos de 8 dígitos)
+        // normalizePhone: limpa e padroniza para 11 dígitos (DDD + 9 + 8 dígitos)
+        // Trata: +55 92 9615-0540, 92 9615-0540, 92 99615-0540, etc.
+        function normalizePhone(raw) {
+            let v = (raw || '').replace(/\D/g, '');
+            // Remove DDI 55 quando presente (resultado deve ficar <= 11 dígitos)
+            if (v.startsWith('55') && v.length >= 12) v = v.slice(2);
+            // Insere 9 adicional só se ficou com 10 dígitos (celular sem nono dígito)
             if (v.length === 10) v = v.slice(0, 2) + '9' + v.slice(2);
             return v.slice(0, 11);
         }
 
-        // handlePhoneInput: formata enquanto o usuário digita — SEM inserir 9 automático
-        // Apenas limpa não-dígitos e aplica a máscara visual progressiva
-        function handlePhoneInput(el) {
-            const cursorPos = el.selectionStart;
-            const prevLen = el.value.length;
-
-            let v = el.value.replace(/\D/g, '').slice(0, 11);
+        // Formata dígitos para máscara (92) 9 9615-0540
+        function formatPhoneMask(digits) {
             let f = '';
-            if (v.length > 0)  f  = '(' + v.substring(0, 2);
-            if (v.length > 2)  f += ') ' + v.substring(2, 3);
-            if (v.length > 3)  f += ' ' + v.substring(3, 7);
-            if (v.length > 7)  f += '-' + v.substring(7, 11);
-
-            el.value = f;
-
-            // Reposiciona cursor de forma natural
-            const diff = f.length - prevLen;
-            try { el.setSelectionRange(cursorPos + diff, cursorPos + diff); } catch(e) {}
+            if (digits.length > 0) f  = '(' + digits.substring(0, 2);
+            if (digits.length > 2) f += ') ' + digits.substring(2, 3);
+            if (digits.length > 3) f += ' ' + digits.substring(3, 7);
+            if (digits.length > 7) f += '-' + digits.substring(7, 11);
+            return f;
         }
 
-        // handlePhonePaste: ao colar, aplica normalização completa (trata +55, DDI, 9 faltante)
+        // handlePhoneInput: digitação manual — SEM inserir 9 automático, só máscara
+        function handlePhoneInput(el) {
+            const cursor = el.selectionStart;
+            const prevLen = el.value.length;
+            const digits = el.value.replace(/\D/g, '').slice(0, 11);
+            el.value = formatPhoneMask(digits);
+            const diff = el.value.length - prevLen;
+            try { el.setSelectionRange(cursor + diff, cursor + diff); } catch(e) {}
+        }
+
+        // handlePhonePaste: ao colar qualquer formato do WhatsApp, normaliza e formata
         function handlePhonePaste(el) {
             setTimeout(() => {
-                let v = normalizePhone(el.value);
-                let f = '';
-                if (v.length > 0)  f  = '(' + v.substring(0, 2);
-                if (v.length > 2)  f += ') ' + v.substring(2, 3);
-                if (v.length > 3)  f += ' ' + v.substring(3, 7);
-                if (v.length > 7)  f += '-' + v.substring(7, 11);
-                el.value = f;
+                el.value = formatPhoneMask(normalizePhone(el.value));
             }, 0);
         }
 
