@@ -128,21 +128,48 @@
             color: #EDE8E0;
         }
 
-        /* Banner admin mais discreto — só uma linha fina dourada */
+        /* Banner admin — topo rosa choque */
         body.admin-on::after {
-            content: "● MODO ADMINISTRATIVO";
+            content: "⬡ MODO ADMINISTRATIVO ATIVO ⬡";
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
-            background: linear-gradient(90deg, var(--admin-surface), rgba(201,168,108,0.12), var(--admin-surface));
-            border-bottom: 1px solid rgba(201, 168, 108, 0.3);
-            color: var(--gold);
+            background: linear-gradient(90deg, #8B1A2E, #C4284A, #E0305A, #C4284A, #8B1A2E);
+            background-size: 300% 100%;
+            animation: adminBannerShift 4s linear infinite;
+            color: white;
             text-align: center;
-            font-size: 0.48rem;
+            font-size: 0.46rem;
             letter-spacing: 5px;
-            padding: 5px;
+            font-weight: 700;
+            padding: 6px;
             z-index: 8000;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.4);
+        }
+
+        @keyframes adminBannerShift {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 300% 50%; }
+        }
+
+        /* Borda rosa choque pulsante em todo o viewport */
+        body.admin-on .app::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            border: 3px solid #E0305A;
+            pointer-events: none;
+            z-index: 7999;
+            box-shadow:
+                inset 0 0 0 1px rgba(224, 48, 90, 0.3),
+                inset 0 0 30px rgba(224, 48, 90, 0.08);
+            animation: adminBorderPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes adminBorderPulse {
+            0%, 100% { border-color: #E0305A; box-shadow: inset 0 0 0 1px rgba(224,48,90,0.3), inset 0 0 30px rgba(224,48,90,0.08); }
+            50% { border-color: #FF4D75; box-shadow: inset 0 0 0 1px rgba(255,77,117,0.5), inset 0 0 40px rgba(255,77,117,0.15); }
         }
 
         body::before {
@@ -798,6 +825,7 @@
             </div>
         </section>
 
+        <div id="activeBanner" style="display:none;"></div>
         <section id="gridSection">
             <div class="grid-head">
                 <div class="grid-date" id="gridDate"></div>
@@ -965,7 +993,14 @@
                 }).then(r => {
                     db = r.agenda || [];
                     systemLogs = r.logs || [];
-                    srvCfg = r.config || srvCfg;
+                    if (r.config) {
+                        srvCfg = r.config;
+                        // Normaliza pix_value para string decimal limpa
+                        if (srvCfg.pix_value !== undefined && srvCfg.pix_value !== null) {
+                            const pv = parseFloat(String(srvCfg.pix_value).replace(',', '.'));
+                            srvCfg.pix_value = isNaN(pv) ? '0.00' : pv.toFixed(2);
+                        }
+                    }
                     isAdmin = !!r.isAdmin;
 
                     if (!isAdmin) {
@@ -1067,11 +1102,41 @@
             const curMins = getManausMinutes(now);
             const lastBooking = JSON.parse(localStorage.getItem('last_booking_v3') || 'null');
 
-            // Verifica se cliente tem reserva ativa
-            const hasActiveBooking = showAsClient && lastBooking && (() => {
-                const rec = db.find(r => r.codigo === lastBooking.token && (r.status === 'Ocupado' || r.status === 'Aguardando Pagamento'));
-                return !!rec;
-            })();
+            // Verifica se cliente tem reserva ativa NO BANCO (token salvo localmente ainda consta como Ocupado)
+            const activeRec = showAsClient && lastBooking
+                ? db.find(r => r.codigo === lastBooking.token && r.status === 'Ocupado')
+                : null;
+            const hasActiveBooking = !!activeRec;
+
+            // Banner de agendamento ativo para o cliente
+            const bannerContainer = document.getElementById('activeBanner');
+            if (bannerContainer) {
+                if (showAsClient && hasActiveBooking && activeRec) {
+                    const dataFmt = formatManausLabel(activeRec.data ? String(activeRec.data).substring(0,10) : lastBooking.iso,
+                        { weekday: 'long', day: '2-digit', month: 'long' }).replace(/^\w/, c => c.toUpperCase());
+                    const waGerente = encodeURIComponent('Olá, Camila! Tenho um agendamento ativo no sistema e preciso de ajuda.');
+                    bannerContainer.innerHTML =
+                        '<div style="background:linear-gradient(135deg,rgba(196,132,138,0.1),rgba(201,168,108,0.07));' +
+                        'border:1.5px solid rgba(196,132,138,0.35);border-radius:18px;padding:18px 20px;margin-bottom:20px;">' +
+                            '<div style="font-size:0.48rem;font-weight:700;letter-spacing:4px;color:var(--rose);text-transform:uppercase;margin-bottom:8px;">📌 Agendamento ativo</div>' +
+                            '<div style="font-size:0.9rem;font-weight:600;color:var(--ink);margin-bottom:4px;">' +
+                                (activeRec.horario || lastBooking.clock) + ' · ' + dataFmt +
+                            '</div>' +
+                            '<div style="font-size:0.72rem;color:var(--ink-soft);margin-bottom:12px;">' +
+                                'Sua vaga está reservada. Precisa de ajuda? Fale com a gerente.' +
+                            '</div>' +
+                            '<a href="https://wa.me/5592961505540?text=' + waGerente + '" target="_blank" ' +
+                            'style="display:block;background:#25D366;color:white;text-decoration:none;' +
+                            'padding:12px 16px;border-radius:12px;font-weight:700;font-size:0.75rem;text-align:center;">' +
+                                '💬 Falar com a Camila · (92) 9 6150-0540' +
+                            '</a>' +
+                        '</div>';
+                    bannerContainer.style.display = 'block';
+                } else {
+                    bannerContainer.innerHTML = '';
+                    bannerContainer.style.display = 'none';
+                }
+            }
 
             const [sH, sM] = srvCfg.start.split(':').map(Number);
             const [eH, eM] = srvCfg.end.split(':').map(Number);
@@ -1288,19 +1353,59 @@
 
         // ─── BOOKING SHEET (CLIENTE) ───────────────────────────
         function showBookingSheet(iso, clock) {
+            // Regra 12h: cliente só pode agendar novamente se:
+            // (a) passaram 12h desde o último agendamento, OU
+            // (b) o token do último agendamento não está mais como Ocupado (gerente liberou)
+            if (!isAdmin) {
+                const lastBooking = JSON.parse(localStorage.getItem('last_booking_v3') || 'null');
+                const lastTs = Number(localStorage.getItem('last_booking_timestamp') || '0');
+                const dentro12h = lastTs > 0 && (Date.now() - lastTs) < 12 * 60 * 60 * 1000;
+                const tokenAindaOcupado = lastBooking
+                    ? !!db.find(r => r.codigo === lastBooking.token && r.status === 'Ocupado')
+                    : false;
+
+                if (dentro12h && tokenAindaOcupado) {
+                    const remainMs = (lastTs + 12 * 60 * 60 * 1000) - Date.now();
+                    const hrs = Math.floor(remainMs / 3600000);
+                    const mins = Math.floor((remainMs % 3600000) / 60000);
+                    openSheet('Você já tem um agendamento ativo', 'Não é possível reservar dois horários ao mesmo tempo.');
+                    const activeRec = db.find(r => r.codigo === lastBooking.token && r.status === 'Ocupado');
+                    const dataFmt = activeRec
+                        ? formatManausLabel(String(activeRec.data).substring(0,10), { weekday: 'long', day: '2-digit', month: 'long' }).replace(/^\w/, c => c.toUpperCase())
+                        : '';
+                    const waGerente = encodeURIComponent('Olá, Camila! Tenho um agendamento ativo e gostaria de ajuda para alterar ou cancelar.');
+                    document.getElementById('sheetBody').innerHTML =
+                        '<div style="background:rgba(196,132,138,0.07);border:1.5px solid rgba(196,132,138,0.3);' +
+                        'border-radius:14px;padding:16px 18px;margin-bottom:16px;">' +
+                            '<div style="font-weight:700;color:var(--ink);margin-bottom:4px;">Horário reservado:</div>' +
+                            '<div style="font-size:0.9rem;color:var(--ink);">' + (activeRec ? activeRec.horario : lastBooking.clock) +
+                                (dataFmt ? ' · ' + dataFmt : '') + '</div>' +
+                        '</div>' +
+                        '<div style="font-size:0.78rem;color:var(--ink-soft);line-height:1.6;margin-bottom:16px;">' +
+                            'Você poderá fazer um novo agendamento em <strong>' + hrs + 'h ' + mins + 'min</strong>, ' +
+                            'ou quando a gerente liberar sua vaga.' +
+                        '</div>' +
+                        '<a href="https://wa.me/5592961505540?text=' + waGerente + '" target="_blank" class="wa-link">' +
+                            '💬 Falar com a Camila · (92) 9 6150-0540' +
+                        '</a>';
+                    document.getElementById('sheetActions').innerHTML =
+                        '<button class="btn btn-secondary" onclick="closeSheet()" style="margin-top:12px;">Fechar</button>';
+                    return;
+                } else if (!tokenAindaOcupado && lastBooking) {
+                    // Admin liberou a vaga — limpa o bloqueio local
+                    clearClientBlock();
+                }
+            }
             const df = formatManausLabel(iso, { weekday: 'long', day: '2-digit', month: 'long' });
-            openSheet('Agendar seu horário ✨', `Preencha seus dados para reservar o horário das ${clock}.`);
+            openSheet(`Reservar ${clock} ✨`, df.replace(/^\w/, c => c.toUpperCase()));
             document.getElementById('sheetBody').innerHTML = `
-                <div class="info-box">
-                    Ao confirmar, o horário será agendado imediatamente no sistema. Você receberá os dados do PIX para finalizar sua reserva.
-                </div>
                 <label class="field-label">Seu nome</label>
                 <input id="bName" class="inp" placeholder="Nome completo">
                 <label class="field-label">WhatsApp</label>
                 <input id="bPhone" class="inp" placeholder="(92) 9 0000-0000" type="tel" oninput="handlePhoneInput(this)">
             `;
             document.getElementById('sheetActions').innerHTML = `
-                <button class="btn btn-primary" onclick="confirmBooking('${iso}','${clock}','${df}')">Reservar meu horário →</button>
+                <button class="btn btn-primary" onclick="confirmBooking('${iso}','${clock}','${df}')">✅ Confirmar agendamento</button>
                 <button class="btn btn-secondary" onclick="closeSheet()">Voltar</button>
             `;
         }
@@ -1310,172 +1415,108 @@
             const phone = document.getElementById('bPhone').value.trim();
             if (!name || !phone) { alert('Preencha todos os campos.'); return; }
 
-            const lastTs = localStorage.getItem('last_booking_timestamp');
-            if (lastTs && !isAdmin) {
-                const diff = Date.now() - parseInt(lastTs);
-                if (diff < 12 * 60 * 60 * 1000) {
-                    const hrs = Math.ceil((12 * 60 * 60 * 1000 - diff) / 3600000);
-                    alert(`Você já possui um agendamento recente. Aguarde ${hrs}h ou fale com a Camila.`);
-                    return;
-                }
-            }
-
             const normalizedPhone = normalizePhone(phone);
-            await syncData();
-
             const token = Math.random().toString(36).substring(2, 7).toUpperCase();
             const bTime = new Date().toISOString();
 
-            // FIX CRÍTICO: Registra como OCUPADO diretamente (sem "Aguardando")
-            // Isso elimina o erro que aparecia antes da confirmação
-            const ok = await postUpdates([{
+            // Salva localmente e mostra confirmacao IMEDIATAMENTE — hora e do cliente a partir daqui
+            localStorage.setItem('last_booking_v3', JSON.stringify({ token, iso, clock, phone: normalizedPhone, name }));
+            localStorage.setItem('last_booking_timestamp', Date.now().toString());
+            showPixSheet(name, phone, iso, clock, df, token);
+
+            // Registra no backend em segundo plano (nao bloqueia o cliente)
+            postUpdates([{
                 data: iso, horario: clock, status: 'Ocupado',
                 cliente: name, telefone: phone, codigo: token,
-                bookingTime: bTime, duration: srvCfg.duration, password: adminPass
+                bookingTime: bTime, duration: srvCfg.duration,
+                origem: 'CLIENTE', password: adminPass
             }]);
-
-            if (!ok) {
-                alert('Não foi possível registrar sua reserva. Verifique sua internet e tente novamente.');
-                return;
-            }
-
-            // Verifica se foi persistido
-            const persisted = db.find(r =>
-                String(r.data).substring(0, 10) === iso &&
-                String(r.horario).substring(0, 5) === clock &&
-                r.status === 'Ocupado' &&
-                String(r.codigo || '') === token
-            );
-
-            // FIX: só bloqueia o cliente se o agendamento foi confirmado no banco
-            if (persisted) {
-                localStorage.setItem('last_booking_v3', JSON.stringify({ token, iso, clock, phone: normalizedPhone, name }));
-                localStorage.setItem('last_booking_timestamp', Date.now().toString());
-            } else {
-                // Não exibe erro — diz que está sendo processado e mostra o PIX assim mesmo
-                // O horário já foi registrado, apenas o retorno foi lento
-                localStorage.setItem('last_booking_v3', JSON.stringify({ token, iso, clock, phone: normalizedPhone, name }));
-                localStorage.setItem('last_booking_timestamp', Date.now().toString());
-            }
-
-            showPixSheet(name, phone, iso, clock, df, token);
         }
 
         function showPixSheet(name, phone, iso, clock, df, token) {
             const valorPix = srvCfg.pix_value && parseFloat(srvCfg.pix_value) > 0
-                ? `R$ ${parseFloat(srvCfg.pix_value).toFixed(2).replace('.', ',')}` : null;
+                ? 'R$ ' + parseFloat(srvCfg.pix_value).toFixed(2).replace('.', ',') : null;
+
+            const pixValorLinha = valorPix
+                ? '\u{1F4B0} *Valor da reserva:* ' + valorPix + '\n'
+                : '';
 
             const waText = encodeURIComponent(
-                `Olá, Camila! 💗\n\nFiz minha reserva pelo site da Look Designer e estou enviando o comprovante do PIX.\n\n` +
-                `📌 *Meu agendamento:*\n` +
-                `• Nome: ${name}\n` +
-                `• Data: ${df}\n` +
-                `• Horário: ${clock}\n` +
-                `• Código: *${token}*\n\n` +
-                (valorPix ? `💰 *PIX enviado:* ${valorPix}\n` : '') +
-                `🏦 *Para:* Camila Alves · Nubank · ${CFG.PIX_KEY}\n\n` +
-                `Segue o comprovante em anexo! ✅`
+                'Ol\u00e1, Camila! \u{1F497} Acabei de agendar meu hor\u00e1rio pelo site da Look Designer.\n\n' +
+                '\u{1F4CC} *Agendamento:*\n' +
+                '\u2022 Nome: ' + name + '\n' +
+                '\u2022 Data: ' + df + '\n' +
+                '\u2022 Hor\u00e1rio: ' + clock + '\n' +
+                '\u2022 C\u00f3digo: *' + token + '*\n\n' +
+                pixValorLinha +
+                '\u{1F3E6} *PIX para:* Camila Alves \u00b7 Nubank \u00b7 ' + CFG.PIX_KEY + '\n\n' +
+                'Segue o comprovante em anexo! \u2705'
             );
 
-            openSheet('Quase lá! Só falta o PIX 💗', `Sua reserva das ${clock} está garantida. Agora finalize enviando o PIX.`);
+            const valorHtml = valorPix ? (
+                '<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--cream-dark);">' +
+                '<div style="font-size:0.42rem;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:2px;">Valor da reserva</div>' +
+                '<div style="font-size:1.5rem;font-weight:700;color:var(--ink);">' + valorPix + '</div>' +
+                '</div>'
+            ) : '';
 
-            document.getElementById('sheetBody').innerHTML = `
+            openSheet('Hor\u00e1rio confirmado! \u2705',
+                df.replace(/^\w/, c => c.toUpperCase()) + ' \u00e0s ' + clock + ' \u2014 vaga registrada.');
 
-                <!-- MINI-MENSAGEM DE INSTRUÇÃO -->
-                <div style="
-                    background: linear-gradient(135deg, rgba(196,132,138,0.08), rgba(201,168,108,0.06));
-                    border: 1.5px solid rgba(201,168,108,0.3);
-                    border-radius: 18px;
-                    padding: 20px;
-                    margin-bottom: 20px;
-                    text-align: center;
-                ">
-                    <div style="font-size:1.6rem; margin-bottom:8px;">🏦</div>
-                    <div style="font-size:0.5rem; font-weight:700; letter-spacing:4px; color:var(--gold); text-transform:uppercase; margin-bottom:12px;">
-                        Envie o PIX para confirmar
-                    </div>
-                    <div style="font-size:0.8rem; color:var(--ink-soft); line-height:1.7;">
-                        Faça um PIX para a <strong style="color:var(--ink);">Camila Alves</strong><br>
-                        Banco <strong style="color:var(--ink);">Nubank</strong>
-                    </div>
+            document.getElementById('sheetBody').innerHTML =
+                '<div style="' +
+                    'background:linear-gradient(135deg,rgba(139,184,148,0.12),rgba(139,184,148,0.06));' +
+                    'border:1.5px solid rgba(139,184,148,0.4);border-radius:18px;' +
+                    'padding:20px 20px 16px;margin-bottom:18px;text-align:center;">' +
+                    '<div style="font-size:2rem;margin-bottom:6px;">\u2705</div>' +
+                    '<div style="font-size:1rem;font-weight:700;color:#3a7d44;margin-bottom:4px;">Vaga registrada na agenda!</div>' +
+                    '<div style="font-size:0.75rem;color:var(--ink-soft);">' +
+                        '<strong style="color:var(--ink);">' + name + '</strong> \u00b7 ' + df + ' \u00e0s ' +
+                        '<strong style="color:var(--ink);">' + clock + '</strong>' +
+                    '</div>' +
+                    '<div style="display:inline-block;background:var(--ink);color:var(--gold);' +
+                        'padding:4px 12px;border-radius:8px;font-size:0.58rem;font-weight:700;' +
+                        'letter-spacing:3px;margin-top:10px;">' + token + '</div>' +
+                '</div>' +
 
-                    <!-- CHAVE PIX -->
-                    <div style="
-                        background: white;
-                        border-radius: 12px;
-                        padding: 14px 16px;
-                        margin: 14px 0;
-                        border: 1.5px dashed rgba(201,168,108,0.4);
-                    ">
-                        <div style="font-size:0.45rem; letter-spacing:3px; color:var(--gold); text-transform:uppercase; margin-bottom:4px;">Chave PIX · Celular</div>
-                        <div style="font-family:'Cormorant Garamond',serif; font-size:1.6rem; color:var(--ink); font-weight:600; letter-spacing:1px;">
-                            62 99336-2375
-                        </div>
-                        ${valorPix ? `
-                        <div style="margin-top:10px; padding-top:10px; border-top:1px solid var(--cream-dark);">
-                            <div style="font-size:0.45rem; letter-spacing:3px; color:var(--gold); text-transform:uppercase; margin-bottom:2px;">Valor da reserva</div>
-                            <div style="font-size:1.5rem; font-weight:700; color:var(--ink);">${valorPix}</div>
-                        </div>
-                        ` : ''}
-                    </div>
+                '<div style="border-radius:18px;border:1.5px solid rgba(201,168,108,0.35);overflow:hidden;margin-bottom:16px;">' +
+                    '<div style="background:rgba(201,168,108,0.1);padding:12px 16px;' +
+                        'font-size:0.48rem;font-weight:700;letter-spacing:4px;color:var(--gold);' +
+                        'text-transform:uppercase;text-align:center;">' +
+                        '\u{1F4F2} Envie o PIX para a Camila' +
+                    '</div>' +
+                    '<div style="background:white;padding:18px 16px;text-align:center;">' +
+                        '<div style="font-size:0.7rem;color:var(--ink-soft);margin-bottom:12px;line-height:1.6;">' +
+                            'Fa\u00e7a um PIX para <strong style="color:var(--ink);">Camila Alves</strong>' +
+                            ' no <strong style="color:var(--ink);">Nubank</strong>' +
+                        '</div>' +
+                        '<div style="background:var(--cream);border-radius:10px;padding:12px;' +
+                            'margin-bottom:14px;border:1.5px dashed rgba(201,168,108,0.35);">' +
+                            '<div style="font-size:0.42rem;letter-spacing:3px;color:var(--gold);' +
+                                'text-transform:uppercase;margin-bottom:3px;">Chave PIX \u00b7 Celular</div>' +
+                            '<div style="font-family:\'Cormorant Garamond\',serif;font-size:1.7rem;' +
+                                'font-weight:600;color:var(--ink);letter-spacing:1px;">62 99336-2375</div>' +
+                            valorHtml +
+                        '</div>' +
+                        '<button onclick="navigator.clipboard.writeText(\'62993362375\').then(()=>alert(\'Chave copiada! \u2728\'))" ' +
+                            'style="background:none;border:1.5px solid rgba(201,168,108,0.4);border-radius:10px;' +
+                            'padding:9px 18px;font-family:\'DM Sans\',sans-serif;font-size:0.68rem;' +
+                            'font-weight:700;color:var(--gold);cursor:pointer;">' +
+                            '\u{1F4CB} Copiar chave PIX' +
+                        '</button>' +
+                    '</div>' +
+                '</div>' +
 
-                    <button onclick="navigator.clipboard.writeText('62993362375').then(()=>alert('Chave copiada! Cole no seu banco. ✨'))"
-                        style="
-                            background: none;
-                            border: 1.5px solid rgba(201,168,108,0.4);
-                            border-radius: 10px;
-                            padding: 10px 20px;
-                            font-family:'DM Sans',sans-serif;
-                            font-size:0.7rem;
-                            font-weight:700;
-                            color:var(--gold);
-                            cursor:pointer;
-                            letter-spacing:1px;
-                        ">
-                        📋 Copiar chave
-                    </button>
-                </div>
+                '<div style="font-size:0.48rem;font-weight:700;letter-spacing:3px;color:var(--ink-soft);' +
+                    'text-transform:uppercase;text-align:center;margin-bottom:10px;">' +
+                    'Depois, mande o comprovante para confirmar \u2193' +
+                '</div>' +
+                '<a href="https://wa.me/' + CFG.WA + '?text=' + waText + '" target="_blank" class="wa-link">' +
+                    '\u{1F4AC} Enviar comprovante para a Camila' +
+                '</a>';
 
-                <!-- CÓDIGO DA RESERVA -->
-                <div style="
-                    background: var(--cream);
-                    border-radius: 14px;
-                    padding: 14px 18px;
-                    margin-bottom: 16px;
-                    display:flex;
-                    align-items:center;
-                    justify-content:space-between;
-                    flex-wrap:wrap;
-                    gap:8px;
-                ">
-                    <div>
-                        <div style="font-size:0.75rem; color:var(--ink-soft);">
-                            <strong style="color:var(--ink);">${name}</strong> · ${df} às ${clock}
-                        </div>
-                    </div>
-                    <div style="
-                        background: var(--ink);
-                        color: var(--gold);
-                        padding: 5px 12px;
-                        border-radius: 8px;
-                        font-size:0.6rem;
-                        font-weight:700;
-                        letter-spacing:3px;
-                    ">${token}</div>
-                </div>
-
-                <!-- PASSO 2: WHATSAPP -->
-                <div style="font-size:0.5rem; font-weight:700; letter-spacing:4px; color:var(--gold); text-transform:uppercase; text-align:center; margin-bottom:10px;">
-                    Após o PIX, envie o comprovante 👇
-                </div>
-                <a href="https://wa.me/${CFG.WA}?text=${waText}" target="_blank" class="wa-link">
-                    💬 Enviar comprovante para a Camila
-                </a>
-            `;
-
-            document.getElementById('sheetActions').innerHTML = `
-                <button class="btn btn-secondary" onclick="closeSheet()" style="margin-top:12px;">Fechar</button>
-            `;
+            document.getElementById('sheetActions').innerHTML =
+                '<button class="btn btn-secondary" onclick="closeSheet()" style="margin-top:12px;">Fechar</button>';
         }
 
         // ─── ADMIN SLOT SHEET ──────────────────────────────────
@@ -1496,7 +1537,7 @@
                 </div>
                 <label class="field-label">${st === 'Aguardando Pagamento' || st === 'Ocupado' ? 'Dados do Cliente' : 'Agendar manualmente'}</label>
                 <input id="aName" class="inp" placeholder="Nome do cliente" value="${reg ? reg.cliente : ''}">
-                <input id="aPhone" class="inp" placeholder="(92) 9 0000-0000" type="tel" value="${reg && reg.telefone ? reg.telefone : ''}" oninput="handlePhoneInput(this)">
+                <input id="aPhone" class="inp" placeholder="(92) 9 0000-0000" type="tel" value="${reg && reg.telefone ? reg.telefone : ''}" oninput="handlePhoneInput(this)" onpaste="handlePhonePaste(this)">
                 <label class="field-label">Duração do procedimento</label>
                 <div class="dur-grid" id="durGrid">${durOpts}</div>
             `;
@@ -1518,7 +1559,7 @@
             const phone = document.getElementById('aPhone').value.trim();
             const dur = selectedDur || srvCfg.duration;
             closeSheet();
-            await postUpdates([{ data: iso, horario: clock, status: 'Ocupado', cliente: name, telefone: phone, duration: dur, password: adminPass }]);
+            await postUpdates([{ data: iso, horario: clock, status: 'Ocupado', cliente: name, telefone: phone, duration: dur, origem: 'ADMIN', password: adminPass }]);
             setTimeout(() => showAdminSuccess(name, phone, iso, clock), 500);
         }
 
@@ -1554,7 +1595,7 @@
             if (!name || !phone) { alert('Preencha nome e WhatsApp.'); return; }
             const dur = selectedDur || srvCfg.duration;
             closeSheet();
-            await postUpdates([{ data: iso, horario: clock, status: 'Ocupado', cliente: name, telefone: phone, duration: dur, password: adminPass }]);
+            await postUpdates([{ data: iso, horario: clock, status: 'Ocupado', cliente: name, telefone: phone, duration: dur, origem: 'ADMIN', password: adminPass }]);
         }
 
         // ─── VISUALIZADOR DE VAGAS ─────────────────────────────
@@ -1734,21 +1775,30 @@
         function getHistoricBookings() {
             const todayIso = getManausIsoDate();
             const curMins = getManausMinutes();
-            return db.filter(r => r.status === 'Ocupado').map(r => {
-                const [h, m] = String(r.horario || '00:00').split(':').map(Number);
-                return { ...r, mins: h * 60 + m };
-            }).filter(r => r.data < todayIso || (r.data === todayIso && r.mins < curMins))
-              .sort((a, b) => a.data === b.data ? b.mins - a.mins : b.data.localeCompare(a.data));
+            return db
+                .filter(r => r.status === 'Ocupado' || r.status === 'Aguardando Pagamento')
+                .map(r => {
+                    const dataIso = String(r.data || '').substring(0, 10);
+                    const [h, m] = String(r.horario || '00:00').split(':').map(Number);
+                    return { ...r, dataIso, mins: h * 60 + m };
+                })
+                .filter(r => r.dataIso < todayIso || (r.dataIso === todayIso && r.mins < curMins))
+                .sort((a, b) => a.dataIso === b.dataIso ? b.mins - a.mins : b.dataIso.localeCompare(a.dataIso));
         }
 
         function getFutureConfirmedBookings() {
             const todayIso = getManausIsoDate();
             const curMins = getManausMinutes();
-            return db.filter(r => r.status === 'Ocupado').map(r => {
-                const [h, m] = String(r.horario || '00:00').split(':').map(Number);
-                return { ...r, mins: h * 60 + m };
-            }).filter(r => r.data > todayIso || (r.data === todayIso && r.mins >= curMins))
-              .sort((a, b) => a.data === b.data ? a.mins - b.mins : a.data.localeCompare(b.data));
+            return db
+                .filter(r => r.status === 'Ocupado' || r.status === 'Aguardando Pagamento')
+                .map(r => {
+                    const dataIso = String(r.data || '').substring(0, 10);
+                    const [h, m] = String(r.horario || '00:00').split(':').map(Number);
+                    return { ...r, dataIso, mins: h * 60 + m };
+                })
+                .filter(r => r.dataIso >= todayIso)
+                .filter(r => r.dataIso > todayIso || r.mins >= curMins)
+                .sort((a, b) => a.dataIso === b.dataIso ? a.mins - b.mins : a.dataIso.localeCompare(b.dataIso));
         }
 
         function updateAdminStats() {
@@ -1779,14 +1829,21 @@
             const bookings = getFutureConfirmedBookings().slice(0, 100);
             const logHtml = bookings.length === 0
                 ? '<div class="info-box">Nenhum cliente agendado para hoje ou próximos dias.</div>'
-                : bookings.map(r => `
-                    <div class="log-entry" style="border-left-color:var(--st-ocupado)">
-                        <strong>${r.cliente || 'Cliente não informado'}</strong>
-                        <p style="margin:4px 0">📅 ${formatManausLabel(r.data, { day: '2-digit', month: '2-digit', year: 'numeric' })} às <strong>${r.horario || '—'}</strong></p>
+                : bookings.map(r => {
+                    const stColor = r.status === 'Ocupado' ? 'var(--st-ocupado)' : 'var(--st-aguard)';
+                    const stIcon  = r.status === 'Ocupado' ? '✅' : '⏳';
+                    const dataFmt = formatManausLabel(r.dataIso || r.data, { day: '2-digit', month: '2-digit', year: 'numeric' });
+                    const origemBadge = r.origem === 'ADMIN'
+                        ? '<span style="background:#8B4F55;color:white;font-size:0.42rem;font-weight:700;letter-spacing:2px;padding:2px 7px;border-radius:6px;margin-left:6px;">ADMIN</span>'
+                        : '<span style="background:rgba(139,184,148,0.2);color:#3a7d44;font-size:0.42rem;font-weight:700;letter-spacing:2px;padding:2px 7px;border-radius:6px;margin-left:6px;">CLIENTE</span>';
+                    return `
+                    <div class="log-entry" style="border-left-color:${stColor}">
+                        <strong>${stIcon} ${r.cliente || 'Cliente não informado'} ${origemBadge}</strong>
+                        <p style="margin:4px 0">📅 ${dataFmt} às <strong>${r.horario || '—'}</strong></p>
                         <div class="log-meta">📞 ${r.telefone || '—'}${r.codigo ? ' · 🎫 ' + r.codigo : ''}</div>
-                    </div>
-                `).join('');
-            openSheet('Agendados', `${bookings.length} cliente(s) com horário confirmado.`);
+                    </div>`;
+                }).join('');
+            openSheet('Agendados', `${bookings.length} cliente(s) confirmado(s) — de hoje em diante.`);
             document.getElementById('sheetBody').innerHTML = logHtml;
             document.getElementById('sheetActions').innerHTML = `<button class="btn btn-secondary" onclick="closeSheet()">Fechar</button>`;
         }
@@ -1839,7 +1896,30 @@
                 <div class="info-box" style="margin:16px 0 12px;"><strong>Auditoria do sistema</strong></div>
                 ${auditHtml}
             `;
-            document.getElementById('sheetActions').innerHTML = `<button class="btn btn-secondary" onclick="closeSheet()">Fechar</button>`;
+            document.getElementById('sheetActions').innerHTML = `
+                <button class="btn btn-danger" onclick="clearLogHistory()" style="margin-bottom:8px;">🗑 Limpar todo o histórico</button>
+                <button class="btn btn-secondary" onclick="closeSheet()">Fechar</button>
+            `;
+        }
+
+        async function clearLogHistory() {
+            if (!confirm('Limpar todo o histórico? Esta ação não pode ser desfeita.')) return;
+            // Limpa localmente imediatamente
+            systemLogs = [];
+            // Envia para o backend apagar
+            const cbName = 'onClear_' + Date.now();
+            window[cbName] = (res) => {
+                delete window[cbName];
+                const s = document.getElementById('scr_clear_log');
+                if (s) s.remove();
+            };
+            const scr = document.createElement('script');
+            scr.id = 'scr_clear_log';
+            scr.src = `${CFG.API_URL}?action=clear_logs&pass=${encodeURIComponent(adminPass)}&callback=${cbName}`;
+            document.body.appendChild(scr);
+            closeSheet();
+            await new Promise(r => setTimeout(r, 600));
+            await syncData();
         }
 
         function openDurPanel() {
@@ -1867,21 +1947,38 @@
         }
 
         // ─── HELPERS ──────────────────────────────────────────
+        // Normaliza numero bruto para 11 digitos (DDD + 9 + 8 digitos)
+        // Aceita: +55 92 9615-0540, 92 9615-0540, 9296150540, etc.
+        function normalizePhone(phone) {
+            let v = (phone || '').replace(/\D/g, '');
+            // Remove DDI 55 se presente e resultado ficar > 11 digitos
+            if (v.startsWith('55') && v.length > 11) v = v.slice(2);
+            // Se ficou com 10 digitos (sem o 9 adicional), insere apos DDD
+            if (v.length === 10) v = v.slice(0, 2) + '9' + v.slice(2);
+            return v.slice(0, 11);
+        }
+
+        // Formata no campo: (92) 9 9615-0540
         function handlePhoneInput(el) {
-            let v = el.value.replace(/\D/g, '');
-            if (v.length > 11) v = v.slice(0, 11);
+            // Normaliza antes de formatar
+            const norm = normalizePhone(el.value);
             let f = '';
-            if (v.length > 0) {
-                f = '(' + v.substring(0, 2);
-                if (v.length > 2) { f += ') ' + v.substring(2, 3); if (v.length > 3) { f += ' ' + v.substring(3, 7); if (v.length > 7) f += '-' + v.substring(7, 11); } }
+            if (norm.length > 0) {
+                f = '(' + norm.substring(0, 2);
+                if (norm.length > 2) {
+                    f += ') ' + norm.substring(2, 3);
+                    if (norm.length > 3) {
+                        f += ' ' + norm.substring(3, 7);
+                        if (norm.length > 7) f += '-' + norm.substring(7, 11);
+                    }
+                }
             }
             el.value = f;
         }
 
-        function normalizePhone(phone) {
-            let clean = (phone || '').replace(/\D/g, '');
-            if (clean.startsWith('55') && clean.length > 11) clean = clean.slice(2);
-            return clean;
+        // onpaste: normaliza imediatamente ao colar
+        function handlePhonePaste(el) {
+            setTimeout(() => handlePhoneInput(el), 0);
         }
 
         function calcExperience() {
