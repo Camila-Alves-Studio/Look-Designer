@@ -422,6 +422,9 @@
 
         .slot-card.past { opacity: 0.28; pointer-events: none; }
         .slot-card.selected { border-color: var(--rose); background: rgba(196,132,138,0.06); box-shadow: 0 4px 20px rgba(196,132,138,0.18), 0 0 0 3px rgba(196,132,138,0.12); }
+        .slot-card.extension { border-color: rgba(176,122,48,0.4); background: rgba(201,168,108,0.06); }
+        .slot-card.extension .slot-time { color: #8B6420; }
+        .slot-card.extension::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--gold), #B07A30); }
 
 
 
@@ -1133,14 +1136,19 @@
             let cur = sH * 60 + sM, end = eH * 60 + eM;
             let idx = 0;
 
-            // Coleta todos os minutos de slots registrados neste dia, ordenados
+            // Todos os slots registrados no banco para este dia (sem filtro de end —
+            // slots além do expediente são extensões válidas e devem aparecer)
             const _regMins = db
                 .filter(r => String(r.data).substring(0, 10) === iso)
                 .map(r => { const [h, m] = String(r.horario).substring(0,5).split(':').map(Number); return h*60+m; })
-                .filter(m => m >= (sH*60+sM) && m < end)
+                .filter(m => m >= (sH*60+sM))
                 .sort((a, b) => a - b);
 
-            while (cur < end) {
+            // Limite real do loop: fim do expediente OU último slot registrado (o que for maior)
+            const _lastReg = _regMins.length ? _regMins[_regMins.length - 1] + 1 : end;
+            const _loopEnd = Math.max(end, _lastReg);
+
+            while (cur < _loopEnd) {
                 // Se o cursor caiu num vão sem registro mas há slot registrado
                 // entre cur e cur+durDefault, pula direto para ele
                 const _gap = _regMins.find(m => m > cur && m < cur + srvCfg.duration);
@@ -1153,6 +1161,10 @@
                     );
                     if (!_hasExact) { cur = _gap; continue; }
                 }
+                // Slots sem registro além do expediente: não exibir (só slots registrados contam)
+                const _clockCheck = `${String(Math.floor(cur/60)).padStart(2,'0')}:${String(cur%60).padStart(2,'0')}`;
+                const _regCheck = db.find(r => String(r.data).substring(0,10) === iso && String(r.horario).substring(0,5) === _clockCheck);
+                if (cur >= end && !_regCheck) { cur += srvCfg.duration; continue; }
                 const hh = String(Math.floor(cur / 60)).padStart(2, '0');
                 const mm = String(cur % 60).padStart(2, '0');
                 const clock = `${hh}:${mm}`;
@@ -1165,6 +1177,8 @@
 
                 let st = reg ? reg.status : 'Livre';
                 let durMin = reg ? parseInt(reg.duration || srvCfg.duration) : srvCfg.duration;
+                // Slot além do horário de encerramento = extensão de expediente
+                const isExtension = cur >= end;
 
                 if (isPast && showAsClient) { cur += Math.max(15, durMin || 30); continue; }
 
@@ -1187,11 +1201,17 @@
                     }
                 }
 
-                // Auto-fit: slots LIVRES só encolhem para não sobrepor um slot OCUPADO ou BLOQUEADO
-                // que esteja logo à frente. O fim do expediente NUNCA encurta um slot livre —
-                // se está disponível, será executado até o fim independente do horário de encerramento.
-                let durStep = durMin;
+                // durStep: quanto o cursor avança após renderizar este slot.
+                // Para slots LIVRES: sempre avança pela duração padrão completa (srvCfg.duration),
+                // garantindo que o próximo slot registrado não seja pulado.
+                // durMin: só para exibição. Slots livres mostram duração encurtada quando há
+                // um slot ocupado logo à frente, mas o CURSOR não encurta — ele avança normalmente.
+                // O fim do expediente nunca afeta durMin nem durStep de slots livres.
+                const durStepBase = reg ? Math.max(30, parseInt(reg.duration || srvCfg.duration)) : srvCfg.duration;
+                let durStep = durStepBase;
+
                 if (st === 'Livre') {
+                    // Próximo slot que já está tomado (ocupado/bloqueado/aguardando)
                     const nextOcc = db
                         .filter(r =>
                             String(r.data).substring(0, 10) === iso &&
@@ -1200,20 +1220,25 @@
                         .map(r => { const [h, m] = r.horario.split(':').map(Number); return h * 60 + m; })
                         .filter(m => m > cur)
                         .sort((a, b) => a - b)[0];
-                    // Só encurta se o próximo slot ocupado estiver DENTRO da duração atual
-                    // Nunca encurta por causa do fim do expediente
+
+                    // Label visual: mostra duração disponível real até o próximo ocupado
                     if (nextOcc && (nextOcc - cur) < durMin) {
-                        durMin = nextOcc - cur;
-                        durStep = durMin;
+                        durMin = nextOcc - cur; // só visual
                     }
+                    // durStep NÃO é alterado — cursor sempre avança pela duração padrão
+                    // para não pular slots registrados que estejam fora do alinhamento padrão
+                    durStep = durStepBase;
                 }
 
-                const pipColor = {
-                    'Livre': 'var(--st-livre)',
-                    'Aguardando Pagamento': 'var(--st-aguard)',
-                    'Ocupado': 'var(--st-ocupado)',
-                    'Bloqueado': 'var(--st-block)'
-                }[st] || 'var(--st-block)';
+                // Extensão de expediente: tom âmbar/dourado para sinalizar visualmente
+                const pipColor = isExtension
+                    ? (st === 'Ocupado' || st === 'Aguardando Pagamento' ? '#B07A30' : 'var(--st-block)')
+                    : ({
+                        'Livre': 'var(--st-livre)',
+                        'Aguardando Pagamento': 'var(--st-aguard)',
+                        'Ocupado': 'var(--st-ocupado)',
+                        'Bloqueado': 'var(--st-block)'
+                    }[st] || 'var(--st-block)');
 
                 let countdownHtml = '';
                 if (st === 'Aguardando Pagamento' && reservedUntil && !isExpired) {
@@ -1237,12 +1262,19 @@
                     </div>`;
                 }
 
-                const stLabels = {
-                    'Livre': 'DISPONÍVEL',
-                    'Aguardando Pagamento': isExpired ? ((!isAdmin || isUserView) ? 'DISPONÍVEL' : 'EXPIRADO') : 'AGUARDANDO',
-                    'Ocupado': 'OCUPADO',
-                    'Bloqueado': 'BLOQUEADO'
-                };
+                const stLabels = isExtension
+                    ? {
+                        'Livre': 'DISPONÍVEL',
+                        'Aguardando Pagamento': 'EXTENSÃO · AGUARDANDO',
+                        'Ocupado': 'EXTENSÃO DE HORÁRIO',
+                        'Bloqueado': 'BLOQUEADO'
+                    }
+                    : {
+                        'Livre': 'DISPONÍVEL',
+                        'Aguardando Pagamento': isExpired ? ((!isAdmin || isUserView) ? 'DISPONÍVEL' : 'EXPIRADO') : 'AGUARDANDO',
+                        'Ocupado': 'OCUPADO',
+                        'Bloqueado': 'BLOQUEADO'
+                    };
 
                 let clientName = 'Horário disponível ✨';
                 if (st === 'Ocupado' || (st === 'Aguardando Pagamento' && !isExpired)) {
@@ -1263,7 +1295,9 @@
                 card.dataset.time = clock;
                 card.dataset.status = st;
                 card.style.animationDelay = `${idx * 0.04}s`;
-                card.className = 'slot-card' + (isPast && (!isAdmin || isUserView) ? ' past' : '');
+                card.className = 'slot-card'
+                    + (isPast && (!isAdmin || isUserView) ? ' past' : '')
+                    + (isExtension ? ' extension' : '');
                 attachLongPress(card, iso, clock, st, reg);
 
                 card.innerHTML = `
@@ -1281,7 +1315,11 @@
                 `;
 
                 container.appendChild(card);
-                cur += Math.max(30, durStep);
+                // Antes de avançar, verificar se há slot registrado no banco
+                // entre cur+1 e cur+durStep. Se sim, avança só até ele —
+                // evita pular slots que ficam "dentro" da duração de outro.
+                const _nextReg = _regMins.find(m => m > cur && m < cur + Math.max(30, durStep));
+                cur = _nextReg !== undefined ? _nextReg : cur + Math.max(30, durStep);
                 idx++;
             }
 
