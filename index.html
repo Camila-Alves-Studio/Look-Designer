@@ -1949,36 +1949,49 @@
         // ─── HELPERS ──────────────────────────────────────────
         // Normaliza numero bruto para 11 digitos (DDD + 9 + 8 digitos)
         // Aceita: +55 92 9615-0540, 92 9615-0540, 9296150540, etc.
+        // normalizePhone: usado apenas para salvar/enviar (nunca na digitação)
+        // Corrige números colados no formato +55 92 9615-0540 ou 92 9615-0540
         function normalizePhone(phone) {
             let v = (phone || '').replace(/\D/g, '');
-            // Remove DDI 55 se presente e resultado ficar > 11 digitos
+            // Remove DDI 55 se sobrar mais de 11 dígitos
             if (v.startsWith('55') && v.length > 11) v = v.slice(2);
-            // Se ficou com 10 digitos (sem o 9 adicional), insere apos DDD
+            // Insere 9 adicional SOMENTE se tiver exatamente 10 dígitos após limpeza
+            // (significa que veio sem o nono dígito, ex: números antigos de 8 dígitos)
             if (v.length === 10) v = v.slice(0, 2) + '9' + v.slice(2);
             return v.slice(0, 11);
         }
 
-        // Formata no campo: (92) 9 9615-0540
+        // handlePhoneInput: formata enquanto o usuário digita — SEM inserir 9 automático
+        // Apenas limpa não-dígitos e aplica a máscara visual progressiva
         function handlePhoneInput(el) {
-            // Normaliza antes de formatar
-            const norm = normalizePhone(el.value);
+            const cursorPos = el.selectionStart;
+            const prevLen = el.value.length;
+
+            let v = el.value.replace(/\D/g, '').slice(0, 11);
             let f = '';
-            if (norm.length > 0) {
-                f = '(' + norm.substring(0, 2);
-                if (norm.length > 2) {
-                    f += ') ' + norm.substring(2, 3);
-                    if (norm.length > 3) {
-                        f += ' ' + norm.substring(3, 7);
-                        if (norm.length > 7) f += '-' + norm.substring(7, 11);
-                    }
-                }
-            }
+            if (v.length > 0)  f  = '(' + v.substring(0, 2);
+            if (v.length > 2)  f += ') ' + v.substring(2, 3);
+            if (v.length > 3)  f += ' ' + v.substring(3, 7);
+            if (v.length > 7)  f += '-' + v.substring(7, 11);
+
             el.value = f;
+
+            // Reposiciona cursor de forma natural
+            const diff = f.length - prevLen;
+            try { el.setSelectionRange(cursorPos + diff, cursorPos + diff); } catch(e) {}
         }
 
-        // onpaste: normaliza imediatamente ao colar
+        // handlePhonePaste: ao colar, aplica normalização completa (trata +55, DDI, 9 faltante)
         function handlePhonePaste(el) {
-            setTimeout(() => handlePhoneInput(el), 0);
+            setTimeout(() => {
+                let v = normalizePhone(el.value);
+                let f = '';
+                if (v.length > 0)  f  = '(' + v.substring(0, 2);
+                if (v.length > 2)  f += ') ' + v.substring(2, 3);
+                if (v.length > 3)  f += ' ' + v.substring(3, 7);
+                if (v.length > 7)  f += '-' + v.substring(7, 11);
+                el.value = f;
+            }, 0);
         }
 
         function calcExperience() {
