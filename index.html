@@ -31,7 +31,6 @@
             --st-ocupado: #C4848A;
             --st-block: #B0A8A8;
 
-            /* ADMIN: tema escuro diferenciado */
             --admin-bg: #FDF0F2;
             --admin-surface: #FFFFFF;
             --admin-border: rgba(196, 132, 138, 0.3);
@@ -54,9 +53,6 @@
             transition: background 0.5s ease, color 0.5s ease;
         }
 
-        /* ═══════════════════════════════════════════
-           MODO ADMIN — TEMA COMPLETAMENTE DIFERENTE
-        ═══════════════════════════════════════════ */
         body.admin-on {
             background: var(--admin-bg);
             color: #2A2020;
@@ -68,75 +64,25 @@
                 radial-gradient(ellipse 60% 40% at 90% 100%, rgba(201, 168, 108, 0.12) 0%, transparent 60%);
         }
 
-        body.admin-on .app header .logo-main {
-            color: var(--ink);
-        }
+        body.admin-on .app header .logo-main { color: var(--ink); }
+        body.admin-on .app header .logo-lash { color: var(--rose); }
+        body.admin-on .section-label { color: var(--gold); }
+        body.admin-on .day-pill { background: white; border-color: rgba(196,132,138,0.2); }
+        body.admin-on .day-pill .dw, body.admin-on .day-pill .dm { color: var(--ink-soft); }
+        body.admin-on .day-pill .dn { color: var(--ink); }
+        body.admin-on .slot-card { background: var(--admin-surface); border-color: var(--admin-border); }
+        body.admin-on .slot-time { color: var(--ink); }
+        body.admin-on .slot-client { color: var(--ink); }
+        body.admin-on .nav-float { background: white; border-color: rgba(196,132,138,0.4); box-shadow: 0 8px 40px rgba(196,132,138,0.2); }
+        body.admin-on .nav-btn { color: var(--ink); }
+        body.admin-on .signature-section { background: white; border: 1px solid rgba(196,132,138,0.2); }
+        body.admin-on .sig-name { color: var(--ink); }
+        body.admin-on .grid-date { color: var(--ink); }
 
-        body.admin-on .app header .logo-lash {
-            color: var(--rose);
-        }
-
-        body.admin-on .section-label {
-            color: var(--gold);
-        }
-
-        body.admin-on .day-pill {
-            background: white;
-            border-color: rgba(196,132,138,0.2);
-        }
-
-        body.admin-on .day-pill .dw,
-        body.admin-on .day-pill .dm {
-            color: var(--ink-soft);
-        }
-
-        body.admin-on .day-pill .dn {
-            color: var(--ink);
-        }
-
-        body.admin-on .slot-card {
-            background: var(--admin-surface);
-            border-color: var(--admin-border);
-        }
-
-        body.admin-on .slot-time {
-            color: var(--ink);
-        }
-
-        body.admin-on .slot-client {
-            color: var(--ink);
-        }
-
-        body.admin-on .nav-float {
-            background: white;
-            border-color: rgba(196,132,138,0.4);
-            box-shadow: 0 8px 40px rgba(196,132,138,0.2);
-        }
-
-        body.admin-on .nav-btn {
-            color: var(--ink);
-        }
-
-        body.admin-on .signature-section {
-            background: white;
-            border: 1px solid rgba(196,132,138,0.2);
-        }
-
-        body.admin-on .sig-name {
-            color: var(--ink);
-        }
-
-        body.admin-on .grid-date {
-            color: var(--ink);
-        }
-
-        /* Banner admin — topo rosa choque */
         body.admin-on::after {
             content: "⬡ MODO ADMINISTRATIVO ATIVO ⬡";
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
+            top: 0; left: 0; right: 0;
             background: linear-gradient(90deg, #8B1A2E, #C4284A, #E0305A, #C4284A, #8B1A2E);
             background-size: 300% 100%;
             animation: adminBannerShift 4s linear infinite;
@@ -155,7 +101,6 @@
             100% { background-position: 300% 50%; }
         }
 
-        /* Borda rosa choque pulsante em todo o viewport */
         body.admin-on .app::before {
             content: '';
             position: fixed;
@@ -163,9 +108,7 @@
             border: 3px solid #E0305A;
             pointer-events: none;
             z-index: 7999;
-            box-shadow:
-                inset 0 0 0 1px rgba(224, 48, 90, 0.3),
-                inset 0 0 30px rgba(224, 48, 90, 0.08);
+            box-shadow: inset 0 0 0 1px rgba(224, 48, 90, 0.3), inset 0 0 30px rgba(224, 48, 90, 0.08);
             animation: adminBorderPulse 3s ease-in-out infinite;
         }
 
@@ -177,10 +120,7 @@
         body::before {
             content: '';
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            top: 0; left: 0; right: 0; bottom: 0;
             background:
                 radial-gradient(ellipse 80% 50% at 10% 0%, rgba(242, 217, 217, 0.6) 0%, transparent 60%),
                 radial-gradient(ellipse 60% 40% at 90% 100%, rgba(201, 168, 108, 0.15) 0%, transparent 60%);
@@ -189,7 +129,6 @@
             transition: background 0.5s ease;
         }
 
-        /* INTRO */
         #intro {
             position: fixed;
             inset: 0;
@@ -269,7 +208,6 @@
         @keyframes sparkBlink { 0%, 100% { opacity: 0.22; transform: scale(0.82); } 42% { opacity: 1; transform: scale(1.18); } 72% { opacity: 0.4; transform: scale(0.94); } }
         @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* SIGNATURE SECTION */
         .signature-section {
             margin: 40px 0 20px;
             text-align: center;
@@ -306,7 +244,6 @@
         .sig-wa { display: block; background: #25D366; color: white; text-decoration: none; padding: 14px 20px; border-radius: 14px; font-weight: 700; font-size: 0.8rem; text-align: center; box-shadow: 0 6px 20px rgba(37,211,102,0.3); transition: all 0.3s; }
         .sig-wa:active { transform: scale(0.98); }
 
-        /* ADMIN PANEL */
         #adminPanel { display: none; margin: 24px 0; }
         body.admin-on #adminPanel { display: block; }
 
@@ -339,16 +276,11 @@
             box-shadow: 0 2px 12px rgba(196,132,138,0.08);
         }
 
-        .admin-card:hover {
-            border-color: var(--gold);
-            transform: translateY(-2px);
-        }
-
+        .admin-card:hover { border-color: var(--gold); transform: translateY(-2px); }
         .admin-card .ac-icon { font-size: 1.4rem; margin-bottom: 8px; display: block; }
         .admin-card .ac-label { font-size: 0.55rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); margin-bottom: 4px; }
         .admin-card .ac-desc { font-size: 0.68rem; color: var(--ink-soft); line-height: 1.4; }
 
-        /* BOTÃO ESPECIAL: VAGAS DO DIA */
         .admin-card.card-vagas {
             grid-column: 1 / -1;
             background: linear-gradient(135deg, rgba(139, 184, 148, 0.15), rgba(201, 168, 108, 0.1));
@@ -360,11 +292,7 @@
             text-align: left;
         }
 
-        .admin-card.card-vagas:hover {
-            border-color: var(--st-livre);
-            background: linear-gradient(135deg, rgba(139, 184, 148, 0.25), rgba(201, 168, 108, 0.15));
-        }
-
+        .admin-card.card-vagas:hover { border-color: var(--st-livre); background: linear-gradient(135deg, rgba(139, 184, 148, 0.25), rgba(201, 168, 108, 0.15)); }
         .admin-card.card-vagas .ac-icon { font-size: 2rem; margin: 0; flex-shrink: 0; }
         .admin-card.card-vagas .ac-label { color: var(--st-livre); font-size: 0.6rem; }
         .admin-card.card-vagas .ac-desc { color: rgba(237, 232, 224, 0.6); font-size: 0.72rem; }
@@ -385,10 +313,8 @@
         .stat-num { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; color: var(--gold); display: block; line-height: 1; }
         .stat-lbl { font-size: 0.48rem; letter-spacing: 2px; color: var(--ink-soft); text-transform: uppercase; margin-top: 4px; display: block; }
 
-        /* APP */
         .app { max-width: 480px; margin: 0 auto; padding: 0 20px 160px; position: relative; z-index: 1; }
 
-        /* HEADER */
         header { padding: 48px 0 32px; text-align: center; position: relative; }
         body.admin-on header { padding-top: 58px; }
 
@@ -412,7 +338,6 @@
 
         .section-label { font-size: 0.5rem; letter-spacing: 5px; font-weight: 700; color: var(--gold); text-transform: uppercase; text-align: center; margin-bottom: 20px; opacity: 0; animation: fadeUp 1s 4s var(--ease) forwards; }
 
-        /* DAY PICKER */
         .day-picker-wrap { position: relative; margin: 0 -20px; display: flex; align-items: center; }
         .scroll-arrow { position: absolute; top: 50%; transform: translateY(-50%); width: 32px; height: 32px; background: white; border: 1px solid rgba(196,132,138,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--rose); cursor: pointer; z-index: 10; box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: all 0.3s; font-size: 0.8rem; font-weight: 700; opacity: 0.15; }
         .scroll-arrow:active { transform: translateY(-50%) scale(0.9); opacity: 0.5; }
@@ -433,7 +358,6 @@
         .day-pill .dn { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; font-weight: 400; color: var(--ink); position: relative; z-index: 1; transition: color 0.3s; line-height: 1; }
         .day-pill.active .dn { color: white; }
 
-        /* GRID */
         #gridSection { display: none; }
         #gridSection.vis { display: block; }
         .grid-head { display: flex; align-items: center; justify-content: space-between; padding: 0 4px 24px; }
@@ -441,13 +365,11 @@
         .back-btn { font-size: 0.55rem; letter-spacing: 3px; font-weight: 700; color: var(--rose); text-transform: uppercase; cursor: pointer; background: none; border: none; }
         body.admin-on .back-btn { color: var(--rose); }
 
-        /* Multi-select bar */
         #multiSelectBar { display: none; align-items: center; justify-content: space-between; background: var(--ink); color: white; border-radius: 20px; padding: 10px 15px; margin-bottom: 20px; font-size: 0.65rem; font-weight: 500; position: sticky; top: 10px; z-index: 100; box-shadow: 0 10px 30px rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); }
         #multiSelectBar.vis { display: flex; }
         #multiSelectBar button { background: var(--rose); color: white; border: none; border-radius: 10px; padding: 8px 16px; font-size: 0.65rem; font-weight: 700; letter-spacing: 1px; cursor: pointer; }
         #multiSelectBar .cancel-sel { background: transparent; color: rgba(255,255,255,0.5); padding: 8px; }
 
-        /* SLOT CARDS */
         .slots { display: flex; flex-direction: column; gap: 12px; }
 
         .slot-card { background: white; border-radius: 20px; padding: 20px 22px; display: flex; align-items: center; gap: 18px; cursor: pointer; transition: all 0.4s var(--ease); border: 1.5px solid transparent; box-shadow: var(--shadow); position: relative; overflow: hidden; animation: cardIn 0.5s var(--ease) backwards; }
@@ -480,7 +402,6 @@
 
         .log-expired { display: inline-block; background: rgba(139,75,85,0.1); color: var(--deep-rose); padding: 4px 10px; border-radius: 10px; font-size: 0.5rem; font-weight: 700; margin-top: 4px; letter-spacing: 1px; }
 
-        /* NAV */
         .nav-float { position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%); background: white; border-radius: 50px; padding: 14px 28px; display: flex; gap: 4px; box-shadow: 0 8px 40px rgba(42,32,32,0.15); z-index: 6000; border: 1px solid rgba(196,132,138,0.15); opacity: 0; animation: fadeUp 1s 4.5s var(--ease) forwards; transition: background 0.5s, border-color 0.5s; }
         .nav-btn { background: none; border: none; font-family: 'DM Sans', sans-serif; font-size: 0.6rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--ink); cursor: pointer; padding: 8px 16px; border-radius: 40px; transition: all 0.3s; }
         .nav-btn:hover { background: var(--cream-dark); }
@@ -493,7 +414,6 @@
         body.admin-on #adminNav { display: flex; gap: 4px; }
         body.admin-on #userNav { display: none; }
 
-        /* LOG PANEL */
         #logPanel { margin-top: 24px; display: none; }
         body.admin-on #logPanel { display: block; }
         .log-title { font-size: 0.5rem; letter-spacing: 4px; font-weight: 700; color: var(--gold); text-transform: uppercase; margin-bottom: 12px; }
@@ -503,7 +423,6 @@
         body.admin-on .log-entry strong { color: var(--ink); }
         .log-entry .log-meta { font-size: 0.6rem; color: var(--rose); margin-top: 4px; }
 
-        /* SHEET */
         .overlay { position: fixed; inset: 0; background: rgba(42,32,32,0.4); backdrop-filter: blur(12px); z-index: 8000; display: none; align-items: flex-end; justify-content: center; }
         .overlay.vis { display: flex; }
         .sheet { background: white; width: 100%; max-width: 480px; border-radius: 32px 32px 0 0; padding: 36px 32px 48px; animation: sheetUp 0.6s var(--ease); max-height: 90vh; overflow-y: auto; }
@@ -538,7 +457,6 @@
         .btn-danger { background: linear-gradient(135deg, #C94848, #8B2020); color: white; box-shadow: 0 8px 24px rgba(139,32,32,0.3); margin-bottom: 12px; }
         .btn-gold { background: linear-gradient(135deg, var(--gold), #A07840); color: white; box-shadow: 0 8px 24px rgba(160,120,64,0.3); margin-bottom: 12px; }
 
-        /* PIX BOX */
         .pix-box { background: var(--cream); border-radius: 20px; padding: 24px; text-align: center; margin-bottom: 20px; border: 1.5px dashed var(--gold); }
         body.admin-on .pix-box { background: var(--cream); }
         .pix-label { font-size: 0.5rem; letter-spacing: 4px; font-weight: 700; color: var(--gold); text-transform: uppercase; margin-bottom: 10px; }
@@ -559,9 +477,6 @@
         .booking-sum .token { display: inline-block; background: var(--ink); color: var(--gold); padding: 4px 10px; border-radius: 8px; font-size: 0.6rem; font-weight: 700; letter-spacing: 3px; margin-top: 6px; }
         .admin-action-grid { display: grid; gap: 10px; margin-bottom: 16px; }
 
-        /* ═══════════════════════════════════════════
-           MODAL: VISUALIZADOR DE VAGAS DO DIA
-        ═══════════════════════════════════════════ */
         #vagasModal {
             position: fixed;
             inset: 0;
@@ -585,10 +500,7 @@
             font-family: 'DM Sans', sans-serif;
         }
 
-        .vagas-card-header {
-            text-align: center;
-            margin-bottom: 24px;
-        }
+        .vagas-card-header { text-align: center; margin-bottom: 24px; }
 
         .vagas-logo {
             font-family: 'Cormorant Garamond', serif;
@@ -660,42 +572,12 @@
             padding-top: 16px;
         }
 
-        .vagas-footer-nome {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 1.1rem;
-            font-style: italic;
-            color: var(--ink);
-        }
+        .vagas-footer-nome { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-style: italic; color: var(--ink); }
+        .vagas-footer-sub { font-size: 0.48rem; letter-spacing: 3px; color: var(--gold); text-transform: uppercase; margin-top: 2px; display: block; }
+        .vagas-footer-wa { font-size: 0.65rem; color: var(--rose); font-weight: 700; margin-top: 8px; display: block; }
+        .vagas-semvagas { text-align: center; padding: 20px; color: var(--ink-soft); font-size: 0.85rem; }
 
-        .vagas-footer-sub {
-            font-size: 0.48rem;
-            letter-spacing: 3px;
-            color: var(--gold);
-            text-transform: uppercase;
-            margin-top: 2px;
-            display: block;
-        }
-
-        .vagas-footer-wa {
-            font-size: 0.65rem;
-            color: var(--rose);
-            font-weight: 700;
-            margin-top: 8px;
-            display: block;
-        }
-
-        .vagas-semvagas {
-            text-align: center;
-            padding: 20px;
-            color: var(--ink-soft);
-            font-size: 0.85rem;
-        }
-
-        .vagas-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 16px;
-        }
+        .vagas-actions { display: flex; gap: 10px; margin-top: 16px; }
 
         .vagas-actions button {
             flex: 1;
@@ -709,25 +591,10 @@
             transition: all 0.3s;
         }
 
-        .vagas-btn-fechar {
-            background: var(--cream-dark);
-            color: var(--ink);
-        }
-
-        .vagas-btn-copy {
-            background: linear-gradient(135deg, var(--rose), var(--deep-rose));
-            color: white;
-        }
-
-        .vagas-btn-img {
-            background: linear-gradient(135deg, #3a7d44, #2d6235);
-            color: white;
-        }
-
-        .vagas-btn-img:disabled {
-            opacity: 0.6;
-            cursor: wait;
-        }
+        .vagas-btn-fechar { background: var(--cream-dark); color: var(--ink); }
+        .vagas-btn-copy { background: linear-gradient(135deg, var(--rose), var(--deep-rose)); color: white; }
+        .vagas-btn-img { background: linear-gradient(135deg, #3a7d44, #2d6235); color: white; }
+        .vagas-btn-img:disabled { opacity: 0.6; cursor: wait; }
     </style>
 </head>
 
@@ -768,11 +635,8 @@
         <div class="intro-sub">Studio de Cílios · Agende seu olhar</div>
     </div>
 
-    <!-- MODAL VAGAS DO DIA (só admin) -->
     <div id="vagasModal" onclick="if(event.target===this)closeVagasModal()">
-        <div class="vagas-card" id="vagasCard">
-            <!-- preenchido dinamicamente -->
-        </div>
+        <div class="vagas-card" id="vagasCard"></div>
     </div>
 
     <div class="app">
@@ -805,7 +669,6 @@
                 </div>
             </div>
             <div class="admin-cards">
-                <!-- BOTÃO DESTAQUE: VAGAS DO DIA -->
                 <div class="admin-card card-vagas" onclick="openVagasModal()">
                     <span class="ac-icon">📸</span>
                     <div>
@@ -883,7 +746,6 @@
         </div>
     </div>
 
-    <!-- NAV -->
     <div class="nav-float">
         <div id="userNav" style="display:flex;gap:4px;align-items:center;">
             <button class="nav-btn" onclick="scrollToTop()">Início</button>
@@ -898,7 +760,6 @@
         </div>
     </div>
 
-    <!-- SHEET OVERLAY -->
     <div class="overlay" id="overlay" onclick="handleOverlayClick(event)">
         <div class="sheet" id="sheet">
             <div class="sheet-handle"></div>
@@ -973,12 +834,13 @@
                 .sort((a, b) => a.data === b.data ? a.mins - b.mins : a.data.localeCompare(b.data))[0] || null;
         }
 
-        function isClientBlocked() {
-            const ts = Number(localStorage.getItem('last_booking_timestamp') || '0');
-            return ts > 0 && (Date.now() - ts) < 12 * 60 * 60 * 1000;
-        }
-
+        // ─── CORREÇÃO: clearClientBlock só remove se banco confirmou liberação ──────
         function clearClientBlock() {
+            const lastBooking = JSON.parse(localStorage.getItem('last_booking_v3') || 'null');
+            // Só limpa se o token não está mais como Ocupado no banco
+            if (lastBooking && db.find(r => r.codigo === lastBooking.token && r.status === 'Ocupado')) {
+                return; // banco ainda tem como ocupado — não limpa
+            }
             localStorage.removeItem('last_booking_timestamp');
             localStorage.removeItem('last_booking_v3');
         }
@@ -986,7 +848,6 @@
         // ─── INTRO ───────────────────────────────────────────
         setTimeout(() => document.getElementById('intro').classList.add('out'), 3500);
 
-        // ─── SCROLL DAYS ─────────────────────────────────────
         function scrollDays(dir) {
             document.getElementById('dayScroller').scrollBy({ left: dir * 250, behavior: 'smooth' });
         }
@@ -1009,7 +870,6 @@
                     systemLogs = r.logs || [];
                     if (r.config) {
                         srvCfg = r.config;
-                        // Normaliza pix_value para string decimal limpa
                         if (srvCfg.pix_value !== undefined && srvCfg.pix_value !== null) {
                             const pv = parseFloat(String(srvCfg.pix_value).replace(',', '.'));
                             srvCfg.pix_value = isNaN(pv) ? '0.00' : pv.toFixed(2);
@@ -1107,8 +967,6 @@
             const container = document.getElementById('slotsContainer');
             container.innerHTML = '';
 
-            // Determinar se estamos em modo cliente puro
-            // FIX: "Ver como cliente" agora realmente simula o cliente
             const showAsClient = !isAdmin || isUserView;
 
             const now = new Date();
@@ -1116,13 +974,11 @@
             const curMins = getManausMinutes(now);
             const lastBooking = JSON.parse(localStorage.getItem('last_booking_v3') || 'null');
 
-            // Verifica se cliente tem reserva ativa NO BANCO (token salvo localmente ainda consta como Ocupado)
             const activeRec = showAsClient && lastBooking
                 ? db.find(r => r.codigo === lastBooking.token && r.status === 'Ocupado')
                 : null;
             const hasActiveBooking = !!activeRec;
 
-            // Banner de agendamento ativo para o cliente
             const bannerContainer = document.getElementById('activeBanner');
             if (bannerContainer) {
                 if (showAsClient && hasActiveBooking && activeRec) {
@@ -1171,23 +1027,19 @@
                 let st = reg ? reg.status : 'Livre';
                 let durMin = reg ? parseInt(reg.duration || srvCfg.duration) : srvCfg.duration;
 
-                // Horários passados: cliente não vê
                 if (isPast && showAsClient) { cur += Math.max(15, durMin || 30); continue; }
 
                 const reservedUntil = reg ? reg.reservedUntil : null;
 
-                // Verificar expiração de reserva
                 let isExpired = false;
                 if (st === 'Aguardando Pagamento' && reservedUntil) {
                     if (new Date() > new Date(reservedUntil)) isExpired = true;
                 }
 
-                // Cliente: expirado = livre
                 if (st === 'Aguardando Pagamento' && isExpired && showAsClient) st = 'Livre';
 
                 const isMyBooking = lastBooking && lastBooking.iso === iso && lastBooking.clock === clock;
 
-                // FIX: MODO CLIENTE — visão limpa
                 if (showAsClient) {
                     if (hasActiveBooking) {
                         if (!isMyBooking) { cur += Math.max(15, durMin || 30); continue; }
@@ -1196,7 +1048,6 @@
                     }
                 }
 
-                // Auto-fit duração
                 if (st === 'Livre') {
                     const nextOcc = db
                         .filter(r => String(r.data).substring(0, 10) === iso && r.status !== 'Livre')
@@ -1222,7 +1073,6 @@
                     ? `${Math.floor(durMin / 60)}h${durMin % 60 > 0 ? ' ' + durMin % 60 + 'min' : ''}`
                     : `${durMin} min`;
 
-                // ADMIN: extra info
                 let extra = '';
                 if (isAdmin && !isUserView && reg && reg.telefone) {
                     const clean = reg.telefone.replace(/\D/g, '');
@@ -1249,7 +1099,6 @@
                 if (st === 'Bloqueado') clientName = 'Indisponível';
                 if (isExpired && showAsClient) clientName = 'Horário disponível ✨';
 
-                // Admin: dados do cliente
                 let metaHtml = '';
                 if (isAdmin && !isUserView && reg && (reg.telefone || reg.codigo)) {
                     metaHtml = `<div class="slot-dur" style="margin-top:2px;font-size:0.6rem;opacity:0.6;">
@@ -1284,7 +1133,6 @@
                 idx++;
             }
 
-            // Se modo cliente e não encontrou nada para mostrar
             if (showAsClient && container.children.length === 0) {
                 container.innerHTML = `
                     <div class="info-box" style="text-align:center;margin-top:8px;">
@@ -1299,7 +1147,6 @@
         function handleSlotClick(event, card, iso, clock, st, rUntil, reg) {
             const showAsClient = !isAdmin || isUserView;
             if (!showAsClient) {
-                // Modo admin
                 const isCheck = event.target.getAttribute('data-chk') === 'true' || event.target.closest('[data-chk="true"]');
                 if (isCheck) {
                     const key = `${iso}|${clock}`;
@@ -1311,7 +1158,6 @@
                 showAdminSlotSheet(iso, clock, st, reg);
                 return;
             }
-            // Modo cliente
             if (st !== 'Livre') {
                 const lastBooking = JSON.parse(localStorage.getItem('last_booking_v3') || 'null');
                 const isMyBooking = lastBooking && lastBooking.iso === iso && lastBooking.clock === clock && st === 'Ocupado';
@@ -1365,51 +1211,66 @@
             await postUpdates(updates);
         }
 
-        // ─── BOOKING SHEET (CLIENTE) ───────────────────────────
+        // ─── BOOKING SHEET (CLIENTE) — CORREÇÃO PRINCIPAL ─────
         function showBookingSheet(iso, clock) {
-            // Regra 12h: cliente só pode agendar novamente se:
-            // (a) passaram 12h desde o último agendamento, OU
-            // (b) o token do último agendamento não está mais como Ocupado (gerente liberou)
             if (!isAdmin) {
                 const lastBooking = JSON.parse(localStorage.getItem('last_booking_v3') || 'null');
                 const lastTs = Number(localStorage.getItem('last_booking_timestamp') || '0');
                 const dentro12h = lastTs > 0 && (Date.now() - lastTs) < 12 * 60 * 60 * 1000;
+
+                // Verifica se o token ainda consta como Ocupado no banco
                 const tokenAindaOcupado = lastBooking
                     ? !!db.find(r => r.codigo === lastBooking.token && r.status === 'Ocupado')
                     : false;
 
-                if (dentro12h && tokenAindaOcupado) {
-                    const remainMs = (lastTs + 12 * 60 * 60 * 1000) - Date.now();
+                // CORREÇÃO: bloqueia se tem token salvo E (ainda dentro de 12h OU banco confirma ocupado)
+                // Isso impede o segundo agendamento mesmo antes do banco responder ao primeiro POST
+                const deveBloquear = lastBooking && (dentro12h || tokenAindaOcupado);
+
+                if (deveBloquear) {
+                    const remainMs = lastTs > 0 ? Math.max(0, (lastTs + 12 * 60 * 60 * 1000) - Date.now()) : 0;
                     const hrs = Math.floor(remainMs / 3600000);
                     const mins = Math.floor((remainMs % 3600000) / 60000);
+
                     openSheet('Você já tem um agendamento ativo', 'Não é possível reservar dois horários ao mesmo tempo.');
+
                     const activeRec = db.find(r => r.codigo === lastBooking.token && r.status === 'Ocupado');
                     const dataFmt = activeRec
                         ? formatManausLabel(String(activeRec.data).substring(0,10), { weekday: 'long', day: '2-digit', month: 'long' }).replace(/^\w/, c => c.toUpperCase())
-                        : '';
+                        : lastBooking.iso
+                            ? formatManausLabel(lastBooking.iso, { weekday: 'long', day: '2-digit', month: 'long' }).replace(/^\w/, c => c.toUpperCase())
+                            : '';
+
                     const waGerente = encodeURIComponent('Olá, Camila! Tenho um agendamento ativo e gostaria de ajuda para alterar ou cancelar.');
+
                     document.getElementById('sheetBody').innerHTML =
                         '<div style="background:rgba(196,132,138,0.07);border:1.5px solid rgba(196,132,138,0.3);' +
                         'border-radius:14px;padding:16px 18px;margin-bottom:16px;">' +
                             '<div style="font-weight:700;color:var(--ink);margin-bottom:4px;">Horário reservado:</div>' +
-                            '<div style="font-size:0.9rem;color:var(--ink);">' + (activeRec ? activeRec.horario : lastBooking.clock) +
-                                (dataFmt ? ' · ' + dataFmt : '') + '</div>' +
+                            '<div style="font-size:0.9rem;color:var(--ink);">' +
+                                (activeRec ? activeRec.horario : lastBooking.clock) +
+                                (dataFmt ? ' · ' + dataFmt : '') +
+                            '</div>' +
                         '</div>' +
                         '<div style="font-size:0.78rem;color:var(--ink-soft);line-height:1.6;margin-bottom:16px;">' +
-                            'Você poderá fazer um novo agendamento em <strong>' + hrs + 'h ' + mins + 'min</strong>, ' +
-                            'ou quando a gerente liberar sua vaga.' +
+                            (remainMs > 0
+                                ? 'Você poderá fazer um novo agendamento em <strong>' + hrs + 'h ' + mins + 'min</strong>, ou quando a gerente liberar sua vaga.'
+                                : 'Seu agendamento anterior ainda está ativo. Quando a gerente confirmar o atendimento, você poderá fazer um novo agendamento.') +
                         '</div>' +
                         '<a href="https://wa.me/5592961505540?text=' + waGerente + '" target="_blank" class="wa-link">' +
                             '💬 Falar com a Camila · (92) 9 6150-0540' +
                         '</a>';
+
                     document.getElementById('sheetActions').innerHTML =
                         '<button class="btn btn-secondary" onclick="closeSheet()" style="margin-top:12px;">Fechar</button>';
                     return;
-                } else if (!tokenAindaOcupado && lastBooking) {
-                    // Admin liberou a vaga — limpa o bloqueio local
+
+                } else if (!tokenAindaOcupado && lastBooking && !dentro12h) {
+                    // Admin liberou E passaram as 12h — limpa o bloqueio local
                     clearClientBlock();
                 }
             }
+
             const df = formatManausLabel(iso, { weekday: 'long', day: '2-digit', month: 'long' });
             openSheet(`Reservar ${clock} ✨`, df.replace(/^\w/, c => c.toUpperCase()));
             document.getElementById('sheetBody').innerHTML = `
@@ -1419,26 +1280,33 @@
                 <input id="bPhone" class="inp" placeholder="(92) 9 0000-0000" type="tel" oninput="handlePhoneInput(this)" onpaste="handlePhonePaste(event, this)">
             `;
             document.getElementById('sheetActions').innerHTML = `
-                <button class="btn btn-primary" onclick="confirmBooking('${iso}','${clock}','${df}')">✅ Confirmar agendamento</button>
+                <button class="btn btn-primary" id="btnConfirmarAgendamento" onclick="confirmBooking('${iso}','${clock}','${df}')">✅ Confirmar agendamento</button>
                 <button class="btn btn-secondary" onclick="closeSheet()">Voltar</button>
             `;
         }
 
+        // ─── CONFIRM BOOKING — CORREÇÃO: local-first + proteção duplo clique ──────
         async function confirmBooking(iso, clock, df) {
             const name = document.getElementById('bName').value.trim();
             const phone = document.getElementById('bPhone').value.trim();
             if (!name || !phone) { alert('Preencha todos os campos.'); return; }
 
+            // Proteção contra duplo clique no botão
+            const btn = document.getElementById('btnConfirmarAgendamento');
+            if (btn) { btn.disabled = true; btn.textContent = '⏳ Aguarde...'; }
+
             const normalizedPhone = normalizePhone(phone);
             const token = Math.random().toString(36).substring(2, 7).toUpperCase();
             const bTime = new Date().toISOString();
 
-            // Salva localmente e mostra confirmacao IMEDIATAMENTE — hora e do cliente a partir daqui
+            // CORREÇÃO: salva token localmente ANTES de qualquer coisa
+            // O bloqueio é imediato — independe do banco ter recebido o POST
             localStorage.setItem('last_booking_v3', JSON.stringify({ token, iso, clock, phone: normalizedPhone, name }));
             localStorage.setItem('last_booking_timestamp', Date.now().toString());
+
             showPixSheet(name, phone, iso, clock, df, token);
 
-            // Registra no backend em segundo plano (nao bloqueia o cliente)
+            // POST em segundo plano — não bloqueia a experiência da cliente
             postUpdates([{
                 data: iso, horario: clock, status: 'Ocupado',
                 cliente: name, telefone: phone, codigo: token,
@@ -1619,7 +1487,6 @@
             const todayIso = getManausIsoDate(now);
             const curMins = getManausMinutes(now);
 
-            // Calcula vagas livres
             const [sH, sM] = srvCfg.start.split(':').map(Number);
             const [eH, eM] = srvCfg.end.split(':').map(Number);
             let cur = sH * 60 + sM, end = eH * 60 + eM;
@@ -1711,18 +1578,16 @@
 
             try {
                 const canvas = await html2canvas(visual, {
-                    scale: 3,           // 3x = alta resolução
+                    scale: 3,
                     useCORS: true,
                     backgroundColor: '#FAF6F1',
                     logging: false,
                     onclone: (doc) => {
-                        // Garante fonte carregada no clone
                         const el = doc.getElementById('vagasVisual');
                         if (el) el.style.borderRadius = '0';
                     }
                 });
 
-                // Cria link de download
                 const link = document.createElement('a');
                 const targetIso = currentDay || getManausIsoDate(new Date());
                 const datePart = targetIso.split('-').reverse().join('-');
@@ -1958,9 +1823,7 @@
 
         async function clearLogHistory() {
             if (!confirm('Limpar todo o histórico? Esta ação não pode ser desfeita.')) return;
-            // Limpa localmente imediatamente
             systemLogs = [];
-            // Envia para o backend apagar
             const cbName = 'onClear_' + Date.now();
             window[cbName] = (res) => {
                 delete window[cbName];
@@ -2001,11 +1864,6 @@
         }
 
         // ─── HELPERS ──────────────────────────────────────────
-        // Normaliza numero bruto para 11 digitos (DDD + 9 + 8 digitos)
-        // Aceita: +55 92 9615-0540, 92 9615-0540, 9296150540, etc.
-        // normalizePhone: limpa e padroniza para 11 dígitos (DDD + 9 + 8 dígitos)
-        // Trata: +55 92 9615-0540, 92 9615-0540, 92 99615-0540, etc.
-        // Retorna 11 dígitos limpos: ignora +55, insere 9 se faltar
         function normalizePhone(raw) {
             let v = (raw || '').replace(/\D/g, '');
             if (v.startsWith('55') && v.length >= 12) v = v.slice(2);
@@ -2013,7 +1871,6 @@
             return v.slice(0, 11);
         }
 
-        // Formata 11 dígitos para (92) 9 9615-0540
         function formatPhoneMask(d) {
             let f = '';
             if (d.length > 0) f  = '(' + d.substring(0, 2);
@@ -2023,7 +1880,6 @@
             return f;
         }
 
-        // Digitação: só máscara, sem inserir dígitos automáticos
         function handlePhoneInput(el) {
             const cur = el.selectionStart;
             const prev = el.value.length;
@@ -2032,15 +1888,14 @@
             try { el.setSelectionRange(cur + (el.value.length - prev), cur + (el.value.length - prev)); } catch(e) {}
         }
 
-        // Ao colar: recebe o evento diretamente, pega raw do clipboard e abre box
         let _pasteTarget = null;
 
         function handlePhonePaste(e, el) {
-            e.preventDefault(); // impede que o valor vá pro campo
+            e.preventDefault();
             const raw = (e.clipboardData || window.clipboardData).getData('text');
             _pasteTarget = el;
             const inp = document.getElementById('phoneEditInput');
-            inp.value = raw.trim(); // exatamente o que foi copiado, sem tocar
+            inp.value = raw.trim();
             document.getElementById('phoneEditBox').style.display = 'flex';
             setTimeout(() => { inp.focus(); inp.select(); }, 50);
         }
@@ -2141,7 +1996,6 @@
             spawnPetals();
             calcExperience();
             initSigWa();
-
             syncData();
             renderDays();
             try { initNotifications(); } catch(e) { }
@@ -2152,7 +2006,6 @@
         window.addEventListener('load', configureAdminPanel);
     </script>
 
-    <!-- BOX DE EDIÇÃO DE NÚMERO COLADO -->
     <div id="phoneEditBox" style="
         display:none;
         position:fixed;
@@ -2179,7 +2032,6 @@
                 Edite abaixo e toque em <strong style="color:var(--ink);">Confirmar</strong>:
             </div>
 
-            <!-- Dica de formato -->
             <div style="
                 background:rgba(201,168,108,0.1);
                 border-left:3px solid var(--gold);
