@@ -1133,7 +1133,26 @@
             let cur = sH * 60 + sM, end = eH * 60 + eM;
             let idx = 0;
 
+            // Coleta todos os minutos de slots registrados neste dia, ordenados
+            const _regMins = db
+                .filter(r => String(r.data).substring(0, 10) === iso)
+                .map(r => { const [h, m] = String(r.horario).substring(0,5).split(':').map(Number); return h*60+m; })
+                .filter(m => m >= (sH*60+sM) && m < end)
+                .sort((a, b) => a - b);
+
             while (cur < end) {
+                // Se o cursor caiu num vão sem registro mas há slot registrado
+                // entre cur e cur+durDefault, pula direto para ele
+                const _gap = _regMins.find(m => m > cur && m < cur + srvCfg.duration);
+                if (_gap !== undefined) {
+                    const _hh = String(Math.floor(cur/60)).padStart(2,'0');
+                    const _mm = String(cur%60).padStart(2,'0');
+                    const _hasExact = db.find(r =>
+                        String(r.data).substring(0,10) === iso &&
+                        String(r.horario).substring(0,5) === `${_hh}:${_mm}`
+                    );
+                    if (!_hasExact) { cur = _gap; continue; }
+                }
                 const hh = String(Math.floor(cur / 60)).padStart(2, '0');
                 const mm = String(cur % 60).padStart(2, '0');
                 const clock = `${hh}:${mm}`;
@@ -1673,7 +1692,23 @@
             let cur = sH * 60 + sM, end = eH * 60 + eM;
             const vagasLivres = [];
 
+            const _regMinsV = db
+                .filter(r => String(r.data).substring(0, 10) === targetIso)
+                .map(r => { const [h, m] = String(r.horario).substring(0,5).split(':').map(Number); return h*60+m; })
+                .filter(m => m >= (sH*60+sM) && m < end)
+                .sort((a, b) => a - b);
+
             while (cur < end) {
+                const _gapV = _regMinsV.find(m => m > cur && m < cur + srvCfg.duration);
+                if (_gapV !== undefined) {
+                    const _hh = String(Math.floor(cur/60)).padStart(2,'0');
+                    const _mm = String(cur%60).padStart(2,'0');
+                    const _hasExact = db.find(r =>
+                        String(r.data).substring(0,10) === targetIso &&
+                        String(r.horario).substring(0,5) === `${_hh}:${_mm}`
+                    );
+                    if (!_hasExact) { cur = _gapV; continue; }
+                }
                 const hh = String(Math.floor(cur / 60)).padStart(2, '0');
                 const mm = String(cur % 60).padStart(2, '0');
                 const clock = `${hh}:${mm}`;
@@ -1938,7 +1973,23 @@
 
             let free = 0, occupied = 0, blocked = 0, awaiting = 0, total = 0;
 
+            const _regMinsS = db
+                .filter(r => String(r.data).substring(0, 10) === iso)
+                .map(r => { const [h, m] = String(r.horario).substring(0,5).split(':').map(Number); return h*60+m; })
+                .filter(m => m >= cur && m < end)
+                .sort((a, b) => a - b);
+
             while (cur < end) {
+                const _gapS = _regMinsS.find(m => m > cur && m < cur + srvCfg.duration);
+                if (_gapS !== undefined) {
+                    const _hh = String(Math.floor(cur/60)).padStart(2,'0');
+                    const _mm = String(cur%60).padStart(2,'0');
+                    const _hasExact = db.find(r =>
+                        String(r.data).substring(0,10) === iso &&
+                        String(r.horario).substring(0,5) === `${_hh}:${_mm}`
+                    );
+                    if (!_hasExact) { cur = _gapS; continue; }
+                }
                 const hh = String(Math.floor(cur / 60)).padStart(2, '0');
                 const mm = String(cur % 60).padStart(2, '0');
                 const clock = `${hh}:${mm}`;
