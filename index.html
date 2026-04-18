@@ -1048,12 +1048,16 @@
                     }
                 }
 
+                // durStep: quanto o cursor avança (duração real do slot, nunca encurtada)
+                // durMin: apenas visual — slots livres encolhem para não "cobrir" o próximo ocupado
+                let durStep = durMin;
                 if (st === 'Livre') {
                     const nextOcc = db
                         .filter(r => String(r.data).substring(0, 10) === iso && r.status !== 'Livre')
                         .map(r => { const [h, m] = r.horario.split(':').map(Number); return h * 60 + m; })
                         .filter(m => m > cur).sort((a, b) => a - b)[0];
                     if (nextOcc && (nextOcc - cur) < durMin) durMin = nextOcc - cur;
+                    // durStep permanece igual à duração padrão — o cursor nunca pula slots ocupados
                 }
 
                 const pipColor = {
@@ -1129,7 +1133,7 @@
                 `;
 
                 container.appendChild(card);
-                cur += Math.max(30, durMin);
+                cur += Math.max(30, durStep);
                 idx++;
             }
 
@@ -1681,14 +1685,45 @@
 
         // ─── ADMIN STATS ────────────────────────────────────────
         function getDayBookingsSummary(iso) {
-            const dayRecords = db.filter(r => String(r.data).substring(0, 10) === iso);
-            const occupied = dayRecords.filter(r => r.status === 'Ocupado').length;
-            const blocked = dayRecords.filter(r => r.status === 'Bloqueado').length;
-            const awaiting = dayRecords.filter(r => r.status === 'Aguardando Pagamento').length;
+            const now = new Date();
+            const todayIso = getManausIsoDate(now);
+            const curMins = getManausMinutes(now);
+
             const [sH, sM] = srvCfg.start.split(':').map(Number);
             const [eH, eM] = srvCfg.end.split(':').map(Number);
-            const totalSlots = Math.max(0, Math.ceil(((eH * 60 + eM) - (sH * 60 + sM)) / 30));
-            return { totalSlots, free: Math.max(0, totalSlots - occupied - blocked - awaiting), occupied, blocked, awaiting };
+            let cur = sH * 60 + sM;
+            const end = eH * 60 + eM;
+
+            let free = 0, occupied = 0, blocked = 0, awaiting = 0, total = 0;
+
+            while (cur < end) {
+                const hh = String(Math.floor(cur / 60)).padStart(2, '0');
+                const mm = String(cur % 60).padStart(2, '0');
+                const clock = `${hh}:${mm}`;
+
+                const reg = db.find(r =>
+                    String(r.data).substring(0, 10) === iso &&
+                    String(r.horario).substring(0, 5) === clock
+                );
+
+                const st = reg ? reg.status : 'Livre';
+                const durMin = reg ? Math.max(30, parseInt(reg.duration || srvCfg.duration)) : srvCfg.duration;
+
+                // Só conta slots futuros (hoje: a partir do horário atual; outros dias: todos)
+                const isPast = (iso < todayIso) || (iso === todayIso && cur < curMins);
+
+                if (!isPast) {
+                    total++;
+                    if (st === 'Livre') free++;
+                    else if (st === 'Ocupado') occupied++;
+                    else if (st === 'Bloqueado') blocked++;
+                    else if (st === 'Aguardando Pagamento') awaiting++;
+                }
+
+                cur += durMin;
+            }
+
+            return { total, free, occupied, blocked, awaiting };
         }
 
         function getHistoricBookings() {
