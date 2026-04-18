@@ -438,47 +438,36 @@
 
         .slot-card:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 12px 32px rgba(42,32,32,0.12), 0 2px 8px rgba(42,32,32,0.06); }
         .slot-card:active { transform: scale(0.96); box-shadow: 0 2px 8px rgba(42,32,32,0.08); transition: transform 0.12s ease, box-shadow 0.12s ease; }
-        .slot-card.pressing { transform: scale(0.94); box-shadow: 0 2px 8px rgba(196,132,138,0.15); border-color: rgba(196,132,138,0.5); transition: transform 0.2s ease, box-shadow 0.2s ease; }
+
         .slot-card.past { opacity: 0.28; pointer-events: none; }
         .slot-card.selected { border-color: var(--rose); background: rgba(196,132,138,0.06); box-shadow: 0 4px 20px rgba(196,132,138,0.18), 0 0 0 3px rgba(196,132,138,0.12); }
 
-        /* Anel de progresso do long-press */
-        .slot-card .lp-ring {
-            position: absolute;
-            inset: -3px;
-            border-radius: 25px;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.15s;
-        }
-        .slot-card.pressing .lp-ring { opacity: 1; }
+
 
         body.admin-on .slot-card { background: white; border-color: rgba(196,132,138,0.15); }
         body.admin-on .slot-card:hover { border-color: var(--rose); box-shadow: 0 8px 24px rgba(196,132,138,0.15); }
         body.admin-on .slot-card.selected { border-color: var(--rose); background: rgba(196,132,138,0.08); }
 
+        /* Indicador de seleção: ícone no canto do card, só no modo seleção admin */
         .slot-check {
             display: none;
-            width: 28px;
-            height: 28px;
+            width: 22px;
+            height: 22px;
             border-radius: 50%;
-            border: 2px solid var(--rose);
+            border: 2px solid rgba(196,132,138,0.35);
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 0.65rem;
+            font-size: 0.6rem;
             flex-shrink: 0;
-            transition: background 0.25s, opacity 0.25s, transform 0.2s var(--ease), border-color 0.25s;
+            transition: background 0.2s, border-color 0.2s, transform 0.2s var(--ease);
             position: absolute;
             top: 8px;
             right: 8px;
             background: white;
-            box-shadow: 0 2px 8px rgba(196,132,138,0.15);
-            touch-action: manipulation;
         }
-        body.admin-on .slot-check { display: flex; opacity: 0.35; }
-        .slot-card.selected .slot-check { background: var(--rose); opacity: 1; transform: scale(1.1); border-color: var(--deep-rose); }
-        .slot-card.pressing .slot-check { opacity: 0.8; transform: scale(1.15); border-color: var(--rose); }
+        body.admin-on.sel-mode .slot-check { display: flex; }
+        .slot-card.selected .slot-check { background: var(--rose); border-color: var(--rose); transform: scale(1.05); }
 
         .slot-pip { width: 100%; height: 3px; border-radius: 3px; flex-shrink: 0; transition: background 0.3s; margin-bottom: 4px; }
         .slot-time { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; font-weight: 400; color: var(--ink); line-height: 1; transition: color 0.5s; }
@@ -866,12 +855,12 @@
             </div>
 
             <div id="multiSelectBar">
-                <span id="selCount">0 selecionados</span>
-                <div style="display:flex;gap:8px">
-                    <button class="cancel-sel" onclick="clearSelection()" style="background:#eee;color:#666;">Limpar</button>
-                    <button onclick="selectAll()" style="background:var(--gold);color:white;">✓ Tudo</button>
-                    <button onclick="blockSelected()">🔒 Bloquear</button>
-                    <button onclick="freeSelected()">🔓 Liberar</button>
+                <span id="selCount" style="font-size:0.6rem;"></span>
+                <div style="display:flex;gap:6px;align-items:center;">
+                    <button onclick="selectAll()" style="background:var(--gold);color:white;font-size:0.58rem;padding:7px 12px;">✓ Todos</button>
+                    <button onclick="blockSelected()" style="font-size:0.58rem;padding:7px 12px;">🔒 Bloquear</button>
+                    <button onclick="freeSelected()" style="font-size:0.58rem;padding:7px 12px;">🔓 Liberar</button>
+                    <button onclick="setSelMode(false)" style="background:transparent;color:rgba(255,255,255,0.5);font-size:0.58rem;padding:7px 10px;">✕</button>
                 </div>
             </div>
 
@@ -908,10 +897,11 @@
             <button class="nav-admin-login" onclick="promptAdmin()">🔐 Admin</button>
             <button id="backToAdminBtn" class="nav-btn" onclick="toggleUserView()" style="display:none;color:var(--gold);font-weight:bold;">🛠 Voltar Admin</button>
         </div>
-        <div id="adminNav" style="display:none;gap:4px;align-items:center;">
-            <button id="syncBtn" class="nav-btn primary" onclick="syncData()">↻ Atualizar</button>
-            <button class="nav-btn" onclick="openVagasModal()" style="border:1px solid rgba(139,184,148,0.5);color:var(--st-livre);">📸 Vagas</button>
-            <button class="nav-btn" onclick="toggleUserView()" style="border:1px solid rgba(201,168,108,0.3);color:var(--gold);">👁 Cliente</button>
+        <div id="adminNav" style="display:none;gap:4px;align-items:center;flex-wrap:wrap;justify-content:center;">
+            <button id="syncBtn" class="nav-btn primary" onclick="syncData()">↻</button>
+            <button id="btnSelMode" class="nav-btn" onclick="toggleSelMode()" style="border:1px solid rgba(196,132,138,0.4);">☑ Selecionar</button>
+            <button class="nav-btn" onclick="openVagasModal()" style="border:1px solid rgba(139,184,148,0.5);color:var(--st-livre);">📸</button>
+            <button class="nav-btn" onclick="toggleUserView()" style="border:1px solid rgba(201,168,108,0.3);color:var(--gold);">👁</button>
             <button class="nav-btn" onclick="logoutAdmin()" style="color:var(--rose);border:1px solid rgba(196,132,138,0.3);">Sair</button>
         </div>
     </div>
@@ -1109,12 +1099,7 @@
             updateAdminStats();
         }
 
-        function closeGrid() {
-            currentDay = '';
-            clearSelection();
-            document.getElementById('gridSection').classList.remove('vis');
-            renderDays();
-        }
+        // closeGrid movido para junto de clearSelection
 
         function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
 
@@ -1278,8 +1263,7 @@
                 attachLongPress(card, iso, clock, st, reg);
 
                 card.innerHTML = `
-                    <div class="lp-ring" style="background:conic-gradient(var(--rose) var(--lp,0%), transparent var(--lp,0%)); border-radius:25px;"></div>
-                    <div class="slot-check" data-chk="true">✓</div>
+                    <div class="slot-check">✓</div>
                     <div class="slot-pip" style="background:${pipColor}"></div>
                     <div class="slot-time">${clock}</div>
                     <div class="slot-info">
@@ -1308,94 +1292,49 @@
         }
 
         // ─── INTERAÇÃO COM CARDS ──────────────────────────────
-        // Cliente: toque simples abre sheet — sem long-press
-        // Admin:   toque simples abre sheet | segurar 1.2s seleciona
-        const LP_MS = 1200;
-        let _lpTimer = null, _lpCard = null, _lpRaf = null;
-        let _lpScrolling = false, _lpStartX = 0, _lpStartY = 0;
+        // Toque simples sempre: abre sheet (admin ou cliente)
+        // Seleção múltipla: ativada pelo botão "Selecionar" na barra admin
 
-        function _lpToggleSelect(card, iso, clock) {
-            const key = `${iso}|${clock}`;
-            if (selectedSlots.has(key)) { selectedSlots.delete(key); card.classList.remove('selected'); }
-            else { selectedSlots.add(key); card.classList.add('selected'); }
-            updateMultiBar();
-            if (navigator.vibrate) navigator.vibrate([12, 6, 24]);
-        }
+        let _selMode = false; // modo seleção ativo
 
-        function _lpCancel() {
-            if (_lpTimer) { clearTimeout(_lpTimer); _lpTimer = null; }
-            if (_lpRaf)   { cancelAnimationFrame(_lpRaf); _lpRaf = null; }
-            if (_lpCard)  {
-                _lpCard.classList.remove('pressing');
-                const ring = _lpCard.querySelector('.lp-ring');
-                if (ring) ring.style.setProperty('--lp', '0%');
-                _lpCard = null;
+        function setSelMode(on) {
+            _selMode = on;
+            // Classe no body controla visibilidade dos checkboxes via CSS
+            document.body.classList.toggle('sel-mode', on);
+            const btn = document.getElementById('btnSelMode');
+            if (btn) {
+                btn.textContent = on ? '✓ Concluir' : '☑ Selecionar';
+                btn.style.background = on ? 'linear-gradient(135deg,var(--rose),var(--deep-rose))' : '';
+                btn.style.color = on ? 'white' : '';
+                btn.style.boxShadow = on ? '0 4px 14px rgba(139,79,85,0.3)' : '';
+            }
+            if (!on) {
+                selectedSlots.clear();
+                document.querySelectorAll('.slot-card.selected').forEach(c => c.classList.remove('selected'));
             }
         }
 
-        function _lpAnimate(card, startTs) {
-            const elapsed = performance.now() - startTs;
-            const pct = Math.min(elapsed / LP_MS * 100, 100);
-            const ring = card.querySelector('.lp-ring');
-            if (ring) ring.style.setProperty('--lp', pct.toFixed(1) + '%');
-            if (pct < 100) _lpRaf = requestAnimationFrame(() => _lpAnimate(card, startTs));
-        }
-
-        function _lpBegin(card, iso, clock) {
-            _lpCancel();
-            _lpScrolling = false;
-            _lpCard = card;
-            card.classList.add('pressing');
-            const startTs = performance.now();
-            _lpRaf = requestAnimationFrame(() => _lpAnimate(card, startTs));
-            _lpTimer = setTimeout(() => {
-                if (_lpScrolling) { _lpCancel(); return; }
-                _lpCancel();
-                _lpToggleSelect(card, iso, clock);
-            }, LP_MS);
-        }
-
         function attachLongPress(card, iso, clock, st, reg) {
-            // Só o admin tem long-press para selecionar
-            const isAdminMode = () => isAdmin && !isUserView;
+            card.addEventListener('click', (e) => {
+                e.stopPropagation();
 
-            // ── TOUCH ──────────────────────────────────────────
-            card.addEventListener('touchstart', (e) => {
-                _lpStartX = e.touches[0].clientX;
-                _lpStartY = e.touches[0].clientY;
-                _lpScrolling = false;
-                if (isAdminMode()) _lpBegin(card, iso, clock);
-            }, { passive: true });
+                // Modo seleção ativo (só admin)
+                if (isAdmin && !isUserView && _selMode) {
+                    const key = `${iso}|${clock}`;
+                    if (selectedSlots.has(key)) {
+                        selectedSlots.delete(key);
+                        card.classList.remove('selected');
+                    } else {
+                        selectedSlots.add(key);
+                        card.classList.add('selected');
+                    }
+                    updateMultiBar();
+                    if (navigator.vibrate) navigator.vibrate(12);
+                    return;
+                }
 
-            card.addEventListener('touchmove', (e) => {
-                const dx = Math.abs(e.touches[0].clientX - _lpStartX);
-                const dy = Math.abs(e.touches[0].clientY - _lpStartY);
-                if (dx > 6 || dy > 6) { _lpScrolling = true; _lpCancel(); }
-            }, { passive: true });
-
-            card.addEventListener('touchend', () => {
-                const wasPressing = _lpCard === card;
-                const hadTimer    = !!_lpTimer;
-                _lpCancel();
-                if (_lpScrolling) return;
-                // Long-press completou? não dispara tap
-                // Toque rápido: sempre dispara tap (admin ou cliente)
-                if (!wasPressing || hadTimer) handleCardTap(card, iso, clock, st, reg);
+                handleCardTap(card, iso, clock, st, reg);
             });
-
-            card.addEventListener('touchcancel', _lpCancel);
-
-            // ── MOUSE (desktop) ────────────────────────────────
-            card.addEventListener('mousedown', () => {
-                if (isAdminMode()) _lpBegin(card, iso, clock);
-            });
-            card.addEventListener('mouseup', () => {
-                const wasPressing = _lpCard === card;
-                const hadTimer    = !!_lpTimer;
-                _lpCancel();
-                if (!wasPressing || hadTimer) handleCardTap(card, iso, clock, st, reg);
-            });
-            card.addEventListener('mouseleave', _lpCancel);
         }
 
         function handleCardTap(card, iso, clock, st, reg) {
@@ -1416,13 +1355,21 @@
         function handleSlotClick(event, card, iso, clock, st, rUntil, reg) { /* compatibilidade */ }
 
         // ─── MULTI SELECT ──────────────────────────────────────
+        function toggleSelMode() {
+            setSelMode(!_selMode);
+            updateMultiBar();
+        }
+
         function updateMultiBar() {
             const bar = document.getElementById('multiSelectBar');
-            const n = selectedSlots.size;
-            if (n > 0 || isAdmin) {
+            if (_selMode) {
                 bar.classList.add('vis');
-                document.getElementById('selCount').textContent = n > 0 ? `${n} horário(s) selecionado(s)` : 'Seleção Ativa';
-            } else { bar.classList.remove('vis'); }
+                const n = selectedSlots.size;
+                document.getElementById('selCount').textContent =
+                    n > 0 ? `${n} horário(s) marcado(s)` : 'Toque nos cards para marcar';
+            } else {
+                bar.classList.remove('vis');
+            }
         }
 
         function selectAll() {
@@ -1438,6 +1385,16 @@
             selectedSlots.clear();
             document.querySelectorAll('.slot-card.selected').forEach(c => c.classList.remove('selected'));
             updateMultiBar();
+        }
+
+        // Ao fechar o grid, sai do modo seleção
+        function closeGrid() {
+            currentDay = '';
+            _selMode = false;
+            clearSelection();
+            setSelMode(false);
+            document.getElementById('gridSection').classList.remove('vis');
+            renderDays();
         }
 
         async function blockSelected() {
@@ -1939,12 +1896,9 @@
             if (!handle || !sheet) return;
             let startY = 0, curY = 0, dragging = false;
 
-            function onStart(y) {
-                startY = y; curY = y; dragging = true;
-                sheet.style.transition = 'none';
-            }
-            function onMove(y) {
+            function onMove(e) {
                 if (!dragging) return;
+                const y = e.touches ? e.touches[0].clientY : e.clientY;
                 curY = y;
                 const dy = Math.max(0, y - startY);
                 sheet.style.transform = `translateY(${dy}px)`;
@@ -1952,21 +1906,43 @@
             function onEnd() {
                 if (!dragging) return;
                 dragging = false;
+                // Remove listeners globais imediatamente
+                window.removeEventListener('mousemove', onMove);
+                window.removeEventListener('mouseup', onEnd);
                 const dy = curY - startY;
-                if (dy > 80) { closeSheet(); }
-                else {
+                if (dy > 80) {
+                    closeSheet();
+                } else {
                     sheet.style.transition = 'transform 0.3s var(--ease)';
                     sheet.style.transform = '';
                     setTimeout(() => { sheet.style.transition = ''; }, 300);
                 }
             }
 
-            handle.addEventListener('touchstart', e => onStart(e.touches[0].clientY), { passive: true });
-            handle.addEventListener('touchmove',  e => { e.preventDefault(); onMove(e.touches[0].clientY); }, { passive: false });
-            handle.addEventListener('touchend',   onEnd);
-            handle.addEventListener('mousedown',  e => onStart(e.clientY));
-            window.addEventListener('mousemove',  e => { if (dragging) onMove(e.clientY); });
-            window.addEventListener('mouseup',    onEnd);
+            // Touch
+            handle.addEventListener('touchstart', e => {
+                startY = e.touches[0].clientY;
+                curY = startY;
+                dragging = true;
+                sheet.style.transition = 'none';
+            }, { passive: true });
+            handle.addEventListener('touchmove', e => {
+                e.preventDefault();
+                onMove(e);
+            }, { passive: false });
+            handle.addEventListener('touchend', onEnd);
+            handle.addEventListener('touchcancel', onEnd);
+
+            // Mouse — listeners globais só enquanto arrasta
+            handle.addEventListener('mousedown', e => {
+                e.preventDefault();
+                startY = e.clientY;
+                curY = startY;
+                dragging = true;
+                sheet.style.transition = 'none';
+                window.addEventListener('mousemove', onMove);
+                window.addEventListener('mouseup', onEnd);
+            });
         }
         function handleOverlayClick(e) { if (e.target === document.getElementById('overlay')) closeSheet(); }
 
