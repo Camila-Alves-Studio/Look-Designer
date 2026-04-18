@@ -1416,7 +1416,7 @@
                 <label class="field-label">Seu nome</label>
                 <input id="bName" class="inp" placeholder="Nome completo">
                 <label class="field-label">WhatsApp</label>
-                <input id="bPhone" class="inp" placeholder="(92) 9 0000-0000" type="tel" oninput="handlePhoneInput(this)">
+                <input id="bPhone" class="inp" placeholder="(92) 9 0000-0000" type="tel" oninput="handlePhoneInput(this)" onpaste="handlePhonePaste(event, this)">
             `;
             document.getElementById('sheetActions').innerHTML = `
                 <button class="btn btn-primary" onclick="confirmBooking('${iso}','${clock}','${df}')">✅ Confirmar agendamento</button>
