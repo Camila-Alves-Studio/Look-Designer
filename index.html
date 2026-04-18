@@ -2032,22 +2032,22 @@
             try { el.setSelectionRange(cur + (el.value.length - prev), cur + (el.value.length - prev)); } catch(e) {}
         }
 
-        // Ao colar: abre box de edição antes de aplicar ao campo
+        // Ao colar: intercepta ANTES do valor chegar ao campo, pega raw do clipboard
         let _pasteTarget = null;
 
         function handlePhonePaste(el) {
-            _pasteTarget = el;
-            // Pega o texto colado via clipboardData
-            setTimeout(() => {
-                const raw = el.value; // valor já colado no campo
-                el.value = '';        // limpa o campo original por enquanto
-                const box = document.getElementById('phoneEditBox');
+            // O evento paste ainda não aplicou nada no campo
+            // Usamos event listener capturado no elemento para pegar clipboardData
+            el.addEventListener('paste', function _onpaste(e) {
+                el.removeEventListener('paste', _onpaste);
+                e.preventDefault(); // impede que o valor entre no campo
+                const raw = (e.clipboardData || window.clipboardData).getData('text');
+                _pasteTarget = el;
                 const inp = document.getElementById('phoneEditInput');
-                inp.value = raw.trim();
-                box.style.display = 'flex';
-                inp.focus();
-                inp.select();
-            }, 0);
+                inp.value = raw.trim(); // mostra exatamente o que foi copiado
+                document.getElementById('phoneEditBox').style.display = 'flex';
+                setTimeout(() => { inp.focus(); inp.select(); }, 50);
+            });
         }
 
         function confirmPaste() {
@@ -2172,24 +2172,43 @@
         <div style="
             background:white;
             border-radius:20px;
-            padding:26px 22px 20px;
+            padding:26px 22px 22px;
             width:100%;
             max-width:320px;
             box-shadow:0 20px 60px rgba(42,32,32,0.25);
             border:1.5px solid rgba(196,132,138,0.3);
             animation:sheetUp 0.3s cubic-bezier(0.16,1,0.3,1);
         ">
-            <div style="font-size:0.48rem;font-weight:700;letter-spacing:4px;color:var(--gold);text-transform:uppercase;margin-bottom:8px;">📋 Colar número</div>
-            <div style="font-size:0.75rem;color:var(--ink-soft);margin-bottom:14px;line-height:1.5;">
-                Edite se necessário e toque em <strong>Confirmar</strong>:
+            <div style="font-size:0.48rem;font-weight:700;letter-spacing:4px;color:var(--gold);text-transform:uppercase;margin-bottom:8px;">📋 Ajustar número</div>
+            <div style="font-size:0.75rem;color:var(--ink-soft);margin-bottom:6px;line-height:1.5;">
+                Edite abaixo e toque em <strong style="color:var(--ink);">Confirmar</strong>:
             </div>
+
+            <!-- Dica de formato -->
+            <div style="
+                background:rgba(201,168,108,0.1);
+                border-left:3px solid var(--gold);
+                border-radius:0 8px 8px 0;
+                padding:8px 12px;
+                margin-bottom:14px;
+                font-size:0.68rem;
+                color:var(--ink-soft);
+                line-height:1.5;
+            ">
+                Formato esperado:<br>
+                <strong style="color:var(--ink);font-size:0.85rem;letter-spacing:1px;">(92) 9 9615-0540</strong><br>
+                <span style="font-size:0.6rem;opacity:0.7;">(DDD) 9 + 4 dígitos - 4 dígitos</span>
+            </div>
+
             <input id="phoneEditInput"
-                style="width:100%;padding:14px 16px;border-radius:12px;border:1.5px solid rgba(196,132,138,0.35);
-                background:var(--cream);font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:600;
-                color:var(--ink);outline:none;text-align:center;letter-spacing:1px;margin-bottom:16px;
-                box-sizing:border-box;"
-                placeholder="+55 92 9 0000-0000"
+                style="width:100%;padding:14px 16px;border-radius:12px;
+                border:1.5px solid rgba(196,132,138,0.35);
+                background:var(--cream);font-family:'DM Sans',sans-serif;
+                font-size:1.05rem;font-weight:600;color:var(--ink);
+                outline:none;text-align:center;letter-spacing:1px;
+                margin-bottom:16px;box-sizing:border-box;"
                 onkeydown="if(event.key==='Enter')confirmPaste()">
+
             <button onclick="confirmPaste()" style="
                 width:100%;padding:14px;border-radius:12px;border:none;
                 background:linear-gradient(135deg,var(--rose),var(--deep-rose));
