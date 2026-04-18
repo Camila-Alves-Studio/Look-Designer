@@ -365,14 +365,50 @@
         .back-btn { font-size: 0.55rem; letter-spacing: 3px; font-weight: 700; color: var(--rose); text-transform: uppercase; cursor: pointer; background: none; border: none; }
         body.admin-on .back-btn { color: var(--rose); }
 
-        #multiSelectBar { display: none; align-items: center; justify-content: space-between; background: var(--ink); color: white; border-radius: 20px; padding: 10px 15px; margin-bottom: 20px; font-size: 0.65rem; font-weight: 500; position: sticky; top: 10px; z-index: 100; box-shadow: 0 10px 30px rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); }
+        #multiSelectBar { display: none; align-items: center; justify-content: space-between; background: var(--ink); color: white; border-radius: 20px; padding: 10px 15px; margin-bottom: 16px; font-size: 0.65rem; font-weight: 500; position: sticky; top: 10px; z-index: 100; box-shadow: 0 10px 30px rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); }
         #multiSelectBar.vis { display: flex; }
         #multiSelectBar button { background: var(--rose); color: white; border: none; border-radius: 10px; padding: 8px 16px; font-size: 0.65rem; font-weight: 700; letter-spacing: 1px; cursor: pointer; }
         #multiSelectBar .cancel-sel { background: transparent; color: rgba(255,255,255,0.5); padding: 8px; }
 
-        .slots { display: flex; flex-direction: column; gap: 12px; }
+        /* Slots: scroll horizontal tipo carrossel */
+        .slots-wrap {
+            position: relative;
+            margin: 0 -20px;
+        }
+        .slots {
+            display: flex;
+            flex-direction: row;
+            gap: 12px;
+            overflow-x: auto;
+            padding: 8px 20px 20px;
+            scrollbar-width: none;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+            -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+        }
+        .slots::-webkit-scrollbar { display: none; }
 
-        .slot-card { background: white; border-radius: 20px; padding: 20px 22px; display: flex; align-items: center; gap: 18px; cursor: pointer; transition: all 0.4s var(--ease); border: 1.5px solid transparent; box-shadow: var(--shadow); position: relative; overflow: hidden; animation: cardIn 0.5s var(--ease) backwards; }
+        .slot-card {
+            background: white;
+            border-radius: 20px;
+            padding: 18px 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 6px;
+            cursor: pointer;
+            transition: all 0.4s var(--ease);
+            border: 1.5px solid transparent;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+            animation: cardIn 0.5s var(--ease) backwards;
+            scroll-snap-align: start;
+            flex-shrink: 0;
+            width: 140px;
+            min-height: 110px;
+        }
 
         @keyframes cardIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -384,20 +420,20 @@
         body.admin-on .slot-card:hover { border-color: var(--rose); box-shadow: 0 8px 24px rgba(196,132,138,0.15); }
         body.admin-on .slot-card.selected { border-color: var(--rose); background: rgba(196,132,138,0.08); }
 
-        .slot-check { display: none; width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--rose); align-items: center; justify-content: center; color: white; font-size: 0.7rem; flex-shrink: 0; transition: all 0.3s; }
+        .slot-check { display: none; width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--rose); align-items: center; justify-content: center; color: white; font-size: 0.6rem; flex-shrink: 0; transition: all 0.3s; position: absolute; top: 10px; right: 10px; background: white; }
         body.admin-on .slot-check { display: flex; opacity: 0.4; }
         .slot-card.selected .slot-check { background: var(--rose); opacity: 1; }
 
-        .slot-pip { width: 4px; align-self: stretch; border-radius: 4px; flex-shrink: 0; transition: background 0.3s; }
-        .slot-time { font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; font-weight: 400; color: var(--ink); min-width: 58px; flex-shrink: 0; transition: color 0.5s; }
-        .slot-info { flex: 1; min-width: 0; }
-        .slot-status { font-size: 0.5rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 2px; }
-        .slot-client { font-size: 0.95rem; font-weight: 500; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: color 0.5s; }
-        .slot-dur { font-size: 0.65rem; color: var(--ink-soft); margin-top: 2px; }
+        .slot-pip { width: 100%; height: 3px; border-radius: 3px; flex-shrink: 0; transition: background 0.3s; margin-bottom: 4px; }
+        .slot-time { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; font-weight: 400; color: var(--ink); line-height: 1; transition: color 0.5s; }
+        .slot-info { width: 100%; min-width: 0; }
+        .slot-status { font-size: 0.42rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 2px; }
+        .slot-client { font-size: 0.72rem; font-weight: 500; color: var(--ink); white-space: normal; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.3; transition: color 0.5s; }
+        .slot-dur { font-size: 0.6rem; color: var(--ink-soft); margin-top: 4px; }
 
         body.admin-on .slot-dur { color: var(--ink-soft); }
 
-        .countdown-pill { display: inline-block; background: linear-gradient(90deg, var(--gold), var(--rose)); color: white; padding: 4px 10px; border-radius: 10px; font-size: 0.55rem; font-weight: 700; margin-top: 6px; animation: pulse 2s ease-in-out infinite; }
+        .countdown-pill { display: inline-block; background: linear-gradient(90deg, var(--gold), var(--rose)); color: white; padding: 3px 8px; border-radius: 8px; font-size: 0.46rem; font-weight: 700; margin-top: 4px; animation: pulse 2s ease-in-out infinite; white-space: nowrap; }
         @keyframes pulse { 0%, 100% { opacity: 0.8; transform: scale(1); } 50% { opacity: 1; transform: scale(1.02); } }
 
         .log-expired { display: inline-block; background: rgba(139,75,85,0.1); color: var(--deep-rose); padding: 4px 10px; border-radius: 10px; font-size: 0.5rem; font-weight: 700; margin-top: 4px; letter-spacing: 1px; }
@@ -719,7 +755,7 @@
                 </div>
             </div>
 
-            <div class="slots" id="slotsContainer"></div>
+            <div class="slots-wrap"><div class="slots" id="slotsContainer"></div></div>
 
             <div id="logPanel">
                 <div class="log-title">✦ Registros do Sistema</div>
@@ -1048,16 +1084,19 @@
                     }
                 }
 
-                // durStep: quanto o cursor avança (duração real do slot, nunca encurtada)
-                // durMin: apenas visual — slots livres encolhem para não "cobrir" o próximo ocupado
+                // Para slots Livres: durStep = distância até o próximo ocupado (ou duração padrão se não houver)
+                // Isso evita que o cursor pule por cima de slots ocupados que não estão na grade padrão.
+                // Para slots Ocupados/Bloqueados: durStep = duração real do banco.
                 let durStep = durMin;
                 if (st === 'Livre') {
                     const nextOcc = db
                         .filter(r => String(r.data).substring(0, 10) === iso && r.status !== 'Livre')
                         .map(r => { const [h, m] = r.horario.split(':').map(Number); return h * 60 + m; })
                         .filter(m => m > cur).sort((a, b) => a - b)[0];
-                    if (nextOcc && (nextOcc - cur) < durMin) durMin = nextOcc - cur;
-                    // durStep permanece igual à duração padrão — o cursor nunca pula slots ocupados
+                    if (nextOcc && (nextOcc - cur) < durMin) {
+                        durMin = nextOcc - cur;
+                        durStep = durMin; // cursor avança exatamente até o próximo ocupado
+                    }
                 }
 
                 const pipColor = {
@@ -1125,8 +1164,8 @@
                     <div class="slot-info">
                         <div class="slot-status" style="color:${pipColor}">${stLabels[st] || st}</div>
                         <div class="slot-client">${clientName}</div>
-                        ${metaHtml}
                         <div class="slot-dur">${durLabel}</div>
+                        ${metaHtml}
                         ${extra}
                         ${countdownHtml}
                     </div>
