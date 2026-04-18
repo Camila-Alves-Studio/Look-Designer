@@ -2022,10 +2022,7 @@
             document.getElementById('pastePopup').style.display = 'none';
         }
 
-        // Fechar popup ao clicar fora
-        document.getElementById('pastePopup').addEventListener('click', function(e) {
-            if (e.target === this) cancelPaste();
-        });
+        // Fechar popup ao clicar fora — registrado no window.onload (DOM garantido)
 
         function calcExperience() {
             const years = new Date().getFullYear() - 2010;
@@ -2107,6 +2104,11 @@
             spawnPetals();
             calcExperience();
             initSigWa();
+            // Fechar popup de paste ao clicar fora
+            const pp = document.getElementById('pastePopup');
+            if (pp) pp.addEventListener('click', function(e) {
+                if (e.target === this) cancelPaste();
+            });
             syncData();
             renderDays();
             try { initNotifications(); } catch(e) { }
