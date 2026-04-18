@@ -1187,18 +1187,24 @@
                     }
                 }
 
-                // Para slots Livres: durStep = distância até o próximo ocupado (ou duração padrão se não houver)
-                // Isso evita que o cursor pule por cima de slots ocupados que não estão na grade padrão.
-                // Para slots Ocupados/Bloqueados: durStep = duração real do banco.
+                // Auto-fit: slots LIVRES só encolhem para não sobrepor um slot OCUPADO ou BLOQUEADO
+                // que esteja logo à frente. O fim do expediente NUNCA encurta um slot livre —
+                // se está disponível, será executado até o fim independente do horário de encerramento.
                 let durStep = durMin;
                 if (st === 'Livre') {
                     const nextOcc = db
-                        .filter(r => String(r.data).substring(0, 10) === iso && r.status !== 'Livre')
+                        .filter(r =>
+                            String(r.data).substring(0, 10) === iso &&
+                            (r.status === 'Ocupado' || r.status === 'Bloqueado' || r.status === 'Aguardando Pagamento')
+                        )
                         .map(r => { const [h, m] = r.horario.split(':').map(Number); return h * 60 + m; })
-                        .filter(m => m > cur).sort((a, b) => a - b)[0];
+                        .filter(m => m > cur)
+                        .sort((a, b) => a - b)[0];
+                    // Só encurta se o próximo slot ocupado estiver DENTRO da duração atual
+                    // Nunca encurta por causa do fim do expediente
                     if (nextOcc && (nextOcc - cur) < durMin) {
                         durMin = nextOcc - cur;
-                        durStep = durMin; // cursor avança exatamente até o próximo ocupado
+                        durStep = durMin;
                     }
                 }
 
