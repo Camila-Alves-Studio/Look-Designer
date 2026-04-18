@@ -384,15 +384,8 @@
         #multiSelectBar button { background: var(--rose); color: white; border: none; border-radius: 10px; padding: 8px 16px; font-size: 0.65rem; font-weight: 700; letter-spacing: 1px; cursor: pointer; }
         #multiSelectBar .cancel-sel { background: transparent; color: rgba(255,255,255,0.5); padding: 8px; }
 
-        /* Slots: scroll horizontal tipo carrossel */
-        .slots-wrap {
-            position: relative;
-        }
-        .slots {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
+        .slots-wrap { position: relative; }
+        .slots { display: flex; flex-direction: column; gap: 10px; }
 
         .slot-card {
             background: white;
@@ -426,13 +419,10 @@
         .slot-card.extension .slot-time { color: #8B6420; }
         .slot-card.extension::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--gold), #B07A30); }
 
-
-
         body.admin-on .slot-card { background: white; border-color: rgba(196,132,138,0.15); }
         body.admin-on .slot-card:hover { border-color: var(--rose); box-shadow: 0 8px 24px rgba(196,132,138,0.15); }
         body.admin-on .slot-card.selected { border-color: var(--rose); background: rgba(196,132,138,0.08); }
 
-        /* Indicador de seleção: aparece à direita no modo seleção admin */
         .slot-check {
             display: none;
             width: 24px;
@@ -962,17 +952,6 @@
                 .sort((a, b) => a.data === b.data ? a.mins - b.mins : a.data.localeCompare(b.data))[0] || null;
         }
 
-        // ─── CORREÇÃO: clearClientBlock só remove se banco confirmou liberação ──────
-        function clearClientBlock() {
-            const lastBooking = JSON.parse(localStorage.getItem('last_booking_v3') || 'null');
-            // Só limpa se o token não está mais como Ocupado no banco
-            if (lastBooking && db.find(r => r.codigo === lastBooking.token && r.status === 'Ocupado')) {
-                return; // banco ainda tem como ocupado — não limpa
-            }
-            localStorage.removeItem('last_booking_timestamp');
-            localStorage.removeItem('last_booking_v3');
-        }
-
         // ─── INTRO ───────────────────────────────────────────
         setTimeout(() => document.getElementById('intro').classList.add('out'), 3500);
 
@@ -1005,12 +984,19 @@
                     }
                     isAdmin = !!r.isAdmin;
 
+                    // Limpa bloqueio local apenas se o token não está mais no banco como Ocupado
+                    // Isso NÃO afeta db, histórico nem listagens admin
                     if (!isAdmin) {
                         const saved = localStorage.getItem('last_booking_v3');
                         if (saved) {
-                            const booking = JSON.parse(saved);
-                            const stillOccupied = db.find(rec => rec.codigo === booking.token && rec.status === 'Ocupado');
-                            if (!stillOccupied) clearClientBlock();
+                            try {
+                                const booking = JSON.parse(saved);
+                                const stillOccupied = db.find(rec => rec.codigo === booking.token && rec.status === 'Ocupado');
+                                if (!stillOccupied) {
+                                    localStorage.removeItem('last_booking_timestamp');
+                                    localStorage.removeItem('last_booking_v3');
+                                }
+                            } catch(e) {}
                         }
                     }
 
@@ -1081,8 +1067,6 @@
             updateAdminStats();
         }
 
-        // closeGrid movido para junto de clearSelection
-
         function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
 
         // ─── GRID ──────────────────────────────────────────────
@@ -1136,21 +1120,16 @@
             let cur = sH * 60 + sM, end = eH * 60 + eM;
             let idx = 0;
 
-            // Todos os slots registrados no banco para este dia (sem filtro de end —
-            // slots além do expediente são extensões válidas e devem aparecer)
             const _regMins = db
                 .filter(r => String(r.data).substring(0, 10) === iso)
                 .map(r => { const [h, m] = String(r.horario).substring(0,5).split(':').map(Number); return h*60+m; })
                 .filter(m => m >= (sH*60+sM))
                 .sort((a, b) => a - b);
 
-            // Limite real do loop: fim do expediente OU último slot registrado (o que for maior)
             const _lastReg = _regMins.length ? _regMins[_regMins.length - 1] + 1 : end;
             const _loopEnd = Math.max(end, _lastReg);
 
             while (cur < _loopEnd) {
-                // Se o cursor caiu num vão sem registro mas há slot registrado
-                // entre cur e cur+durDefault, pula direto para ele
                 const _gap = _regMins.find(m => m > cur && m < cur + srvCfg.duration);
                 if (_gap !== undefined) {
                     const _hh = String(Math.floor(cur/60)).padStart(2,'0');
@@ -1161,7 +1140,6 @@
                     );
                     if (!_hasExact) { cur = _gap; continue; }
                 }
-                // Slots sem registro além do expediente: não exibir (só slots registrados contam)
                 const _clockCheck = `${String(Math.floor(cur/60)).padStart(2,'0')}:${String(cur%60).padStart(2,'0')}`;
                 const _regCheck = db.find(r => String(r.data).substring(0,10) === iso && String(r.horario).substring(0,5) === _clockCheck);
                 if (cur >= end && !_regCheck) { cur += srvCfg.duration; continue; }
@@ -1177,7 +1155,6 @@
 
                 let st = reg ? reg.status : 'Livre';
                 let durMin = reg ? parseInt(reg.duration || srvCfg.duration) : srvCfg.duration;
-                // Slot além do horário de encerramento = extensão de expediente
                 const isExtension = cur >= end;
 
                 if (isPast && showAsClient) { cur += Math.max(15, durMin || 30); continue; }
@@ -1201,17 +1178,10 @@
                     }
                 }
 
-                // durStep: quanto o cursor avança após renderizar este slot.
-                // Para slots LIVRES: sempre avança pela duração padrão completa (srvCfg.duration),
-                // garantindo que o próximo slot registrado não seja pulado.
-                // durMin: só para exibição. Slots livres mostram duração encurtada quando há
-                // um slot ocupado logo à frente, mas o CURSOR não encurta — ele avança normalmente.
-                // O fim do expediente nunca afeta durMin nem durStep de slots livres.
                 const durStepBase = reg ? Math.max(30, parseInt(reg.duration || srvCfg.duration)) : srvCfg.duration;
                 let durStep = durStepBase;
 
                 if (st === 'Livre') {
-                    // Próximo slot que já está tomado (ocupado/bloqueado/aguardando)
                     const nextOcc = db
                         .filter(r =>
                             String(r.data).substring(0, 10) === iso &&
@@ -1221,16 +1191,12 @@
                         .filter(m => m > cur)
                         .sort((a, b) => a - b)[0];
 
-                    // Label visual: mostra duração disponível real até o próximo ocupado
                     if (nextOcc && (nextOcc - cur) < durMin) {
-                        durMin = nextOcc - cur; // só visual
+                        durMin = nextOcc - cur;
                     }
-                    // durStep NÃO é alterado — cursor sempre avança pela duração padrão
-                    // para não pular slots registrados que estejam fora do alinhamento padrão
                     durStep = durStepBase;
                 }
 
-                // Extensão de expediente: tom âmbar/dourado para sinalizar visualmente
                 const pipColor = isExtension
                     ? (st === 'Ocupado' || st === 'Aguardando Pagamento' ? '#B07A30' : 'var(--st-block)')
                     : ({
@@ -1315,9 +1281,6 @@
                 `;
 
                 container.appendChild(card);
-                // Antes de avançar, verificar se há slot registrado no banco
-                // entre cur+1 e cur+durStep. Se sim, avança só até ele —
-                // evita pular slots que ficam "dentro" da duração de outro.
                 const _nextReg = _regMins.find(m => m > cur && m < cur + Math.max(30, durStep));
                 cur = _nextReg !== undefined ? _nextReg : cur + Math.max(30, durStep);
                 idx++;
@@ -1334,14 +1297,10 @@
         }
 
         // ─── INTERAÇÃO COM CARDS ──────────────────────────────
-        // Toque simples sempre: abre sheet (admin ou cliente)
-        // Seleção múltipla: ativada pelo botão "Selecionar" na barra admin
-
-        let _selMode = false; // modo seleção ativo
+        let _selMode = false;
 
         function setSelMode(on) {
             _selMode = on;
-            // Classe no body controla visibilidade dos checkboxes via CSS
             document.body.classList.toggle('sel-mode', on);
             const btn = document.getElementById('btnSelMode');
             if (btn) {
@@ -1360,7 +1319,6 @@
             card.addEventListener('click', (e) => {
                 e.stopPropagation();
 
-                // Modo seleção ativo (só admin)
                 if (isAdmin && !isUserView && _selMode) {
                     const key = `${iso}|${clock}`;
                     if (selectedSlots.has(key)) {
@@ -1429,7 +1387,6 @@
             updateMultiBar();
         }
 
-        // Ao fechar o grid, sai do modo seleção
         function closeGrid() {
             currentDay = '';
             _selMode = false;
@@ -1455,66 +1412,87 @@
             await postUpdates(updates);
         }
 
-        // ─── BOOKING SHEET (CLIENTE) — CORREÇÃO PRINCIPAL ─────
+        // ─── BOOKING SHEET (CLIENTE) ──────────────────────────
+        // CORREÇÃO CIRÚRGICA: bloqueio de múltiplos agendamentos inserido aqui.
+        // Nenhuma outra função foi alterada em relação à versão funcional (doc 2).
+        // O bloqueio usa apenas localStorage — não toca no db, histórico ou listagens admin.
         function showBookingSheet(iso, clock) {
             if (!isAdmin) {
                 const lastBooking = JSON.parse(localStorage.getItem('last_booking_v3') || 'null');
                 const lastTs = Number(localStorage.getItem('last_booking_timestamp') || '0');
-                const dentro12h = lastTs > 0 && (Date.now() - lastTs) < 12 * 60 * 60 * 1000;
 
-                // Verifica se o token ainda consta como Ocupado no banco
-                const tokenAindaOcupado = lastBooking
-                    ? !!db.find(r => r.codigo === lastBooking.token && r.status === 'Ocupado')
-                    : false;
+                if (lastBooking) {
+                    // Verifica no banco se o token ainda está como Ocupado
+                    const tokenAindaOcupado = !!db.find(r => r.codigo === lastBooking.token && r.status === 'Ocupado');
+                    // Verifica se ainda está dentro da janela de 12h desde o agendamento
+                    const dentro12h = lastTs > 0 && (Date.now() - lastTs) < 12 * 60 * 60 * 1000;
 
-                // CORREÇÃO: bloqueia se tem token salvo E (ainda dentro de 12h OU banco confirma ocupado)
-                // Isso impede o segundo agendamento mesmo antes do banco responder ao primeiro POST
-                const deveBloquear = lastBooking && (dentro12h || tokenAindaOcupado);
-
-                if (deveBloquear) {
-                    const remainMs = lastTs > 0 ? Math.max(0, (lastTs + 12 * 60 * 60 * 1000) - Date.now()) : 0;
-                    const hrs = Math.floor(remainMs / 3600000);
-                    const mins = Math.floor((remainMs % 3600000) / 60000);
-
-                    openSheet('Você já tem um agendamento ativo', 'Não é possível reservar dois horários ao mesmo tempo.');
-
-                    const activeRec = db.find(r => r.codigo === lastBooking.token && r.status === 'Ocupado');
-                    const dataFmt = activeRec
-                        ? formatManausLabel(String(activeRec.data).substring(0,10), { weekday: 'long', day: '2-digit', month: 'long' }).replace(/^\w/, c => c.toUpperCase())
-                        : lastBooking.iso
-                            ? formatManausLabel(lastBooking.iso, { weekday: 'long', day: '2-digit', month: 'long' }).replace(/^\w/, c => c.toUpperCase())
+                    if (tokenAindaOcupado || dentro12h) {
+                        // Monta dados do agendamento ativo para exibição
+                        const activeRec = db.find(r => r.codigo === lastBooking.token && r.status === 'Ocupado');
+                        const activeIso = activeRec ? String(activeRec.data).substring(0, 10) : (lastBooking.iso || '');
+                        const activeClock = activeRec ? activeRec.horario : (lastBooking.clock || '');
+                        const dataLonga = activeIso
+                            ? formatManausLabel(activeIso, { weekday: 'long', day: '2-digit', month: 'long' }).replace(/^\w/, c => c.toUpperCase())
                             : '';
+                        const dataCurta = activeIso ? activeIso.split('-').reverse().slice(0, 2).join('/') : '';
 
-                    const waGerente = encodeURIComponent('Olá, Camila! Tenho um agendamento ativo e gostaria de ajuda para alterar ou cancelar.');
+                        const remainMs = lastTs > 0 ? Math.max(0, (lastTs + 12 * 60 * 60 * 1000) - Date.now()) : 0;
+                        const remHrs  = Math.floor(remainMs / 3600000);
+                        const remMins = Math.floor((remainMs % 3600000) / 60000);
 
-                    document.getElementById('sheetBody').innerHTML =
-                        '<div style="background:rgba(196,132,138,0.07);border:1.5px solid rgba(196,132,138,0.3);' +
-                        'border-radius:14px;padding:16px 18px;margin-bottom:16px;">' +
-                            '<div style="font-weight:700;color:var(--ink);margin-bottom:4px;">Horário reservado:</div>' +
-                            '<div style="font-size:0.9rem;color:var(--ink);">' +
-                                (activeRec ? activeRec.horario : lastBooking.clock) +
-                                (dataFmt ? ' · ' + dataFmt : '') +
+                        const waMsgCancelar = encodeURIComponent(
+                            'Olá, Camila! 💗 Tenho um agendamento ativo e preciso de ajuda.\n\n' +
+                            '📌 *Meu agendamento:*\n' +
+                            (activeClock ? '🕐 Horário: *' + activeClock + '*\n' : '') +
+                            (dataCurta  ? '📅 Data: *'    + dataCurta  + '*\n' : '') +
+                            (lastBooking.name  ? '👤 Nome: '   + lastBooking.name  + '\n' : '') +
+                            (lastBooking.token ? '🎫 Código: *' + lastBooking.token + '*\n' : '') +
+                            '\nGostaria de ' + (remainMs > 0 ? 'cancelar ou alterar.' : 'confirmar se ainda está ativo.')
+                        );
+
+                        openSheet('Você já tem uma reserva ativa ✨', 'Só é possível ter um agendamento por vez.');
+
+                        document.getElementById('sheetBody').innerHTML =
+                            // Card com horário e data
+                            '<div style="background:linear-gradient(135deg,rgba(196,132,138,0.08),rgba(201,168,108,0.05));' +
+                            'border:1.5px solid rgba(196,132,138,0.3);border-radius:20px;padding:20px;margin-bottom:18px;text-align:center;">' +
+                                '<div style="font-size:0.44rem;font-weight:700;letter-spacing:4px;color:var(--rose);text-transform:uppercase;margin-bottom:12px;">📌 Agendamento ativo</div>' +
+                                '<div style="font-family:Cormorant Garamond,serif;font-size:3rem;font-weight:400;color:var(--ink);line-height:1;margin-bottom:4px;">' + activeClock + '</div>' +
+                                (dataLonga ? '<div style="font-size:0.82rem;font-weight:500;color:var(--ink-soft);margin-bottom:14px;">' + dataLonga + '</div>' : '') +
+                                (lastBooking.token ? '<div style="display:inline-block;background:var(--ink);color:var(--gold);padding:4px 14px;border-radius:8px;font-size:0.58rem;font-weight:700;letter-spacing:3px;">' + lastBooking.token + '</div>' : '') +
                             '</div>' +
-                        '</div>' +
-                        '<div style="font-size:0.78rem;color:var(--ink-soft);line-height:1.6;margin-bottom:16px;">' +
+                            // Contagem regressiva ou mensagem de status
                             (remainMs > 0
-                                ? 'Você poderá fazer um novo agendamento em <strong>' + hrs + 'h ' + mins + 'min</strong>, ou quando a gerente liberar sua vaga.'
-                                : 'Seu agendamento anterior ainda está ativo. Quando a gerente confirmar o atendimento, você poderá fazer um novo agendamento.') +
-                        '</div>' +
-                        '<a href="https://wa.me/5592961505540?text=' + waGerente + '" target="_blank" class="wa-link">' +
-                            '💬 Falar com a Camila · (92) 9 6150-0540' +
-                        '</a>';
+                                ? '<div style="background:rgba(201,168,108,0.08);border-left:3px solid var(--gold);border-radius:0 12px 12px 0;padding:14px 16px;margin-bottom:18px;">' +
+                                    '<div style="font-size:0.44rem;font-weight:700;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:6px;">Novo agendamento disponível em</div>' +
+                                    '<div style="font-family:Cormorant Garamond,serif;font-size:1.8rem;color:var(--ink);line-height:1;">' + (remHrs > 0 ? remHrs + 'h ' : '') + remMins + 'min</div>' +
+                                    '<div style="font-size:0.7rem;color:var(--ink-soft);margin-top:4px;">ou quando a Camila confirmar seu atendimento</div>' +
+                                  '</div>'
+                                : '<div style="background:rgba(139,184,148,0.1);border-left:3px solid var(--st-livre);border-radius:0 12px 12px 0;padding:14px 16px;margin-bottom:18px;">' +
+                                    '<div style="font-size:0.75rem;color:var(--ink-soft);line-height:1.6;">Seu agendamento está confirmado! Após o atendimento você poderá fazer uma nova reserva.</div>' +
+                                  '</div>'
+                            ) +
+                            // Botão WhatsApp
+                            '<a href="https://wa.me/5592961505540?text=' + waMsgCancelar + '" target="_blank" ' +
+                            'style="display:block;background:#25D366;color:white;text-decoration:none;padding:16px;border-radius:14px;font-weight:700;font-size:0.82rem;text-align:center;box-shadow:0 6px 20px rgba(37,211,102,0.3);">' +
+                                '💬 Falar com a Camila sobre este agendamento' +
+                            '</a>';
 
-                    document.getElementById('sheetActions').innerHTML =
-                        '<button class="btn btn-secondary" onclick="closeSheet()" style="margin-top:12px;">Fechar</button>';
-                    return;
+                        document.getElementById('sheetActions').innerHTML =
+                            '<button class="btn btn-secondary" onclick="closeSheet()" style="margin-top:12px;">Fechar</button>';
+                        return;
+                    }
 
-                } else if (!tokenAindaOcupado && lastBooking && !dentro12h) {
-                    // Admin liberou E passaram as 12h — limpa o bloqueio local
-                    clearClientBlock();
+                    // Token não está mais no banco como Ocupado E passou a janela de 12h — limpa
+                    if (!tokenAindaOcupado && !dentro12h) {
+                        localStorage.removeItem('last_booking_timestamp');
+                        localStorage.removeItem('last_booking_v3');
+                    }
                 }
             }
 
+            // Formulário normal de agendamento
             const df = formatManausLabel(iso, { weekday: 'long', day: '2-digit', month: 'long' });
             openSheet(`Reservar ${clock} ✨`, df.replace(/^\w/, c => c.toUpperCase()));
             document.getElementById('sheetBody').innerHTML = `
@@ -1529,13 +1507,12 @@
             `;
         }
 
-        // ─── CONFIRM BOOKING — CORREÇÃO: local-first + proteção duplo clique ──────
+        // ─── CONFIRM BOOKING ───────────────────────────────────
         async function confirmBooking(iso, clock, df) {
             const name = document.getElementById('bName').value.trim();
             const phone = document.getElementById('bPhone').value.trim();
             if (!name || !phone) { alert('Preencha todos os campos.'); return; }
 
-            // Proteção contra duplo clique no botão
             const btn = document.getElementById('btnConfirmarAgendamento');
             if (btn) { btn.disabled = true; btn.textContent = '⏳ Aguarde...'; }
 
@@ -1543,14 +1520,13 @@
             const token = Math.random().toString(36).substring(2, 7).toUpperCase();
             const bTime = new Date().toISOString();
 
-            // CORREÇÃO: salva token localmente ANTES de qualquer coisa
-            // O bloqueio é imediato — independe do banco ter recebido o POST
+            // Salva token localmente imediatamente — bloqueio local-first
             localStorage.setItem('last_booking_v3', JSON.stringify({ token, iso, clock, phone: normalizedPhone, name }));
             localStorage.setItem('last_booking_timestamp', Date.now().toString());
 
             showPixSheet(name, phone, iso, clock, df, token);
 
-            // POST em segundo plano — não bloqueia a experiência da cliente
+            // POST em segundo plano
             postUpdates([{
                 data: iso, horario: clock, status: 'Ocupado',
                 cliente: name, telefone: phone, codigo: token,
@@ -1590,56 +1566,26 @@
                 df.replace(/^\w/, c => c.toUpperCase()) + ' \u00e0s ' + clock + ' \u2014 vaga registrada.');
 
             document.getElementById('sheetBody').innerHTML =
-                '<div style="' +
-                    'background:linear-gradient(135deg,rgba(139,184,148,0.12),rgba(139,184,148,0.06));' +
-                    'border:1.5px solid rgba(139,184,148,0.4);border-radius:18px;' +
-                    'padding:20px 20px 16px;margin-bottom:18px;text-align:center;">' +
+                '<div style="background:linear-gradient(135deg,rgba(139,184,148,0.12),rgba(139,184,148,0.06));border:1.5px solid rgba(139,184,148,0.4);border-radius:18px;padding:20px 20px 16px;margin-bottom:18px;text-align:center;">' +
                     '<div style="font-size:2rem;margin-bottom:6px;">\u2705</div>' +
                     '<div style="font-size:1rem;font-weight:700;color:#3a7d44;margin-bottom:4px;">Vaga registrada na agenda!</div>' +
-                    '<div style="font-size:0.75rem;color:var(--ink-soft);">' +
-                        '<strong style="color:var(--ink);">' + name + '</strong> \u00b7 ' + df + ' \u00e0s ' +
-                        '<strong style="color:var(--ink);">' + clock + '</strong>' +
-                    '</div>' +
-                    '<div style="display:inline-block;background:var(--ink);color:var(--gold);' +
-                        'padding:4px 12px;border-radius:8px;font-size:0.58rem;font-weight:700;' +
-                        'letter-spacing:3px;margin-top:10px;">' + token + '</div>' +
+                    '<div style="font-size:0.75rem;color:var(--ink-soft);"><strong style="color:var(--ink);">' + name + '</strong> \u00b7 ' + df + ' \u00e0s <strong style="color:var(--ink);">' + clock + '</strong></div>' +
+                    '<div style="display:inline-block;background:var(--ink);color:var(--gold);padding:4px 12px;border-radius:8px;font-size:0.58rem;font-weight:700;letter-spacing:3px;margin-top:10px;">' + token + '</div>' +
                 '</div>' +
-
                 '<div style="border-radius:18px;border:1.5px solid rgba(201,168,108,0.35);overflow:hidden;margin-bottom:16px;">' +
-                    '<div style="background:rgba(201,168,108,0.1);padding:12px 16px;' +
-                        'font-size:0.48rem;font-weight:700;letter-spacing:4px;color:var(--gold);' +
-                        'text-transform:uppercase;text-align:center;">' +
-                        '\u{1F4F2} Envie o PIX para a Camila' +
-                    '</div>' +
+                    '<div style="background:rgba(201,168,108,0.1);padding:12px 16px;font-size:0.48rem;font-weight:700;letter-spacing:4px;color:var(--gold);text-transform:uppercase;text-align:center;">\u{1F4F2} Envie o PIX para a Camila</div>' +
                     '<div style="background:white;padding:18px 16px;text-align:center;">' +
-                        '<div style="font-size:0.7rem;color:var(--ink-soft);margin-bottom:12px;line-height:1.6;">' +
-                            'Fa\u00e7a um PIX para <strong style="color:var(--ink);">Camila Alves</strong>' +
-                            ' no <strong style="color:var(--ink);">Nubank</strong>' +
-                        '</div>' +
-                        '<div style="background:var(--cream);border-radius:10px;padding:12px;' +
-                            'margin-bottom:14px;border:1.5px dashed rgba(201,168,108,0.35);">' +
-                            '<div style="font-size:0.42rem;letter-spacing:3px;color:var(--gold);' +
-                                'text-transform:uppercase;margin-bottom:3px;">Chave PIX \u00b7 Celular</div>' +
-                            '<div style="font-family:\'Cormorant Garamond\',serif;font-size:1.7rem;' +
-                                'font-weight:600;color:var(--ink);letter-spacing:1px;">62 99336-2375</div>' +
+                        '<div style="font-size:0.7rem;color:var(--ink-soft);margin-bottom:12px;line-height:1.6;">Fa\u00e7a um PIX para <strong style="color:var(--ink);">Camila Alves</strong> no <strong style="color:var(--ink);">Nubank</strong></div>' +
+                        '<div style="background:var(--cream);border-radius:10px;padding:12px;margin-bottom:14px;border:1.5px dashed rgba(201,168,108,0.35);">' +
+                            '<div style="font-size:0.42rem;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:3px;">Chave PIX \u00b7 Celular</div>' +
+                            '<div style="font-family:\'Cormorant Garamond\',serif;font-size:1.7rem;font-weight:600;color:var(--ink);letter-spacing:1px;">62 99336-2375</div>' +
                             valorHtml +
                         '</div>' +
-                        '<button onclick="navigator.clipboard.writeText(\'62993362375\').then(()=>alert(\'Chave copiada! \u2728\'))" ' +
-                            'style="background:none;border:1.5px solid rgba(201,168,108,0.4);border-radius:10px;' +
-                            'padding:9px 18px;font-family:\'DM Sans\',sans-serif;font-size:0.68rem;' +
-                            'font-weight:700;color:var(--gold);cursor:pointer;">' +
-                            '\u{1F4CB} Copiar chave PIX' +
-                        '</button>' +
+                        '<button onclick="navigator.clipboard.writeText(\'62993362375\').then(()=>alert(\'Chave copiada! \u2728\'))" style="background:none;border:1.5px solid rgba(201,168,108,0.4);border-radius:10px;padding:9px 18px;font-family:\'DM Sans\',sans-serif;font-size:0.68rem;font-weight:700;color:var(--gold);cursor:pointer;">\u{1F4CB} Copiar chave PIX</button>' +
                     '</div>' +
                 '</div>' +
-
-                '<div style="font-size:0.48rem;font-weight:700;letter-spacing:3px;color:var(--ink-soft);' +
-                    'text-transform:uppercase;text-align:center;margin-bottom:10px;">' +
-                    'Depois, mande o comprovante para confirmar \u2193' +
-                '</div>' +
-                '<a href="https://wa.me/' + CFG.WA + '?text=' + waText + '" target="_blank" class="wa-link">' +
-                    '\u{1F4AC} Enviar comprovante para a Camila' +
-                '</a>';
+                '<div style="font-size:0.48rem;font-weight:700;letter-spacing:3px;color:var(--ink-soft);text-transform:uppercase;text-align:center;margin-bottom:10px;">Depois, mande o comprovante para confirmar \u2193</div>' +
+                '<a href="https://wa.me/' + CFG.WA + '?text=' + waText + '" target="_blank" class="wa-link">\u{1F4AC} Enviar comprovante para a Camila</a>';
 
             document.getElementById('sheetActions').innerHTML =
                 '<button class="btn btn-secondary" onclick="closeSheet()" style="margin-top:12px;">Fechar</button>';
@@ -1947,7 +1893,6 @@
             }, 320);
         }
 
-        // Fechar sheet puxando o handle para baixo
         function initSheetDrag() {
             const handle = document.querySelector('.sheet-handle');
             const sheet  = document.getElementById('sheet');
@@ -1964,7 +1909,6 @@
             function onEnd() {
                 if (!dragging) return;
                 dragging = false;
-                // Remove listeners globais imediatamente
                 window.removeEventListener('mousemove', onMove);
                 window.removeEventListener('mouseup', onEnd);
                 const dy = curY - startY;
@@ -1977,7 +1921,6 @@
                 }
             }
 
-            // Touch
             handle.addEventListener('touchstart', e => {
                 startY = e.touches[0].clientY;
                 curY = startY;
@@ -1991,7 +1934,6 @@
             handle.addEventListener('touchend', onEnd);
             handle.addEventListener('touchcancel', onEnd);
 
-            // Mouse — listeners globais só enquanto arrasta
             handle.addEventListener('mousedown', e => {
                 e.preventDefault();
                 startY = e.clientY;
@@ -2046,7 +1988,6 @@
                 const st = reg ? reg.status : 'Livre';
                 const durMin = reg ? Math.max(30, parseInt(reg.duration || srvCfg.duration)) : srvCfg.duration;
 
-                // Só conta slots futuros (hoje: a partir do horário atual; outros dias: todos)
                 const isPast = (iso < todayIso) || (iso === todayIso && cur < curMins);
 
                 if (!isPast) {
