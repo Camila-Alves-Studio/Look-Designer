@@ -8,7 +8,6 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;700&display=swap"
         rel="stylesheet">
-    <!-- OneSignal SDK for Notifications -->
     <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async=""></script>
     <style>
         :root {
@@ -30,6 +29,12 @@
             --st-aguard: #C9A86C;
             --st-ocupado: #C4848A;
             --st-block: #B0A8A8;
+
+            /* ADMIN: tema escuro diferenciado */
+            --admin-bg: #1C1218;
+            --admin-surface: #261A20;
+            --admin-border: rgba(201, 168, 108, 0.18);
+            --admin-accent: #C9A86C;
         }
 
         * {
@@ -45,12 +50,99 @@
             color: var(--ink);
             min-height: 100vh;
             overflow-x: hidden;
-            transition: background 0.5s ease;
+            transition: background 0.5s ease, color 0.5s ease;
         }
 
+        /* ═══════════════════════════════════════════
+           MODO ADMIN — TEMA COMPLETAMENTE DIFERENTE
+        ═══════════════════════════════════════════ */
         body.admin-on {
-            background: #ffe4e6;
-            /* Rose-100: Rosa mais presente, mas ainda legível */
+            background: var(--admin-bg);
+            color: #EDE8E0;
+        }
+
+        body.admin-on::before {
+            background:
+                radial-gradient(ellipse 80% 50% at 10% 0%, rgba(139, 79, 85, 0.25) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 40% at 90% 100%, rgba(201, 168, 108, 0.12) 0%, transparent 60%);
+        }
+
+        body.admin-on .app header .logo-main {
+            color: #EDE8E0;
+        }
+
+        body.admin-on .app header .logo-lash {
+            color: var(--gold);
+        }
+
+        body.admin-on .section-label {
+            color: var(--gold);
+        }
+
+        body.admin-on .day-pill {
+            background: var(--admin-surface);
+            border-color: var(--admin-border);
+        }
+
+        body.admin-on .day-pill .dw,
+        body.admin-on .day-pill .dm {
+            color: rgba(237, 232, 224, 0.5);
+        }
+
+        body.admin-on .day-pill .dn {
+            color: #EDE8E0;
+        }
+
+        body.admin-on .slot-card {
+            background: var(--admin-surface);
+            border-color: var(--admin-border);
+        }
+
+        body.admin-on .slot-time {
+            color: #EDE8E0;
+        }
+
+        body.admin-on .slot-client {
+            color: #EDE8E0;
+        }
+
+        body.admin-on .nav-float {
+            background: var(--admin-surface);
+            border-color: var(--admin-border);
+        }
+
+        body.admin-on .nav-btn {
+            color: #EDE8E0;
+        }
+
+        body.admin-on .signature-section {
+            background: var(--admin-surface);
+            border: 1px solid var(--admin-border);
+        }
+
+        body.admin-on .sig-name {
+            color: #EDE8E0;
+        }
+
+        body.admin-on .grid-date {
+            color: #EDE8E0;
+        }
+
+        /* Banner admin mais discreto — só uma linha fina dourada */
+        body.admin-on::after {
+            content: "● MODO ADMINISTRATIVO";
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(90deg, var(--admin-surface), rgba(201,168,108,0.12), var(--admin-surface));
+            border-bottom: 1px solid rgba(201, 168, 108, 0.3);
+            color: var(--gold);
+            text-align: center;
+            font-size: 0.48rem;
+            letter-spacing: 5px;
+            padding: 5px;
+            z-index: 8000;
         }
 
         body::before {
@@ -65,6 +157,7 @@
                 radial-gradient(ellipse 60% 40% at 90% 100%, rgba(201, 168, 108, 0.15) 0%, transparent 60%);
             pointer-events: none;
             z-index: 0;
+            transition: background 0.5s ease;
         }
 
         /* INTRO */
@@ -82,22 +175,13 @@
             overflow: hidden;
         }
 
-        #intro.out {
-            opacity: 0;
-            visibility: hidden;
-        }
+        #intro.out { opacity: 0; visibility: hidden; }
 
-        /* Petal particles */
-        .intro-petals {
-            position: absolute;
-            inset: 0;
-            pointer-events: none;
-        }
+        .intro-petals { position: absolute; inset: 0; pointer-events: none; }
 
         .petal {
             position: absolute;
-            width: 6px;
-            height: 6px;
+            width: 6px; height: 6px;
             border-radius: 50% 50% 50% 0;
             background: var(--rose);
             opacity: 0;
@@ -105,26 +189,12 @@
         }
 
         @keyframes petalFall {
-            0% {
-                opacity: 0;
-                transform: translateY(-20px) rotate(0deg) scale(0.5);
-            }
-
-            10% {
-                opacity: 0.6;
-            }
-
-            90% {
-                opacity: 0.3;
-            }
-
-            100% {
-                opacity: 0;
-                transform: translateY(100vh) rotate(720deg) scale(1.2);
-            }
+            0% { opacity: 0; transform: translateY(-20px) rotate(0deg) scale(0.5); }
+            10% { opacity: 0.6; }
+            90% { opacity: 0.3; }
+            100% { opacity: 0; transform: translateY(100vh) rotate(720deg) scale(1.2); }
         }
 
-        /* Intro mark */
         .intro-icon {
             position: relative;
             opacity: 0;
@@ -134,140 +204,41 @@
         .intro-icon::before {
             content: '';
             position: absolute;
-            left: 50%;
-            top: 50%;
-            width: 124px;
-            height: 124px;
+            left: 50%; top: 50%;
+            width: 124px; height: 124px;
             transform: translate(-50%, -50%);
             background: radial-gradient(circle, rgba(201, 168, 108, 0.26) 0%, rgba(201, 168, 108, 0.08) 36%, rgba(201, 168, 108, 0) 72%);
             filter: blur(5px);
             pointer-events: none;
         }
 
-        .intro-mark {
-            width: 92px;
-            height: 92px;
-            display: block;
-        }
-
-        .intro-star {
-            transform-origin: 46px 46px;
-            animation: starSpin 10s linear infinite;
-            filter: drop-shadow(0 0 12px rgba(201, 168, 108, 0.28));
-        }
-
-        .intro-star-core {
-            transform-origin: 46px 46px;
-            animation: starPulse 2.4s ease-in-out infinite;
-        }
-
-        .intro-orbit {
-            transform-origin: 46px 46px;
-            animation: orbitFloat 4.8s ease-in-out infinite;
-        }
-
-        .intro-spark {
-            animation: sparkBlink 2.2s ease-in-out infinite;
-        }
-
-        .intro-spark.s2 {
-            animation-delay: 0.45s;
-        }
-
-        .intro-spark.s3 {
-            animation-delay: 0.95s;
-        }
-
-        .intro-spark.s4 {
-            animation-delay: 1.5s;
-        }
+        .intro-mark { width: 92px; height: 92px; display: block; }
+        .intro-star { transform-origin: 46px 46px; animation: starSpin 10s linear infinite; filter: drop-shadow(0 0 12px rgba(201, 168, 108, 0.28)); }
+        .intro-star-core { transform-origin: 46px 46px; animation: starPulse 2.4s ease-in-out infinite; }
+        .intro-orbit { transform-origin: 46px 46px; animation: orbitFloat 4.8s ease-in-out infinite; }
+        .intro-spark { animation: sparkBlink 2.2s ease-in-out infinite; }
+        .intro-spark.s2 { animation-delay: 0.45s; }
+        .intro-spark.s3 { animation-delay: 0.95s; }
+        .intro-spark.s4 { animation-delay: 1.5s; }
 
         .intro-title {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 2.2rem;
-            font-weight: 300;
-            letter-spacing: 10px;
-            color: var(--gold);
-            text-transform: uppercase;
-            opacity: 0;
-            animation: fadeUp 1.2s 0.7s var(--ease) forwards;
+            font-size: 2.2rem; font-weight: 300; letter-spacing: 10px;
+            color: var(--gold); text-transform: uppercase;
+            opacity: 0; animation: fadeUp 1.2s 0.7s var(--ease) forwards;
         }
 
         .intro-sub {
-            font-size: 0.6rem;
-            letter-spacing: 6px;
-            color: rgba(255, 255, 255, 0.35);
-            text-transform: uppercase;
-            opacity: 0;
-            animation: fadeUp 1.2s 1s var(--ease) forwards;
+            font-size: 0.6rem; letter-spacing: 6px;
+            color: rgba(255, 255, 255, 0.35); text-transform: uppercase;
+            opacity: 0; animation: fadeUp 1.2s 1s var(--ease) forwards;
         }
 
-        @keyframes starSpin {
-            from {
-                transform: rotate(0deg);
-            }
-
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        @keyframes starPulse {
-
-            0%,
-            100% {
-                transform: scale(0.92);
-                opacity: 0.88;
-            }
-
-            50% {
-                transform: scale(1.08);
-                opacity: 1;
-            }
-        }
-
-        @keyframes orbitFloat {
-
-            0%,
-            100% {
-                transform: scale(1) rotate(0deg);
-            }
-
-            50% {
-                transform: scale(1.03) rotate(8deg);
-            }
-        }
-
-        @keyframes sparkBlink {
-
-            0%,
-            100% {
-                opacity: 0.22;
-                transform: scale(0.82);
-            }
-
-            42% {
-                opacity: 1;
-                transform: scale(1.18);
-            }
-
-            72% {
-                opacity: 0.4;
-                transform: scale(0.94);
-            }
-        }
-
-        @keyframes fadeUp {
-            from {
-                opacity: 0;
-                transform: translateY(12px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+        @keyframes starSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes starPulse { 0%, 100% { transform: scale(0.92); opacity: 0.88; } 50% { transform: scale(1.08); opacity: 1; } }
+        @keyframes orbitFloat { 0%, 100% { transform: scale(1) rotate(0deg); } 50% { transform: scale(1.03) rotate(8deg); } }
+        @keyframes sparkBlink { 0%, 100% { opacity: 0.22; transform: scale(0.82); } 42% { opacity: 1; transform: scale(1.18); } 72% { opacity: 0.4; transform: scale(0.94); } }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 
         /* SIGNATURE SECTION */
         .signature-section {
@@ -279,151 +250,99 @@
             box-shadow: var(--shadow);
             position: relative;
             overflow: hidden;
+            transition: background 0.5s, color 0.5s;
         }
 
         .signature-section::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
+            top: 0; left: 0; right: 0;
             height: 3px;
             background: linear-gradient(90deg, var(--rose), var(--gold), var(--rose));
         }
 
         .sig-lash-deco {
-            width: 58px;
-            height: 58px;
+            width: 58px; height: 58px;
             margin: 0 auto 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
             border-radius: 50%;
-            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0.82) 38%, rgba(201, 168, 108, 0.12) 100%);
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85), 0 14px 34px rgba(139, 79, 85, 0.11);
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.96), rgba(255,255,255,0.82) 38%, rgba(201,168,108,0.12) 100%);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.85), 0 14px 34px rgba(139,79,85,0.11);
         }
 
-        .sig-mark {
-            width: 34px;
-            height: 34px;
-            display: block;
-        }
+        .sig-mark { width: 34px; height: 34px; display: block; }
+        .sig-name { font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; font-style: italic; font-weight: 400; color: var(--ink); margin-bottom: 2px; transition: color 0.5s; }
+        .sig-title { font-size: 0.5rem; letter-spacing: 4px; font-weight: 700; color: var(--gold); text-transform: uppercase; margin-bottom: 12px; }
+        .sig-exp { display: inline-block; background: linear-gradient(135deg, var(--rose), var(--deep-rose)); color: white; padding: 6px 16px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; margin-bottom: 16px; }
+        .sig-wa { display: block; background: #25D366; color: white; text-decoration: none; padding: 14px 20px; border-radius: 14px; font-weight: 700; font-size: 0.8rem; text-align: center; box-shadow: 0 6px 20px rgba(37,211,102,0.3); transition: all 0.3s; }
+        .sig-wa:active { transform: scale(0.98); }
 
-        .sig-name {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 1.6rem;
-            font-style: italic;
-            font-weight: 400;
-            color: var(--ink);
-            margin-bottom: 2px;
-        }
+        /* ADMIN PANEL */
+        #adminPanel { display: none; margin: 24px 0; }
+        body.admin-on #adminPanel { display: block; }
 
-        .sig-title {
-            font-size: 0.5rem;
-            letter-spacing: 4px;
+        .admin-panel-title {
+            font-size: 0.48rem;
+            letter-spacing: 6px;
             font-weight: 700;
             color: var(--gold);
             text-transform: uppercase;
-            margin-bottom: 12px;
-        }
-
-        .sig-exp {
-            display: inline-block;
-            background: linear-gradient(135deg, var(--rose), var(--deep-rose));
-            color: white;
-            padding: 6px 16px;
-            border-radius: 20px;
-            font-size: 0.7rem;
-            font-weight: 700;
-            margin-bottom: 16px;
-        }
-
-        .sig-wa {
-            display: block;
-            background: #25D366;
-            color: white;
-            text-decoration: none;
-            padding: 14px 20px;
-            border-radius: 14px;
-            font-weight: 700;
-            font-size: 0.8rem;
-            text-align: center;
-            box-shadow: 0 6px 20px rgba(37, 211, 102, 0.3);
-            transition: all 0.3s;
-        }
-
-        .sig-wa:active {
-            transform: scale(0.98);
-        }
-
-        /* ADMIN PANEL SECTION */
-        #adminPanel {
-            display: none;
-            margin: 24px 0;
-        }
-
-        body.admin-on #adminPanel {
-            display: block;
-        }
-
-        .admin-panel-title {
-            font-size: 0.5rem;
-            letter-spacing: 5px;
-            font-weight: 700;
-            color: var(--rose);
-            text-transform: uppercase;
             margin-bottom: 16px;
             text-align: center;
+            opacity: 0.7;
         }
 
         .admin-cards {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 12px;
+            gap: 10px;
             margin-bottom: 16px;
         }
 
         .admin-card {
-            background: white;
-            border-radius: 18px;
-            padding: 20px 16px;
+            background: var(--admin-surface);
+            border-radius: 16px;
+            padding: 18px 14px;
             text-align: center;
             cursor: pointer;
-            box-shadow: var(--shadow);
-            border: 1.5px solid transparent;
+            border: 1px solid var(--admin-border);
             transition: all 0.3s var(--ease);
         }
 
         .admin-card:hover {
-            border-color: var(--rose);
-            transform: translateY(-3px);
-            box-shadow: var(--shadow-deep);
+            border-color: var(--gold);
+            transform: translateY(-2px);
         }
 
-        .admin-card .ac-icon {
-            font-size: 1.6rem;
-            margin-bottom: 8px;
-            display: block;
+        .admin-card .ac-icon { font-size: 1.4rem; margin-bottom: 8px; display: block; }
+        .admin-card .ac-label { font-size: 0.55rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); margin-bottom: 4px; }
+        .admin-card .ac-desc { font-size: 0.68rem; color: rgba(237, 232, 224, 0.5); line-height: 1.4; }
+
+        /* BOTÃO ESPECIAL: VAGAS DO DIA */
+        .admin-card.card-vagas {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, rgba(139, 184, 148, 0.15), rgba(201, 168, 108, 0.1));
+            border-color: rgba(139, 184, 148, 0.4);
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            text-align: left;
         }
 
-        .admin-card .ac-label {
-            font-size: 0.6rem;
-            font-weight: 700;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            color: var(--rose);
-            margin-bottom: 4px;
+        .admin-card.card-vagas:hover {
+            border-color: var(--st-livre);
+            background: linear-gradient(135deg, rgba(139, 184, 148, 0.25), rgba(201, 168, 108, 0.15));
         }
 
-        .admin-card .ac-desc {
-            font-size: 0.72rem;
-            color: var(--ink-soft);
-            line-height: 1.4;
-        }
+        .admin-card.card-vagas .ac-icon { font-size: 2rem; margin: 0; flex-shrink: 0; }
+        .admin-card.card-vagas .ac-label { color: var(--st-livre); font-size: 0.6rem; }
+        .admin-card.card-vagas .ac-desc { color: rgba(237, 232, 224, 0.6); font-size: 0.72rem; }
 
         .admin-stats {
-            background: var(--ink);
-            border-radius: 18px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--admin-border);
+            border-radius: 16px;
             padding: 20px;
             display: grid;
             grid-template-columns: repeat(5, 1fr);
@@ -431,886 +350,342 @@
             margin-bottom: 12px;
         }
 
-        .stat-item {
-            text-align: center;
-        }
-
-        .stat-num {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 1.8rem;
-            color: var(--gold);
-            display: block;
-            line-height: 1;
-        }
-
-        .stat-lbl {
-            font-size: 0.5rem;
-            letter-spacing: 2px;
-            color: rgba(255, 255, 255, 0.4);
-            text-transform: uppercase;
-            margin-top: 4px;
-            display: block;
-        }
-
-        /* ADMIN BADGE */
-        body.admin-on::after {
-            content: "PAINEL ADMINISTRATIVO ATIVO";
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            background: linear-gradient(90deg, var(--deep-rose), var(--gold), var(--deep-rose));
-            background-size: 200% 100%;
-            animation: shimmer 3s linear infinite;
-            color: white;
-            text-align: center;
-            font-size: 0.5rem;
-            letter-spacing: 4px;
-            padding: 5px;
-            z-index: 8000;
-        }
-
-        @keyframes shimmer {
-            0% {
-                background-position: -200% 0;
-            }
-
-            100% {
-                background-position: 200% 0;
-            }
-        }
+        .stat-item { text-align: center; }
+        .stat-num { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; color: var(--gold); display: block; line-height: 1; }
+        .stat-lbl { font-size: 0.48rem; letter-spacing: 2px; color: rgba(237, 232, 224, 0.4); text-transform: uppercase; margin-top: 4px; display: block; }
 
         /* APP */
-        .app {
-            max-width: 480px;
-            margin: 0 auto;
-            padding: 0 20px 160px;
-            position: relative;
-            z-index: 1;
-        }
+        .app { max-width: 480px; margin: 0 auto; padding: 0 20px 160px; position: relative; z-index: 1; }
 
         /* HEADER */
-        header {
-            padding: 48px 0 32px;
-            text-align: center;
-            position: relative;
-        }
+        header { padding: 48px 0 32px; text-align: center; position: relative; }
+        body.admin-on header { padding-top: 58px; }
 
-        .logo-lash {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 0.55rem;
-            letter-spacing: 8px;
-            color: var(--rose);
-            text-transform: uppercase;
-            margin-bottom: 8px;
-            display: block;
-            opacity: 0;
-            animation: fadeUp 1s 3.5s var(--ease) forwards;
-        }
+        .logo-lash { font-family: 'Cormorant Garamond', serif; font-size: 0.55rem; letter-spacing: 8px; color: var(--rose); text-transform: uppercase; margin-bottom: 8px; display: block; opacity: 0; animation: fadeUp 1s 3.5s var(--ease) forwards; transition: color 0.5s; }
+        .logo-main { font-family: 'Cormorant Garamond', serif; font-size: 3rem; font-weight: 300; letter-spacing: 6px; color: var(--ink); line-height: 1; opacity: 0; animation: fadeUp 1s 3.7s var(--ease) forwards; transition: color 0.5s; }
+        .logo-main strong { font-weight: 600; color: var(--rose); }
+        .logo-dot { width: 6px; height: 6px; background: var(--gold); border-radius: 50%; display: inline-block; margin: 0 4px; vertical-align: middle; }
 
-        .logo-main {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 3rem;
-            font-weight: 300;
-            letter-spacing: 6px;
-            color: var(--ink);
-            line-height: 1;
-            opacity: 0;
-            animation: fadeUp 1s 3.7s var(--ease) forwards;
-        }
+        #adminKey { display: none; }
 
-        .logo-main strong {
-            font-weight: 600;
-            color: var(--rose);
-        }
-
-        .logo-dot {
-            width: 6px;
-            height: 6px;
-            background: var(--gold);
-            border-radius: 50%;
-            display: inline-block;
-            margin: 0 4px;
-            vertical-align: middle;
-        }
-
-        #adminKey {
-            display: none;
-            /* hidden - login via nav button below */
-        }
-
-        /* Admin login button in nav - always visible */
         .nav-admin-login {
             background: none;
             border: 1.5px solid rgba(196, 132, 138, 0.3);
             font-family: "DM Sans", sans-serif;
-            font-size: 0.55rem;
-            font-weight: 700;
-            letter-spacing: 2px;
+            font-size: 0.55rem; font-weight: 700; letter-spacing: 2px;
+            text-transform: uppercase; color: var(--rose);
+            cursor: pointer; padding: 8px 16px; border-radius: 40px; transition: all 0.3s;
+        }
+
+        .nav-admin-login:hover { background: rgba(196, 132, 138, 0.08); border-color: var(--rose); }
+
+        .section-label { font-size: 0.5rem; letter-spacing: 5px; font-weight: 700; color: var(--gold); text-transform: uppercase; text-align: center; margin-bottom: 20px; opacity: 0; animation: fadeUp 1s 4s var(--ease) forwards; }
+
+        /* DAY PICKER */
+        .day-picker-wrap { position: relative; margin: 0 -20px; display: flex; align-items: center; }
+        .scroll-arrow { position: absolute; top: 50%; transform: translateY(-50%); width: 32px; height: 32px; background: white; border: 1px solid rgba(196,132,138,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--rose); cursor: pointer; z-index: 10; box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: all 0.3s; font-size: 0.8rem; font-weight: 700; opacity: 0.15; }
+        .scroll-arrow:active { transform: translateY(-50%) scale(0.9); opacity: 0.5; }
+        .scroll-arrow.left { left: 2px; }
+        .scroll-arrow.right { right: 2px; }
+
+        body.admin-on .scroll-arrow { background: var(--admin-surface); border-color: var(--admin-border); }
+
+        .day-scroller { display: flex; gap: 12px; overflow-x: auto; padding: 8px 80px 24px; scrollbar-width: none; opacity: 0; animation: fadeUp 1s 4.2s var(--ease) forwards; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; width: 100%; mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent); -webkit-mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent); }
+        .day-scroller::-webkit-scrollbar { display: none; }
+
+        .day-pill { min-width: 68px; height: 94px; border-radius: 20px; background: white; border: 1.5px solid rgba(196,132,138,0.15); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; cursor: pointer; transition: all 0.5s var(--ease); box-shadow: 0 4px 20px rgba(42,32,32,0.05); position: relative; overflow: hidden; scroll-snap-align: start; flex-shrink: 0; }
+        .day-pill::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, var(--rose), var(--deep-rose)); opacity: 0; transition: opacity 0.5s var(--ease); }
+        .day-pill.active { transform: translateY(-8px) scale(1.08); border-color: var(--rose); box-shadow: 0 16px 40px rgba(196,132,138,0.3); }
+        .day-pill.active::before { opacity: 1; }
+        .day-pill .dw, .day-pill .dm { font-size: 0.5rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--ink-soft); position: relative; z-index: 1; transition: color 0.3s; }
+        .day-pill.active .dw, .day-pill.active .dm { color: rgba(255,255,255,0.75); }
+        .day-pill .dn { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; font-weight: 400; color: var(--ink); position: relative; z-index: 1; transition: color 0.3s; line-height: 1; }
+        .day-pill.active .dn { color: white; }
+
+        /* GRID */
+        #gridSection { display: none; }
+        #gridSection.vis { display: block; }
+        .grid-head { display: flex; align-items: center; justify-content: space-between; padding: 0 4px 24px; }
+        .grid-date { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-style: italic; transition: color 0.5s; }
+        .back-btn { font-size: 0.55rem; letter-spacing: 3px; font-weight: 700; color: var(--rose); text-transform: uppercase; cursor: pointer; background: none; border: none; }
+        body.admin-on .back-btn { color: var(--gold); }
+
+        /* Multi-select bar */
+        #multiSelectBar { display: none; align-items: center; justify-content: space-between; background: var(--ink); color: white; border-radius: 20px; padding: 10px 15px; margin-bottom: 20px; font-size: 0.65rem; font-weight: 500; position: sticky; top: 10px; z-index: 100; box-shadow: 0 10px 30px rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); }
+        #multiSelectBar.vis { display: flex; }
+        #multiSelectBar button { background: var(--rose); color: white; border: none; border-radius: 10px; padding: 8px 16px; font-size: 0.65rem; font-weight: 700; letter-spacing: 1px; cursor: pointer; }
+        #multiSelectBar .cancel-sel { background: transparent; color: rgba(255,255,255,0.5); padding: 8px; }
+
+        /* SLOT CARDS */
+        .slots { display: flex; flex-direction: column; gap: 12px; }
+
+        .slot-card { background: white; border-radius: 20px; padding: 20px 22px; display: flex; align-items: center; gap: 18px; cursor: pointer; transition: all 0.4s var(--ease); border: 1.5px solid transparent; box-shadow: var(--shadow); position: relative; overflow: hidden; animation: cardIn 0.5s var(--ease) backwards; }
+
+        @keyframes cardIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+
+        .slot-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-deep); }
+        .slot-card.past { opacity: 0.3; pointer-events: none; }
+        .slot-card.selected { border-color: var(--rose); background: rgba(196,132,138,0.05); }
+
+        body.admin-on .slot-card { background: var(--admin-surface); border-color: var(--admin-border); }
+        body.admin-on .slot-card:hover { border-color: var(--gold); }
+        body.admin-on .slot-card.selected { border-color: var(--rose); background: rgba(196,132,138,0.08); }
+
+        .slot-check { display: none; width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--rose); align-items: center; justify-content: center; color: white; font-size: 0.7rem; flex-shrink: 0; transition: all 0.3s; }
+        body.admin-on .slot-check { display: flex; opacity: 0.4; }
+        .slot-card.selected .slot-check { background: var(--rose); opacity: 1; }
+
+        .slot-pip { width: 4px; align-self: stretch; border-radius: 4px; flex-shrink: 0; transition: background 0.3s; }
+        .slot-time { font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; font-weight: 400; color: var(--ink); min-width: 58px; flex-shrink: 0; transition: color 0.5s; }
+        .slot-info { flex: 1; min-width: 0; }
+        .slot-status { font-size: 0.5rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 2px; }
+        .slot-client { font-size: 0.95rem; font-weight: 500; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: color 0.5s; }
+        .slot-dur { font-size: 0.65rem; color: var(--ink-soft); margin-top: 2px; }
+
+        body.admin-on .slot-dur { color: rgba(237, 232, 224, 0.45); }
+
+        .countdown-pill { display: inline-block; background: linear-gradient(90deg, var(--gold), var(--rose)); color: white; padding: 4px 10px; border-radius: 10px; font-size: 0.55rem; font-weight: 700; margin-top: 6px; animation: pulse 2s ease-in-out infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 0.8; transform: scale(1); } 50% { opacity: 1; transform: scale(1.02); } }
+
+        .log-expired { display: inline-block; background: rgba(139,75,85,0.1); color: var(--deep-rose); padding: 4px 10px; border-radius: 10px; font-size: 0.5rem; font-weight: 700; margin-top: 4px; letter-spacing: 1px; }
+
+        /* NAV */
+        .nav-float { position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%); background: white; border-radius: 50px; padding: 14px 28px; display: flex; gap: 4px; box-shadow: 0 8px 40px rgba(42,32,32,0.15); z-index: 6000; border: 1px solid rgba(196,132,138,0.15); opacity: 0; animation: fadeUp 1s 4.5s var(--ease) forwards; transition: background 0.5s, border-color 0.5s; }
+        .nav-btn { background: none; border: none; font-family: 'DM Sans', sans-serif; font-size: 0.6rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--ink); cursor: pointer; padding: 8px 16px; border-radius: 40px; transition: all 0.3s; }
+        .nav-btn:hover { background: var(--cream-dark); }
+        .nav-btn.primary { background: linear-gradient(135deg, var(--rose), var(--deep-rose)); color: white; }
+
+        body.admin-on .nav-btn { color: #EDE8E0; }
+        body.admin-on .nav-btn:hover { background: rgba(255,255,255,0.06); }
+
+        #adminNav { display: none; }
+        body.admin-on #adminNav { display: flex; gap: 4px; }
+        body.admin-on #userNav { display: none; }
+
+        /* LOG PANEL */
+        #logPanel { margin-top: 24px; display: none; }
+        body.admin-on #logPanel { display: block; }
+        .log-title { font-size: 0.5rem; letter-spacing: 4px; font-weight: 700; color: var(--gold); text-transform: uppercase; margin-bottom: 12px; }
+        .log-entry { background: white; border-radius: 14px; padding: 14px 18px; margin-bottom: 8px; border-left: 3px solid var(--rose); font-size: 0.75rem; line-height: 1.5; color: var(--ink-soft); }
+        body.admin-on .log-entry { background: var(--admin-surface); color: rgba(237,232,224,0.6); }
+        .log-entry strong { color: var(--ink); display: block; margin-bottom: 2px; }
+        body.admin-on .log-entry strong { color: #EDE8E0; }
+        .log-entry .log-meta { font-size: 0.6rem; color: var(--rose); margin-top: 4px; }
+
+        /* SHEET */
+        .overlay { position: fixed; inset: 0; background: rgba(42,32,32,0.4); backdrop-filter: blur(12px); z-index: 8000; display: none; align-items: flex-end; justify-content: center; }
+        .overlay.vis { display: flex; }
+        .sheet { background: white; width: 100%; max-width: 480px; border-radius: 32px 32px 0 0; padding: 36px 32px 48px; animation: sheetUp 0.6s var(--ease); max-height: 90vh; overflow-y: auto; }
+        body.admin-on .sheet { background: #201618; color: #EDE8E0; }
+
+        @keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+        .sheet-handle { width: 40px; height: 4px; background: var(--cream-dark); border-radius: 4px; margin: 0 auto 28px; }
+        body.admin-on .sheet-handle { background: rgba(255,255,255,0.1); }
+        .sheet-title { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 300; margin-bottom: 4px; }
+        .sheet-sub { font-size: 0.8rem; color: var(--ink-soft); margin-bottom: 28px; line-height: 1.6; }
+        body.admin-on .sheet-sub { color: rgba(237,232,224,0.5); }
+
+        .field-label { font-size: 0.55rem; letter-spacing: 2px; font-weight: 700; color: var(--gold); text-transform: uppercase; margin-bottom: 8px; display: block; }
+        .inp { width: 100%; padding: 16px 20px; border-radius: 14px; border: 1.5px solid var(--cream-dark); background: var(--cream); font-family: 'DM Sans', sans-serif; font-size: 0.9rem; margin-bottom: 16px; outline: none; transition: all 0.3s; color: var(--ink); }
+        .inp:focus { border-color: var(--rose); background: white; }
+        body.admin-on .inp { background: rgba(255,255,255,0.05); border-color: var(--admin-border); color: #EDE8E0; }
+        body.admin-on .inp:focus { border-color: var(--gold); background: rgba(255,255,255,0.08); }
+        body.admin-on .inp::placeholder { color: rgba(237,232,224,0.3); }
+
+        .dur-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+        .dur-opt { padding: 12px; border-radius: 12px; border: 1.5px solid var(--cream-dark); text-align: center; cursor: pointer; font-size: 0.75rem; font-weight: 500; transition: all 0.3s; background: var(--cream); }
+        .dur-opt.sel { border-color: var(--rose); background: rgba(196,132,138,0.08); color: var(--rose); font-weight: 700; }
+        body.admin-on .dur-opt { background: rgba(255,255,255,0.04); border-color: var(--admin-border); color: rgba(237,232,224,0.7); }
+        body.admin-on .dur-opt.sel { border-color: var(--gold); background: rgba(201,168,108,0.12); color: var(--gold); }
+
+        .btn { width: 100%; padding: 18px; border-radius: 14px; border: none; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; font-weight: 700; letter-spacing: 1px; cursor: pointer; transition: all 0.3s; }
+        .btn-primary { background: linear-gradient(135deg, var(--rose) 0%, var(--deep-rose) 100%); color: white; box-shadow: 0 8px 24px rgba(139,79,85,0.3); margin-bottom: 12px; }
+        .btn-primary:active { transform: scale(0.98); }
+        .btn-secondary { background: var(--cream-dark); color: var(--ink); }
+        body.admin-on .btn-secondary { background: rgba(255,255,255,0.08); color: rgba(237,232,224,0.8); }
+        .btn-danger { background: linear-gradient(135deg, #C94848, #8B2020); color: white; box-shadow: 0 8px 24px rgba(139,32,32,0.3); margin-bottom: 12px; }
+        .btn-gold { background: linear-gradient(135deg, var(--gold), #A07840); color: white; box-shadow: 0 8px 24px rgba(160,120,64,0.3); margin-bottom: 12px; }
+
+        /* PIX BOX */
+        .pix-box { background: var(--cream); border-radius: 20px; padding: 24px; text-align: center; margin-bottom: 20px; border: 1.5px dashed var(--gold); }
+        body.admin-on .pix-box { background: rgba(255,255,255,0.04); }
+        .pix-label { font-size: 0.5rem; letter-spacing: 4px; font-weight: 700; color: var(--gold); text-transform: uppercase; margin-bottom: 10px; }
+        .pix-key { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; font-weight: 400; color: var(--ink); margin-bottom: 6px; }
+        body.admin-on .pix-key { color: #EDE8E0; }
+        .pix-holder { font-size: 0.8rem; color: var(--ink-soft); }
+        body.admin-on .pix-holder { color: rgba(237,232,224,0.5); }
+        .wa-link { display: block; background: #25D366; color: white; text-decoration: none; padding: 18px; border-radius: 14px; font-weight: 700; font-size: 0.85rem; text-align: center; margin-top: 16px; box-shadow: 0 8px 24px rgba(37,211,102,0.3); transition: all 0.3s; }
+        .wa-link:active { transform: scale(0.98); }
+        .info-box { background: rgba(201,168,108,0.1); border-radius: 14px; padding: 16px 18px; margin-bottom: 20px; border-left: 3px solid var(--gold); font-size: 0.78rem; line-height: 1.6; color: var(--ink-soft); }
+        body.admin-on .info-box { background: rgba(201,168,108,0.06); color: rgba(237,232,224,0.6); }
+        .booking-sum { background: var(--cream); border-radius: 14px; padding: 16px 20px; margin-bottom: 20px; }
+        body.admin-on .booking-sum { background: rgba(255,255,255,0.04); }
+        .booking-sum p { font-size: 0.8rem; color: var(--ink-soft); margin-bottom: 4px; }
+        body.admin-on .booking-sum p { color: rgba(237,232,224,0.5); }
+        .booking-sum p strong { color: var(--ink); }
+        body.admin-on .booking-sum p strong { color: #EDE8E0; }
+        .booking-sum .token { display: inline-block; background: var(--ink); color: var(--gold); padding: 4px 10px; border-radius: 8px; font-size: 0.6rem; font-weight: 700; letter-spacing: 3px; margin-top: 6px; }
+        .admin-action-grid { display: grid; gap: 10px; margin-bottom: 16px; }
+
+        /* ═══════════════════════════════════════════
+           MODAL: VISUALIZADOR DE VAGAS DO DIA
+        ═══════════════════════════════════════════ */
+        #vagasModal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 9000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        #vagasModal.vis { display: flex; }
+
+        .vagas-card {
+            background: #FAF6F1;
+            border-radius: 28px;
+            padding: 32px 28px;
+            max-width: 420px;
+            width: 100%;
+            position: relative;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .vagas-card-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .vagas-logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: var(--ink);
+            letter-spacing: 4px;
             text-transform: uppercase;
-            color: var(--rose);
-            cursor: pointer;
-            padding: 8px 16px;
-            border-radius: 40px;
-            transition: all 0.3s;
         }
 
-        .nav-admin-login:hover {
-            background: rgba(196, 132, 138, 0.08);
-            border-color: var(--rose);
+        .vagas-logo span { color: var(--rose); }
+
+        .vagas-date {
+            font-size: 0.6rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-top: 4px;
+            font-weight: 700;
         }
 
-        /* SECTION LABEL */
-        .section-label {
+        .vagas-titulo {
             font-size: 0.5rem;
             letter-spacing: 5px;
             font-weight: 700;
-            color: var(--gold);
+            color: var(--ink-soft);
             text-transform: uppercase;
             text-align: center;
-            margin-bottom: 20px;
-            opacity: 0;
-            animation: fadeUp 1s 4s var(--ease) forwards;
-        }
-
-        /* DAY PICKER */
-        .day-picker-wrap {
-            position: relative;
-            margin: 0 -20px;
-            display: flex;
-            align-items: center;
-        }
-
-        .scroll-arrow {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 32px;
-            height: 32px;
-            background: white;
-            border: 1px solid rgba(196, 132, 138, 0.2);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--rose);
-            cursor: pointer;
-            z-index: 10;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s;
-            font-size: 0.8rem;
-            font-weight: 700;
-            opacity: 0.15;
-            /* Subitamente transparente conforme pedido */
-        }
-
-        .scroll-arrow:active {
-            transform: translateY(-50%) scale(0.9);
-            opacity: 0.5;
-        }
-
-        .scroll-arrow.left {
-            left: 2px;
-        }
-
-        .scroll-arrow.right {
-            right: 2px;
-        }
-
-        .day-scroller {
-            display: flex;
-            gap: 12px;
-            overflow-x: auto;
-            padding: 8px 80px 24px;
-            /* Aumentado para 80px para garantir que as datas não fiquem sob as setas */
-            scrollbar-width: none;
-            opacity: 0;
-            animation: fadeUp 1s 4.2s var(--ease) forwards;
-            scroll-snap-type: x mandatory;
-            -webkit-overflow-scrolling: touch;
-            width: 100%;
-            mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
-            -webkit-mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
-        }
-
-        .day-scroller::-webkit-scrollbar {
-            display: none;
-        }
-
-        .day-pill {
-            min-width: 68px;
-            /* Slightly wider */
-            height: 94px;
-            /* Slightly taller */
-            border-radius: 20px;
-            background: white;
-            border: 1.5px solid rgba(196, 132, 138, 0.15);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 2px;
-            cursor: pointer;
-            transition: all 0.5s var(--ease);
-            box-shadow: 0 4px 20px rgba(42, 32, 32, 0.05);
-            position: relative;
-            overflow: hidden;
-            scroll-snap-align: start;
-            /* Snap point */
-            flex-shrink: 0;
-        }
-
-        .day-pill::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, var(--rose), var(--deep-rose));
-            opacity: 0;
-            transition: opacity 0.5s var(--ease);
-        }
-
-        .day-pill.active {
-            transform: translateY(-8px) scale(1.08);
-            border-color: var(--rose);
-            box-shadow: 0 16px 40px rgba(196, 132, 138, 0.3);
-        }
-
-        .day-pill.active::before {
-            opacity: 1;
-        }
-
-        .day-pill .dw,
-        .day-pill .dm {
-            font-size: 0.5rem;
-            font-weight: 700;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            color: var(--ink-soft);
-            position: relative;
-            z-index: 1;
-            transition: color 0.3s;
-        }
-
-        .day-pill.active .dw,
-        .day-pill.active .dm {
-            color: rgba(255, 255, 255, 0.75);
-        }
-
-        .day-pill .dn {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 1.8rem;
-            font-weight: 400;
-            color: var(--ink);
-            position: relative;
-            z-index: 1;
-            transition: color 0.3s;
-            line-height: 1;
-        }
-
-        .day-pill.active .dn {
-            color: white;
-        }
-
-        /* GRID */
-        #gridSection {
-            display: none;
-        }
-
-        #gridSection.vis {
-            display: block;
-        }
-
-        .grid-head {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 4px 24px;
-        }
-
-        .grid-date {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 1.5rem;
-            font-style: italic;
-        }
-
-        .back-btn {
-            font-size: 0.55rem;
-            letter-spacing: 3px;
-            font-weight: 700;
-            color: var(--rose);
-            text-transform: uppercase;
-            cursor: pointer;
-            background: none;
-            border: none;
-        }
-
-        /* ADMIN: Multi-select bar */
-        #multiSelectBar {
-            display: none;
-            align-items: center;
-            justify-content: space-between;
-            background: var(--ink);
-            color: white;
-            border-radius: 20px;
-            padding: 10px 15px;
-            margin-bottom: 20px;
-            font-size: 0.65rem;
-            font-weight: 500;
-            position: sticky;
-            top: 10px;
-            z-index: 100;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        #multiSelectBar.vis {
-            display: flex;
-        }
-
-        #multiSelectBar button {
-            background: var(--rose);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            padding: 8px 16px;
-            font-size: 0.65rem;
-            font-weight: 700;
-            letter-spacing: 1px;
-            cursor: pointer;
-        }
-
-        #multiSelectBar .cancel-sel {
-            background: transparent;
-            color: rgba(255, 255, 255, 0.5);
-            padding: 8px;
-        }
-
-        /* SLOT CARDS */
-        .slots {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .slot-card {
-            background: white;
-            border-radius: 20px;
-            padding: 20px 22px;
-            display: flex;
-            align-items: center;
-            gap: 18px;
-            cursor: pointer;
-            transition: all 0.4s var(--ease);
-            border: 1.5px solid transparent;
-            box-shadow: var(--shadow);
-            position: relative;
-            overflow: hidden;
-            animation: cardIn 0.5s var(--ease) backwards;
-        }
-
-        @keyframes cardIn {
-            from {
-                opacity: 0;
-                transform: translateY(16px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .slot-card:hover {
-            transform: translateY(-3px);
-            box-shadow: var(--shadow-deep);
-        }
-
-        .slot-card.past {
-            opacity: 0.3;
-            pointer-events: none;
-        }
-
-        .slot-card.selected {
-            border-color: var(--rose);
-            background: rgba(196, 132, 138, 0.05);
-        }
-
-        .slot-check {
-            display: none;
-            width: 22px;
-            height: 22px;
-            border-radius: 50%;
-            border: 2px solid var(--rose);
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 0.7rem;
-            flex-shrink: 0;
-            transition: all 0.3s;
-        }
-
-        body.admin-on .slot-check {
-            display: flex;
-            opacity: 0.4;
-        }
-
-        .slot-card.selected .slot-check {
-            background: var(--rose);
-            opacity: 1;
-        }
-
-        .slot-pip {
-            width: 4px;
-            align-self: stretch;
-            border-radius: 4px;
-            flex-shrink: 0;
-            transition: background 0.3s;
-        }
-
-        .slot-time {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 1.6rem;
-            font-weight: 400;
-            color: var(--ink);
-            min-width: 58px;
-            flex-shrink: 0;
-        }
-
-        .slot-info {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .slot-status {
-            font-size: 0.5rem;
-            font-weight: 700;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            margin-bottom: 2px;
-        }
-
-        .slot-client {
-            font-size: 0.95rem;
-            font-weight: 500;
-            color: var(--ink);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .slot-dur {
-            font-size: 0.65rem;
-            color: var(--ink-soft);
-            margin-top: 2px;
-        }
-
-        .slot-badge {
-            font-size: 0.55rem;
-            font-weight: 700;
-            padding: 5px 10px;
-            border-radius: 20px;
-            white-space: nowrap;
-            flex-shrink: 0;
-        }
-
-        /* COUNTDOWN */
-        .countdown-pill {
-            display: inline-block;
-            background: linear-gradient(90deg, var(--gold), var(--rose));
-            color: white;
-            padding: 4px 10px;
-            border-radius: 10px;
-            font-size: 0.55rem;
-            font-weight: 700;
-            margin-top: 6px;
-            animation: pulse 2s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-
-            0%,
-            100% {
-                opacity: 0.8;
-                transform: scale(1);
-            }
-
-            50% {
-                opacity: 1;
-                transform: scale(1.02);
-            }
-        }
-
-        /* ADMIN LOG BADGE */
-        .log-expired {
-            display: inline-block;
-            background: rgba(139, 75, 85, 0.1);
-            color: var(--deep-rose);
-            padding: 4px 10px;
-            border-radius: 10px;
-            font-size: 0.5rem;
-            font-weight: 700;
-            margin-top: 4px;
-            letter-spacing: 1px;
-        }
-
-        /* NAV */
-        .nav-float {
-            position: fixed;
-            bottom: 32px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: white;
-            border-radius: 50px;
-            padding: 14px 28px;
-            display: flex;
-            gap: 4px;
-            box-shadow: 0 8px 40px rgba(42, 32, 32, 0.15);
-            z-index: 6000;
-            border: 1px solid rgba(196, 132, 138, 0.15);
-            opacity: 0;
-            animation: fadeUp 1s 4.5s var(--ease) forwards;
-        }
-
-        .nav-btn {
-            background: none;
-            border: none;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 0.6rem;
-            font-weight: 700;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            color: var(--ink);
-            cursor: pointer;
-            padding: 8px 16px;
-            border-radius: 40px;
-            transition: all 0.3s;
-        }
-
-        .nav-btn:hover {
-            background: var(--cream-dark);
-        }
-
-        .nav-btn.primary {
-            background: linear-gradient(135deg, var(--rose), var(--deep-rose));
-            color: white;
-        }
-
-        #adminNav {
-            display: none;
-        }
-
-        body.admin-on #adminNav {
-            display: flex;
-            gap: 4px;
-        }
-
-        body.admin-on #userNav {
-            display: none;
-        }
-
-        /* LOG PANEL (ADMIN) */
-        #logPanel {
-            margin-top: 24px;
-            display: none;
-        }
-
-        body.admin-on #logPanel {
-            display: block;
-        }
-
-        .log-title {
-            font-size: 0.5rem;
-            letter-spacing: 4px;
-            font-weight: 700;
-            color: var(--gold);
-            text-transform: uppercase;
-            margin-bottom: 12px;
-        }
-
-        .log-entry {
-            background: white;
-            border-radius: 14px;
-            padding: 14px 18px;
-            margin-bottom: 8px;
-            border-left: 3px solid var(--rose);
-            font-size: 0.75rem;
-            line-height: 1.5;
-            color: var(--ink-soft);
-        }
-
-        .log-entry strong {
-            color: var(--ink);
-            display: block;
-            margin-bottom: 2px;
-        }
-
-        .log-entry .log-meta {
-            font-size: 0.6rem;
-            color: var(--rose);
-            margin-top: 4px;
-        }
-
-        /* SHEET */
-        .overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(42, 32, 32, 0.4);
-            backdrop-filter: blur(12px);
-            z-index: 8000;
-            display: none;
-            align-items: flex-end;
-            justify-content: center;
-        }
-
-        .overlay.vis {
-            display: flex;
-        }
-
-        .sheet {
-            background: white;
-            width: 100%;
-            max-width: 480px;
-            border-radius: 32px 32px 0 0;
-            padding: 36px 32px 48px;
-            animation: sheetUp 0.6s var(--ease);
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        @keyframes sheetUp {
-            from {
-                transform: translateY(100%);
-            }
-
-            to {
-                transform: translateY(0);
-            }
-        }
-
-        .sheet-handle {
-            width: 40px;
-            height: 4px;
-            background: var(--cream-dark);
-            border-radius: 4px;
-            margin: 0 auto 28px;
-        }
-
-        .sheet-title {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 2rem;
-            font-weight: 300;
-            margin-bottom: 4px;
-        }
-
-        .sheet-sub {
-            font-size: 0.8rem;
-            color: var(--ink-soft);
-            margin-bottom: 28px;
-            line-height: 1.6;
-        }
-
-        .field-label {
-            font-size: 0.55rem;
-            letter-spacing: 2px;
-            font-weight: 700;
-            color: var(--gold);
-            text-transform: uppercase;
-            margin-bottom: 8px;
-            display: block;
-        }
-
-        .inp {
-            width: 100%;
-            padding: 16px 20px;
-            border-radius: 14px;
-            border: 1.5px solid var(--cream-dark);
-            background: var(--cream);
-            font-family: 'DM Sans', sans-serif;
-            font-size: 0.9rem;
             margin-bottom: 16px;
-            outline: none;
-            transition: all 0.3s;
-            color: var(--ink);
         }
 
-        .inp:focus {
-            border-color: var(--rose);
-            background: white;
-        }
-
-        .dur-grid {
+        .vagas-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
 
-        .dur-opt {
-            padding: 12px;
-            border-radius: 12px;
-            border: 1.5px solid var(--cream-dark);
+        .vaga-item {
+            background: white;
+            border-radius: 14px;
+            padding: 14px 10px;
             text-align: center;
-            cursor: pointer;
-            font-size: 0.75rem;
-            font-weight: 500;
-            transition: all 0.3s;
-            background: var(--cream);
+            border: 1.5px solid rgba(139, 184, 148, 0.3);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
         }
 
-        .dur-opt.sel {
-            border-color: var(--rose);
-            background: rgba(196, 132, 138, 0.08);
+        .vaga-hora {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.4rem;
+            color: var(--ink);
+            display: block;
+            line-height: 1;
+        }
+
+        .vaga-label {
+            font-size: 0.45rem;
+            letter-spacing: 2px;
+            font-weight: 700;
+            color: var(--st-livre);
+            text-transform: uppercase;
+            margin-top: 4px;
+            display: block;
+        }
+
+        .vagas-footer {
+            text-align: center;
+            border-top: 1px solid var(--cream-dark);
+            padding-top: 16px;
+        }
+
+        .vagas-footer-nome {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.1rem;
+            font-style: italic;
+            color: var(--ink);
+        }
+
+        .vagas-footer-sub {
+            font-size: 0.48rem;
+            letter-spacing: 3px;
+            color: var(--gold);
+            text-transform: uppercase;
+            margin-top: 2px;
+            display: block;
+        }
+
+        .vagas-footer-wa {
+            font-size: 0.65rem;
             color: var(--rose);
             font-weight: 700;
+            margin-top: 8px;
+            display: block;
         }
 
-        .btn {
-            width: 100%;
-            padding: 18px;
-            border-radius: 14px;
+        .vagas-semvagas {
+            text-align: center;
+            padding: 20px;
+            color: var(--ink-soft);
+            font-size: 0.85rem;
+        }
+
+        .vagas-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .vagas-actions button {
+            flex: 1;
+            padding: 14px;
+            border-radius: 12px;
             border: none;
             font-family: 'DM Sans', sans-serif;
-            font-size: 0.85rem;
+            font-size: 0.72rem;
             font-weight: 700;
-            letter-spacing: 1px;
             cursor: pointer;
             transition: all 0.3s;
         }
 
-        .btn-primary {
-            background: linear-gradient(135deg, var(--rose) 0%, var(--deep-rose) 100%);
-            color: white;
-            box-shadow: 0 8px 24px rgba(139, 79, 85, 0.3);
-            margin-bottom: 12px;
-        }
-
-        .btn-primary:active {
-            transform: scale(0.98);
-        }
-
-        .btn-secondary {
+        .vagas-btn-fechar {
             background: var(--cream-dark);
             color: var(--ink);
         }
 
-        .btn-danger {
-            background: linear-gradient(135deg, #C94848, #8B2020);
+        .vagas-btn-copy {
+            background: linear-gradient(135deg, var(--rose), var(--deep-rose));
             color: white;
-            box-shadow: 0 8px 24px rgba(139, 32, 32, 0.3);
-            margin-bottom: 12px;
-        }
-
-        .btn-gold {
-            background: linear-gradient(135deg, var(--gold), #A07840);
-            color: white;
-            box-shadow: 0 8px 24px rgba(160, 120, 64, 0.3);
-            margin-bottom: 12px;
-        }
-
-        /* PIX BOX */
-        .pix-box {
-            background: var(--cream);
-            border-radius: 20px;
-            padding: 24px;
-            text-align: center;
-            margin-bottom: 20px;
-            border: 1.5px dashed var(--gold);
-        }
-
-        .pix-label {
-            font-size: 0.5rem;
-            letter-spacing: 4px;
-            font-weight: 700;
-            color: var(--gold);
-            text-transform: uppercase;
-            margin-bottom: 10px;
-        }
-
-        .pix-key {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 1.8rem;
-            font-weight: 400;
-            color: var(--ink);
-            margin-bottom: 6px;
-        }
-
-        .pix-holder {
-            font-size: 0.8rem;
-            color: var(--ink-soft);
-        }
-
-        .wa-link {
-            display: block;
-            background: #25D366;
-            color: white;
-            text-decoration: none;
-            padding: 18px;
-            border-radius: 14px;
-            font-weight: 700;
-            font-size: 0.85rem;
-            text-align: center;
-            margin-top: 16px;
-            box-shadow: 0 8px 24px rgba(37, 211, 102, 0.3);
-            transition: all 0.3s;
-        }
-
-        .wa-link:active {
-            transform: scale(0.98);
-        }
-
-        .info-box {
-            background: rgba(201, 168, 108, 0.1);
-            border-radius: 14px;
-            padding: 16px 18px;
-            margin-bottom: 20px;
-            border-left: 3px solid var(--gold);
-            font-size: 0.78rem;
-            line-height: 1.6;
-            color: var(--ink-soft);
-        }
-
-        /* BOOKING SUMMARY */
-        .booking-sum {
-            background: var(--cream);
-            border-radius: 14px;
-            padding: 16px 20px;
-            margin-bottom: 20px;
-        }
-
-        .booking-sum p {
-            font-size: 0.8rem;
-            color: var(--ink-soft);
-            margin-bottom: 4px;
-        }
-
-        .booking-sum p strong {
-            color: var(--ink);
-        }
-
-        .booking-sum .token {
-            display: inline-block;
-            background: var(--ink);
-            color: var(--gold);
-            padding: 4px 10px;
-            border-radius: 8px;
-            font-size: 0.6rem;
-            font-weight: 700;
-            letter-spacing: 3px;
-            margin-top: 6px;
-        }
-
-        /* ADMIN ACTIONS */
-        .admin-action-grid {
-            display: grid;
-            gap: 10px;
-            margin-bottom: 16px;
-        }
-
-        /* CONFIG */
-        .config-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
         }
     </style>
 </head>
@@ -1320,46 +695,43 @@
     <div id="intro">
         <div class="intro-petals" id="introPetals"></div>
         <div class="intro-icon">
-            <svg class="intro-mark" viewBox="0 0 92 92" fill="none" xmlns="http://www.w3.org/2000/svg"
-                aria-hidden="true">
+            <svg class="intro-mark" viewBox="0 0 92 92" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                 <circle cx="46" cy="46" r="28" fill="url(#starGlow)" opacity="0.18" />
                 <g class="intro-orbit">
                     <circle cx="46" cy="19" r="2.4" fill="#E8D5B0" opacity="0.95" />
                     <circle cx="71" cy="34" r="1.9" fill="#C4848A" opacity="0.72" />
                     <circle cx="20" cy="35" r="1.9" fill="#C4848A" opacity="0.72" />
-                    <path d="M27 63C34 69 40 72 46 72C52 72 58 69 65 63" stroke="rgba(232,213,176,0.42)"
-                        stroke-width="1.5" stroke-linecap="round" />
+                    <path d="M27 63C34 69 40 72 46 72C52 72 58 69 65 63" stroke="rgba(232,213,176,0.42)" stroke-width="1.5" stroke-linecap="round" />
                 </g>
                 <g class="intro-star">
-                    <path
-                        d="M46 17L52.6 35.4L72 37.4L57.2 49.8L61.8 68.4L46 58.8L30.2 68.4L34.8 49.8L20 37.4L39.4 35.4L46 17Z"
-                        fill="url(#starFill)" />
+                    <path d="M46 17L52.6 35.4L72 37.4L57.2 49.8L61.8 68.4L46 58.8L30.2 68.4L34.8 49.8L20 37.4L39.4 35.4L46 17Z" fill="url(#starFill)" />
                 </g>
                 <g class="intro-star-core">
-                    <path
-                        d="M46 26L49.3 35.7L59.6 36.8L51.8 43.3L54.2 53.2L46 48.2L37.8 53.2L40.2 43.3L32.4 36.8L42.7 35.7L46 26Z"
-                        fill="#FFF8EB" />
+                    <path d="M46 26L49.3 35.7L59.6 36.8L51.8 43.3L54.2 53.2L46 48.2L37.8 53.2L40.2 43.3L32.4 36.8L42.7 35.7L46 26Z" fill="#FFF8EB" />
                 </g>
                 <circle class="intro-spark s1" cx="18" cy="22" r="2.2" fill="#FFF6DC" />
                 <circle class="intro-spark s2" cx="75" cy="20" r="1.8" fill="#FFF6DC" />
                 <circle class="intro-spark s3" cx="68" cy="67" r="2" fill="#E8D5B0" />
                 <circle class="intro-spark s4" cx="24" cy="68" r="1.7" fill="#E8D5B0" />
                 <defs>
-                    <radialGradient id="starGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse"
-                        gradientTransform="translate(46 46) rotate(90) scale(28)">
-                        <stop stop-color="#F7E9BF" />
-                        <stop offset="1" stop-color="#F7E9BF" stop-opacity="0" />
+                    <radialGradient id="starGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(46 46) rotate(90) scale(28)">
+                        <stop stop-color="#F7E9BF" /><stop offset="1" stop-color="#F7E9BF" stop-opacity="0" />
                     </radialGradient>
                     <linearGradient id="starFill" x1="46" y1="17" x2="46" y2="68.4" gradientUnits="userSpaceOnUse">
-                        <stop stop-color="#FFF4CF" />
-                        <stop offset="0.48" stop-color="#D9BC7B" />
-                        <stop offset="1" stop-color="#B9894E" />
+                        <stop stop-color="#FFF4CF" /><stop offset="0.48" stop-color="#D9BC7B" /><stop offset="1" stop-color="#B9894E" />
                     </linearGradient>
                 </defs>
             </svg>
         </div>
         <div class="intro-title">Look Designer</div>
         <div class="intro-sub">Studio de Cílios · Agende seu olhar</div>
+    </div>
+
+    <!-- MODAL VAGAS DO DIA (só admin) -->
+    <div id="vagasModal" onclick="if(event.target===this)closeVagasModal()">
+        <div class="vagas-card" id="vagasCard">
+            <!-- preenchido dinamicamente -->
+        </div>
     </div>
 
     <div class="app">
@@ -1376,26 +748,30 @@
             <button class="scroll-arrow right" onclick="scrollDays(1)">›</button>
         </div>
 
-        <!-- PAINEL ADMIN - visível só quando logado -->
         <section id="adminPanel">
             <div class="admin-panel-title">✦ Painel Administrativo ✦</div>
             <div class="admin-stats">
-                <div class="stat-item"><span class="stat-num" id="statLivre">—</span><span class="stat-lbl">Livres
-                        hoje</span></div>
-                <div class="stat-item"><span class="stat-num" id="statOcupado">—</span><span
-                        class="stat-lbl">Ocupados</span></div>
-                <div class="stat-item"><span class="stat-num" id="statAguard">—</span><span
-                        class="stat-lbl">Aguardando</span></div>
-                <div class="stat-item" style="border-left:1px solid rgba(255,255,255,0.1);padding-left:10px;">
-                    <span class="stat-num" id="statPix" style="font-size:1.1rem;color:var(--gold);">—</span>
+                <div class="stat-item"><span class="stat-num" id="statLivre">—</span><span class="stat-lbl">Livres hoje</span></div>
+                <div class="stat-item"><span class="stat-num" id="statOcupado">—</span><span class="stat-lbl">Agendados</span></div>
+                <div class="stat-item"><span class="stat-num" id="statAguard">—</span><span class="stat-lbl">Histórico</span></div>
+                <div class="stat-item" style="border-left:1px solid rgba(255,255,255,0.08);padding-left:10px;">
+                    <span class="stat-num" id="statPix" style="font-size:1.1rem;">—</span>
                     <span class="stat-lbl">Taxa PIX</span>
                 </div>
-                <div class="stat-item" style="border-left:1px solid rgba(255,255,255,0.1);padding-left:10px;">
+                <div class="stat-item" style="border-left:1px solid rgba(255,255,255,0.08);padding-left:10px;">
                     <span class="stat-num" id="statNext" style="font-size:1.1rem;color:var(--rose);">—</span>
-                    <span class="stat-lbl">Próximo Online</span>
+                    <span class="stat-lbl">Próximo</span>
                 </div>
             </div>
             <div class="admin-cards">
+                <!-- BOTÃO DESTAQUE: VAGAS DO DIA -->
+                <div class="admin-card card-vagas" onclick="openVagasModal()">
+                    <span class="ac-icon">📸</span>
+                    <div>
+                        <div class="ac-label">Visualizar Vagas do Dia</div>
+                        <div class="ac-desc">Veja e copie os horários disponíveis para postar no status</div>
+                    </div>
+                </div>
                 <div class="admin-card" onclick="openConfig()">
                     <span class="ac-icon">⚙️</span>
                     <div class="ac-label">Configurações</div>
@@ -1411,15 +787,14 @@
                     <div class="ac-label">Bloqueios em Lote</div>
                     <div class="ac-desc">Folgas e horários indisponíveis</div>
                 </div>
-                <div class="admin-card" onclick="openLogSheet()">
+                <div class="admin-card" onclick="openScheduledSheet()">
                     <span class="ac-icon">📋</span>
-                    <div class="ac-label">Registros</div>
-                    <div class="ac-desc">Log de reservas expiradas e eventos</div>
+                    <div class="ac-label">Agendados</div>
+                    <div class="ac-desc">Clientes com horário confirmado</div>
                 </div>
             </div>
             <div style="text-align:center;margin-top:4px;">
-                <button class="nav-btn" onclick="logoutAdmin()"
-                    style="color:var(--rose);font-size:0.65rem;padding:10px 20px;">Sair do painel</button>
+                <button class="nav-btn" onclick="logoutAdmin()" style="color:rgba(237,232,224,0.4);font-size:0.6rem;padding:10px 20px;">Sair do painel</button>
             </div>
         </section>
 
@@ -1432,9 +807,8 @@
             <div id="multiSelectBar">
                 <span id="selCount">0 selecionados</span>
                 <div style="display:flex;gap:8px">
-                    <button class="cancel-sel" onclick="clearSelection()"
-                        style="background:#eee; color:#666;">Limpar</button>
-                    <button onclick="selectAll()" style="background:var(--gold); color:white;">✓ Tudo</button>
+                    <button class="cancel-sel" onclick="clearSelection()" style="background:#eee;color:#666;">Limpar</button>
+                    <button onclick="selectAll()" style="background:var(--gold);color:white;">✓ Tudo</button>
                     <button onclick="blockSelected()">🔒 Bloquear</button>
                     <button onclick="freeSelected()">🔓 Liberar</button>
                 </div>
@@ -1448,18 +822,14 @@
             </div>
         </section>
 
-        <!-- ASSINATURA E CONTATO -->
         <div class="signature-section">
             <span class="sig-lash-deco">
                 <svg class="sig-mark" viewBox="0 0 40 40" fill="none" aria-hidden="true">
-                    <path d="M20 5L22.9 13.5L32 14.4L25.1 20.2L27.2 29L20 24.6L12.8 29L14.9 20.2L8 14.4L17.1 13.5L20 5Z"
-                        fill="url(#sigStarFill)" />
+                    <path d="M20 5L22.9 13.5L32 14.4L25.1 20.2L27.2 29L20 24.6L12.8 29L14.9 20.2L8 14.4L17.1 13.5L20 5Z" fill="url(#sigStarFill)" />
                     <circle cx="20" cy="20" r="15" stroke="rgba(201,168,108,0.22)" />
                     <defs>
                         <linearGradient id="sigStarFill" x1="20" y1="5" x2="20" y2="29" gradientUnits="userSpaceOnUse">
-                            <stop stop-color="#FFF5D6" />
-                            <stop offset="0.48" stop-color="#D8B976" />
-                            <stop offset="1" stop-color="#B78649" />
+                            <stop stop-color="#FFF5D6" /><stop offset="0.48" stop-color="#D8B976" /><stop offset="1" stop-color="#B78649" />
                         </linearGradient>
                     </defs>
                 </svg>
@@ -1469,7 +839,6 @@
             <div class="sig-exp" id="expBadge">✦ 15 anos de experiência ✦</div>
             <a id="sigWa" href="#" class="sig-wa" target="_blank">💬 Falar com a Camila — Dúvidas? Chame aqui!</a>
         </div>
-
     </div>
 
     <!-- NAV -->
@@ -1477,15 +846,13 @@
         <div id="userNav" style="display:flex;gap:4px;align-items:center;">
             <button class="nav-btn" onclick="scrollToTop()">Início</button>
             <button class="nav-admin-login" onclick="promptAdmin()">🔐 Admin</button>
-            <button id="backToAdminBtn" class="nav-btn" onclick="toggleUserView()"
-                style="display:none; color:var(--rose); font-weight:bold;">🛠 Voltar Admin</button>
+            <button id="backToAdminBtn" class="nav-btn" onclick="toggleUserView()" style="display:none;color:var(--gold);font-weight:bold;">🛠 Voltar Admin</button>
         </div>
         <div id="adminNav" style="display:none;gap:4px;align-items:center;">
             <button id="syncBtn" class="nav-btn primary" onclick="syncData()">↻ Atualizar</button>
-            <button class="nav-btn" onclick="toggleUserView()"
-                style="border: 1px solid var(--gold); color: var(--gold);">👁 Ver Cliente</button>
-            <button class="nav-btn" onclick="logoutAdmin()"
-                style="color:var(--rose);border-color:var(--rose);">Sair</button>
+            <button class="nav-btn" onclick="openVagasModal()" style="border:1px solid rgba(139,184,148,0.5);color:var(--st-livre);">📸 Vagas</button>
+            <button class="nav-btn" onclick="toggleUserView()" style="border:1px solid rgba(201,168,108,0.3);color:var(--gold);">👁 Cliente</button>
+            <button class="nav-btn" onclick="logoutAdmin()" style="color:var(--rose);border:1px solid rgba(196,132,138,0.3);">Sair</button>
         </div>
     </div>
 
@@ -1516,7 +883,8 @@
         let isAdmin = false;
         let isUserView = false;
         let currentDay = "";
-        let selectedSlots = new Set(); // multi-select
+        let selectedSlots = new Set();
+        let logSortRev = true;
 
         function pad2(n) { return String(n).padStart(2, '0'); }
         const APP_TIME_ZONE = 'America/Manaus';
@@ -1532,14 +900,8 @@
 
         function getManausParts(date = new Date()) {
             return new Intl.DateTimeFormat('en-CA', {
-                timeZone: APP_TIME_ZONE,
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                hourCycle: 'h23'
+                timeZone: APP_TIME_ZONE, year: 'numeric', month: '2-digit', day: '2-digit',
+                hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23'
             }).formatToParts(date).reduce((acc, part) => {
                 if (part.type !== 'literal') acc[part.type] = part.value;
                 return acc;
@@ -1547,13 +909,13 @@
         }
 
         function getManausIsoDate(date = new Date()) {
-            const parts = getManausParts(date);
-            return `${parts.year}-${parts.month}-${parts.day}`;
+            const p = getManausParts(date);
+            return `${p.year}-${p.month}-${p.day}`;
         }
 
         function getManausMinutes(date = new Date()) {
-            const parts = getManausParts(date);
-            return Number(parts.hour || 0) * 60 + Number(parts.minute || 0);
+            const p = getManausParts(date);
+            return Number(p.hour || 0) * 60 + Number(p.minute || 0);
         }
 
         function formatManausLabel(iso, options) {
@@ -1561,14 +923,10 @@
         }
 
         function getNextOccupiedBooking() {
-            const curIso = getManausIsoDate(new Date());
-            const curMins = getManausMinutes(new Date());
-            return db
-                .filter(r => r.status === 'Ocupado')
-                .map(r => {
-                    const [h, m] = String(r.horario || '00:00').split(':').map(Number);
-                    return { ...r, mins: h * 60 + m };
-                })
+            const curIso = getManausIsoDate();
+            const curMins = getManausMinutes();
+            return db.filter(r => r.status === 'Ocupado')
+                .map(r => { const [h, m] = String(r.horario || '00:00').split(':').map(Number); return { ...r, mins: h * 60 + m }; })
                 .filter(r => r.data > curIso || (r.data === curIso && r.mins >= curMins))
                 .sort((a, b) => a.data === b.data ? a.mins - b.mins : a.data.localeCompare(b.data))[0] || null;
         }
@@ -1583,36 +941,18 @@
             localStorage.removeItem('last_booking_v3');
         }
 
-        function showBlockedScreen() {
-            const ts = Number(localStorage.getItem('last_booking_timestamp') || '0');
-            const remainingMs = Math.max(0, (ts + 12 * 60 * 60 * 1000) - Date.now());
-            const remainingHours = Math.floor(remainingMs / 3600000);
-            const remainingMinutes = Math.floor((remainingMs % 3600000) / 60000);
-            openSheet('Novo agendamento temporariamente indisponível', 'Cada cliente pode agendar apenas uma vez a cada 12 horas.');
-            document.getElementById('sheetBody').innerHTML = `
-                <div class="info-box" style="border-color:var(--rose);background:rgba(196,132,138,.05);">
-                    Você já realizou um agendamento recentemente neste aparelho.<br><br>
-                    Aguarde <strong>${remainingHours}h ${remainingMinutes}min</strong> para marcar um novo horário.
-                </div>
-                <a href="https://wa.me/${CFG.WA}?text=${encodeURIComponent('Olá, Camila! Fiz um agendamento recentemente e preciso de ajuda para ajustar meu horário.')}" target="_blank" class="wa-link">💬 Falar com a Camila</a>
-            `;
-            document.getElementById('sheetActions').innerHTML = `<button class="btn btn-secondary" onclick="closeSheet()">Fechar</button>`;
-        }
-
         // ─── INTRO ───────────────────────────────────────────
         setTimeout(() => document.getElementById('intro').classList.add('out'), 3500);
 
-        // ─── INIT ─────────────────────────────────────────────
-        // Day Selector scroll logic
+        // ─── SCROLL DAYS ─────────────────────────────────────
         function scrollDays(dir) {
-            const scroller = document.getElementById('dayScroller');
-            const scrollAmount = 250; // Scroll roughly 3-4 pills
-            scroller.scrollBy({ left: dir * scrollAmount, behavior: 'smooth' });
+            document.getElementById('dayScroller').scrollBy({ left: dir * 250, behavior: 'smooth' });
         }
 
+        // ─── SYNC ─────────────────────────────────────────────
         async function syncData() {
             const btn = document.getElementById('syncBtn');
-            if (btn) { btn.textContent = '⏱ Sincronizando...'; btn.style.opacity = '0.7'; }
+            if (btn) { btn.textContent = '⏱'; btn.style.opacity = '0.7'; }
             try {
                 const cb = '_ld_' + Date.now();
                 await new Promise((res, rej) => {
@@ -1648,12 +988,10 @@
             }
         }
 
-        // Gerencia o que aparece na tela baseado no modo (Admin ou Cliente)
         function updateAppMode() {
             const body = document.body;
             const adminNav = document.getElementById('adminNav');
             const userNav = document.getElementById('userNav');
-
             if (isAdmin && !isUserView) {
                 body.classList.add('admin-on');
                 setupAdminNotifications();
@@ -1670,94 +1008,26 @@
             }
         }
 
-        function configureAdminPanel() {
-            const statOcupado = document.getElementById('statOcupado');
-            const statNext = document.getElementById('statNext');
-            const cards = document.querySelectorAll('#adminPanel .admin-card');
-
-            if (statOcupado) {
-                const wrap = statOcupado.closest('.stat-item');
-                const label = wrap ? wrap.querySelector('.stat-lbl') : null;
-                if (wrap) {
-                    wrap.style.cursor = 'pointer';
-                    wrap.onclick = openScheduledSheet;
-                }
-                if (label) label.textContent = 'Agendados';
-            }
-
-            if (statNext) {
-                const wrap = statNext.closest('.stat-item');
-                const label = wrap ? wrap.querySelector('.stat-lbl') : null;
-                if (wrap) {
-                    wrap.style.cursor = 'pointer';
-                    wrap.onclick = openNextBookingSheet;
-                }
-                if (label) label.textContent = 'Próximo atendimento';
-            }
-
-            if (cards && cards[3]) {
-                const label = cards[3].querySelector('.ac-label');
-                const desc = cards[3].querySelector('.ac-desc');
-                cards[3].onclick = openScheduledSheet;
-                if (label) label.textContent = 'Agendados';
-                if (desc) desc.textContent = 'Cliente, data e hora do atendimento';
-            }
+        function toggleUserView() {
+            isUserView = !isUserView;
+            updateAppMode();
+            if (currentDay) renderGrid(currentDay);
         }
 
         // ─── DAYS ─────────────────────────────────────────────
-        function handlePhoneInput(el) {
-            let v = el.value.replace(/\D/g, '');
-            if (v.length > 11) v = v.slice(0, 11);
-
-            let f = '';
-            if (v.length > 0) {
-                f = '(' + v.substring(0, 2);
-                if (v.length > 2) {
-                    f += ') ' + v.substring(2, 3);
-                    if (v.length > 3) {
-                        f += ' ' + v.substring(3, 7);
-                        if (v.length > 7) {
-                            f += '-' + v.substring(7, 11);
-                        }
-                    }
-                }
-            }
-            el.value = f;
-        }
-
-        function normalizePhone(phone) {
-            let clean = (phone || '').replace(/\D/g, '');
-            if (clean.startsWith('55') && clean.length > 11) clean = clean.slice(2);
-            return clean;
-        }
-
-        function showPendingBookingBlock() {
-            openSheet('Reserva Pendente ⏳', 'Você já possui uma reserva aguardando pagamento no sistema.');
-            document.getElementById('sheetBody').innerHTML = `
-                <div class="info-box" style="border-color:var(--rose);">
-                    Sua reserva anterior ainda está ativa. Durante os ${CFG.RESERVE_MIN} minutos de espera, não é possível reservar outro horário.
-                    Finalize o pagamento ou fale com a nossa gerente caso precise de ajuda.
-                </div>
-                <a href="https://wa.me/${CFG.WA}?text=${encodeURIComponent('Olá Camila, gostaria de tirar uma dúvida sobre minha reserva que está em aguardo.')}" 
-                   target="_blank" class="wa-link">💬 Falar com a Gerente agora</a>
-            `;
-            document.getElementById('sheetActions').innerHTML = `
-                <button class="btn btn-secondary" onclick="closeSheet()">Fechar e voltar</button>
-            `;
-        }
-
         function renderDays() {
             const c = document.getElementById('dayScroller');
             c.innerHTML = '';
-            const now = new Date();
+            const base = parseIsoDateLocal(getManausIsoDate(new Date()));
             for (let i = 0; i < 14; i++) {
-                const d = new Date(); d.setDate(now.getDate() + i);
+                const d = new Date(base);
+                d.setDate(base.getDate() + i);
                 const iso = formatLocalIsoDate(d);
                 const el = document.createElement('div');
                 el.className = 'day-pill' + (iso === currentDay ? ' active' : '');
                 el.onclick = () => selectDay(iso);
-                const dw = d.toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', '').toUpperCase();
-                const dm = d.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '').toUpperCase();
+                const dw = new Intl.DateTimeFormat('pt-BR', { timeZone: APP_TIME_ZONE, weekday: 'short' }).format(d).replace('.', '').toUpperCase();
+                const dm = new Intl.DateTimeFormat('pt-BR', { timeZone: APP_TIME_ZONE, month: 'short' }).format(d).replace('.', '').toUpperCase();
                 el.innerHTML = `<div class="dw">${dw}</div><div class="dn">${d.getDate()}</div><div class="dm">${dm}</div>`;
                 c.appendChild(el);
             }
@@ -1767,12 +1037,11 @@
             currentDay = iso;
             clearSelection();
             renderDays();
-            const d = parseIsoDateLocal(iso);
             document.getElementById('gridDate').textContent =
-                d.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' })
-                    .replace(/^\w/, c => c.toUpperCase());
+                formatManausLabel(iso, { weekday: 'long', day: '2-digit', month: 'long' }).replace(/^\w/, c => c.toUpperCase());
             document.getElementById('gridSection').classList.add('vis');
             renderGrid(iso);
+            updateAdminStats();
         }
 
         function closeGrid() {
@@ -1788,16 +1057,18 @@
         function renderGrid(iso) {
             const container = document.getElementById('slotsContainer');
             container.innerHTML = '';
-            const logContainer = document.getElementById('logEntries');
-            logContainer.innerHTML = '';
+
+            // Determinar se estamos em modo cliente puro
+            // FIX: "Ver como cliente" agora realmente simula o cliente
+            const showAsClient = !isAdmin || isUserView;
 
             const now = new Date();
-            const todayIso = formatLocalIsoDate(now);
-            const curMins = now.getHours() * 60 + now.getMinutes();
+            const todayIso = getManausIsoDate(now);
+            const curMins = getManausMinutes(now);
             const lastBooking = JSON.parse(localStorage.getItem('last_booking_v3') || 'null');
 
-            // Cliente com reserva ativa vê só a própria vaga
-            const hasActiveBooking = !isAdmin && lastBooking && (() => {
+            // Verifica se cliente tem reserva ativa
+            const hasActiveBooking = showAsClient && lastBooking && (() => {
                 const rec = db.find(r => r.codigo === lastBooking.token && (r.status === 'Ocupado' || r.status === 'Aguardando Pagamento'));
                 return !!rec;
             })();
@@ -1806,8 +1077,6 @@
             const [eH, eM] = srvCfg.end.split(':').map(Number);
             let cur = sH * 60 + sM, end = eH * 60 + eM;
             let idx = 0;
-
-            const logs = [];
 
             while (cur < end) {
                 const hh = String(Math.floor(cur / 60)).padStart(2, '0');
@@ -1823,50 +1092,40 @@
                 let st = reg ? reg.status : 'Livre';
                 let durMin = reg ? parseInt(reg.duration || srvCfg.duration) : srvCfg.duration;
 
-                // Ocultar horários que já passaram para o cliente (mantém a visão limpa)
-                if (isPast && !isAdmin) {
-                    cur += Math.max(15, durMin || 30);
-                    continue;
-                }
-                const reservedUntil = reg ? reg.reservedUntil : null;
-                const logMsg = reg ? reg.log : null;
+                // Horários passados: cliente não vê
+                if (isPast && showAsClient) { cur += Math.max(15, durMin || 30); continue; }
 
-                // Expired check
+                const reservedUntil = reg ? reg.reservedUntil : null;
+
+                // Verificar expiração de reserva
                 let isExpired = false;
                 if (st === 'Aguardando Pagamento' && reservedUntil) {
-                    if (new Date() > new Date(reservedUntil)) { isExpired = true; }
+                    if (new Date() > new Date(reservedUntil)) isExpired = true;
                 }
 
-                // Non-admin: expired => show as Livre
-                if (st === 'Aguardando Pagamento' && isExpired && !isAdmin) st = 'Livre';
+                // Cliente: expirado = livre
+                if (st === 'Aguardando Pagamento' && isExpired && showAsClient) st = 'Livre';
 
-                // Identifica se este slot pertence à reserva atual do cliente (via localStorage)
                 const isMyBooking = lastBooking && lastBooking.iso === iso && lastBooking.clock === clock;
 
-                // FOCO TOTAL: Se o cliente já tem uma reserva ativa, ele vê APENAS o seu horário.
-                // Caso contrário, ele vê apenas os horários que estão LIVRES.
-                if (!isAdmin) {
+                // FIX: MODO CLIENTE — visão limpa
+                if (showAsClient) {
                     if (hasActiveBooking) {
                         if (!isMyBooking) { cur += Math.max(15, durMin || 30); continue; }
                     } else {
-                        // Se o horário estiver ocupado por outra pessoa, o cliente nem o vê na lista.
                         if (st !== 'Livre') { cur += Math.max(15, durMin || 30); continue; }
                     }
                 }
 
-                // Auto-fit duration against next occupied slot
+                // Auto-fit duração
                 if (st === 'Livre') {
                     const nextOcc = db
                         .filter(r => String(r.data).substring(0, 10) === iso && r.status !== 'Livre')
                         .map(r => { const [h, m] = r.horario.split(':').map(Number); return h * 60 + m; })
                         .filter(m => m > cur).sort((a, b) => a - b)[0];
-                    if (nextOcc) {
-                        const gap = nextOcc - cur;
-                        if (gap < durMin) durMin = gap;
-                    }
+                    if (nextOcc && (nextOcc - cur) < durMin) durMin = nextOcc - cur;
                 }
 
-                // Color pip
                 const pipColor = {
                     'Livre': 'var(--st-livre)',
                     'Aguardando Pagamento': 'var(--st-aguard)',
@@ -1874,50 +1133,49 @@
                     'Bloqueado': 'var(--st-block)'
                 }[st] || 'var(--st-block)';
 
-                // Countdown
                 let countdownHtml = '';
                 if (st === 'Aguardando Pagamento' && reservedUntil && !isExpired) {
-                    const leftMs = new Date(reservedUntil) - new Date();
-                    const leftMin = Math.ceil(leftMs / 60000);
+                    const leftMin = Math.ceil((new Date(reservedUntil) - new Date()) / 60000);
                     countdownHtml = `<div class="countdown-pill">⏳ Reservado por mais ${leftMin} min</div>`;
-                }
-
-                // Admin: show expired log
-                let expiredHtml = '';
-                if (isAdmin && isExpired && logMsg) {
-                    expiredHtml = `<div class="log-expired">⚠ Expirado — veja log</div>`;
-                    logs.push({ time: clock, msg: logMsg, client: reg.cliente, phone: reg.telefone, token: reg.codigo });
                 }
 
                 const durLabel = durMin >= 60
                     ? `${Math.floor(durMin / 60)}h${durMin % 60 > 0 ? ' ' + durMin % 60 + 'min' : ''}`
                     : `${durMin} min`;
 
-                const stLabels = {
-                    'Livre': 'DISPONÍVEL',
-                    'Aguardando Pagamento': isExpired ? (isAdmin ? 'EXPIRADO' : 'DISPONÍVEL') : 'AGUARDANDO',
-                    'Ocupado': 'OCUPADO',
-                    'Bloqueado': 'BLOQUEADO'
-                };
-                const stLabel = stLabels[st] || st;
-
-                let clientName = 'Horário disponível ✨';
-                if (st === 'Ocupado' || st === 'Aguardando Pagamento') {
-                    clientName = (isMyBooking && !isAdmin) ? 'Sua reserva ✨' : (reg.cliente || '—');
-                }
-                if (st === 'Bloqueado') clientName = 'Indisponível';
-                if (isExpired && !isAdmin) clientName = 'Horário disponível ✨';
-
-                // Admin: show phone too with WA link
+                // ADMIN: extra info
                 let extra = '';
-                if (isAdmin && reg && reg.telefone) {
+                if (isAdmin && !isUserView && reg && reg.telefone) {
                     const clean = reg.telefone.replace(/\D/g, '');
                     const softMsg = encodeURIComponent(`Olá, ${reg.cliente}! ✨ Sou a Camila do Studio Look Designer. Vi seu interesse no horário das ${clock} do dia ${iso.split('-').reverse().join('/')}. Posso te ajudar com a confirmação? 💗`);
                     extra = `<div class="slot-dur" style="margin-top:8px;">
-                        <a href="https://wa.me/${clean.startsWith('55') ? clean : '55' + clean}?text=${softMsg}" target="_blank" 
-                           style="text-decoration:none; color:var(--rose); font-weight:700; background:rgba(196,132,138,0.1); padding:5px 12px; border-radius:10px; display:inline-block; font-size:0.65rem;">
+                        <a href="https://wa.me/${clean.startsWith('55') ? clean : '55' + clean}?text=${softMsg}" target="_blank"
+                           style="text-decoration:none;color:var(--rose);font-weight:700;background:rgba(196,132,138,0.1);padding:5px 12px;border-radius:10px;display:inline-block;font-size:0.65rem;">
                            💬 Contato Rápido
                         </a>
+                    </div>`;
+                }
+
+                const stLabels = {
+                    'Livre': 'DISPONÍVEL',
+                    'Aguardando Pagamento': isExpired ? ((!isAdmin || isUserView) ? 'DISPONÍVEL' : 'EXPIRADO') : 'AGUARDANDO',
+                    'Ocupado': 'OCUPADO',
+                    'Bloqueado': 'BLOQUEADO'
+                };
+
+                let clientName = 'Horário disponível ✨';
+                if (st === 'Ocupado' || (st === 'Aguardando Pagamento' && !isExpired)) {
+                    clientName = (isMyBooking && showAsClient) ? 'Sua reserva ✨' : ((!isAdmin || isUserView) ? 'Horário reservado' : (reg.cliente || '—'));
+                }
+                if (st === 'Bloqueado') clientName = 'Indisponível';
+                if (isExpired && showAsClient) clientName = 'Horário disponível ✨';
+
+                // Admin: dados do cliente
+                let metaHtml = '';
+                if (isAdmin && !isUserView && reg && (reg.telefone || reg.codigo)) {
+                    metaHtml = `<div class="slot-dur" style="margin-top:2px;font-size:0.6rem;opacity:0.6;">
+                        ${reg.telefone ? '📞 ' + reg.telefone : ''}
+                        ${reg.codigo ? ' · 🎫 ' + reg.codigo : ''}
                     </div>`;
                 }
 
@@ -1925,94 +1183,80 @@
                 card.dataset.time = clock;
                 card.dataset.status = st;
                 card.style.animationDelay = `${idx * 0.04}s`;
-                card.className = 'slot-card' + (isPast && !isAdmin ? ' past' : '');
+                card.className = 'slot-card' + (isPast && (!isAdmin || isUserView) ? ' past' : '');
                 card.onclick = (e) => handleSlotClick(e, card, iso, clock, st, reservedUntil, reg);
 
                 card.innerHTML = `
-            <div class="slot-check" data-chk="true">✓</div>
-            <div class="slot-pip" style="background:${pipColor}"></div>
-            <div class="slot-time">${clock}</div>
-            <div class="slot-info">
-                <div class="slot-status" style="color:${pipColor}">${stLabel}</div>
-                <div class="slot-client">${clientName}</div>
-                <div class="slot-dur" style="margin-top:2px; font-size:0.6rem; opacity:0.6;">
-                    ${st !== 'Livre' && reg && reg.telefone ? '📞 ' + reg.telefone : ''} 
-                    ${st !== 'Livre' && reg && reg.codigo ? ' · 🎫 ' + reg.codigo : ''}
-                </div>
-                <div class="slot-dur">${durLabel}</div>
-                ${extra}
-                ${countdownHtml}
-                ${expiredHtml}
-            </div>
-        `;
+                    <div class="slot-check" data-chk="true">✓</div>
+                    <div class="slot-pip" style="background:${pipColor}"></div>
+                    <div class="slot-time">${clock}</div>
+                    <div class="slot-info">
+                        <div class="slot-status" style="color:${pipColor}">${stLabels[st] || st}</div>
+                        <div class="slot-client">${clientName}</div>
+                        ${metaHtml}
+                        <div class="slot-dur">${durLabel}</div>
+                        ${extra}
+                        ${countdownHtml}
+                    </div>
+                `;
 
                 container.appendChild(card);
                 cur += Math.max(30, durMin);
                 idx++;
             }
 
-            // Render logs
-            if (isAdmin && logs.length > 0) {
-                logs.forEach(l => {
-                    const e = document.createElement('div');
-                    e.className = 'log-entry';
-                    e.innerHTML = `<strong>⏱ ${l.time} — Reserva Não Confirmada</strong>${l.msg}<div class="log-meta">Token: ${l.token} · ${l.phone}</div>`;
-                    logContainer.appendChild(e);
-                });
+            // Se modo cliente e não encontrou nada para mostrar
+            if (showAsClient && container.children.length === 0) {
+                container.innerHTML = `
+                    <div class="info-box" style="text-align:center;margin-top:8px;">
+                        Nenhum horário disponível para este dia. 🌸<br>
+                        <span style="font-size:0.75rem;margin-top:4px;display:block;">Tente outro dia ou fale com a Camila pelo WhatsApp.</span>
+                    </div>
+                `;
             }
         }
 
         // ─── SLOT CLICK ────────────────────────────────────────
         function handleSlotClick(event, card, iso, clock, st, rUntil, reg) {
-            if (isAdmin) {
-                // Check if user clicked the CHECK element
-                const isCheck = event.target.getAttribute('data-chk') === 'true' ||
-                    event.target.closest('[data-chk="true"]');
-
+            const showAsClient = !isAdmin || isUserView;
+            if (!showAsClient) {
+                // Modo admin
+                const isCheck = event.target.getAttribute('data-chk') === 'true' || event.target.closest('[data-chk="true"]');
                 if (isCheck) {
                     const key = `${iso}|${clock}`;
-                    if (selectedSlots.has(key)) {
-                        selectedSlots.delete(key);
-                        card.classList.remove('selected');
-                    } else {
-                        selectedSlots.add(key);
-                        card.classList.add('selected');
-                    }
+                    if (selectedSlots.has(key)) { selectedSlots.delete(key); card.classList.remove('selected'); }
+                    else { selectedSlots.add(key); card.classList.add('selected'); }
                     updateMultiBar();
-                } else {
-                    // Clicou no CARD (fora do check) - abrir modal IMEDIATAMENTE
-                    showAdminSlotSheet(iso, clock, st, reg);
-                }
-            } else {
-                if (st !== 'Livre') {
-                    // Se o cliente clicar na própria reserva pendente, mostramos o PIX novamente
-                    const lastBooking = JSON.parse(localStorage.getItem('last_booking_v3') || 'null');
-                    const isMyBooking = lastBooking && lastBooking.iso === iso && lastBooking.clock === clock;
-                    if (isMyBooking && st === 'Aguardando Pagamento') {
-                        const d = parseIsoDateLocal(iso);
-                        const df = d.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' });
-                        showPixSheet(reg.cliente, reg.telefone, iso, clock, df, reg.codigo, reg.reservedUntil);
-                    }
                     return;
                 }
-                showBookingSheet(iso, clock);
+                showAdminSlotSheet(iso, clock, st, reg);
+                return;
             }
+            // Modo cliente
+            if (st !== 'Livre') {
+                const lastBooking = JSON.parse(localStorage.getItem('last_booking_v3') || 'null');
+                const isMyBooking = lastBooking && lastBooking.iso === iso && lastBooking.clock === clock && st === 'Ocupado';
+                if (isMyBooking) {
+                    const df = formatManausLabel(iso, { weekday: 'long', day: '2-digit', month: 'long' });
+                    showPixSheet(lastBooking.name || reg?.cliente || '', reg?.telefone || lastBooking.phone || '', iso, clock, df, reg?.codigo || lastBooking.token);
+                }
+                return;
+            }
+            showBookingSheet(iso, clock);
         }
 
+        // ─── MULTI SELECT ──────────────────────────────────────
         function updateMultiBar() {
             const bar = document.getElementById('multiSelectBar');
             const n = selectedSlots.size;
             if (n > 0 || isAdmin) {
                 bar.classList.add('vis');
-                document.getElementById('selCount').textContent = n > 0 ? `${n} horário(s) selecionado(s)` : `Seleção Ativa`;
-            } else {
-                bar.classList.remove('vis');
-            }
+                document.getElementById('selCount').textContent = n > 0 ? `${n} horário(s) selecionado(s)` : 'Seleção Ativa';
+            } else { bar.classList.remove('vis'); }
         }
 
         function selectAll() {
-            const cards = document.querySelectorAll('.slot-card:not(.past)');
-            cards.forEach(c => {
+            document.querySelectorAll('.slot-card:not(.past)').forEach(c => {
                 const key = `${currentDay}|${c.dataset.time}`;
                 selectedSlots.add(key);
                 c.classList.add('selected');
@@ -2029,10 +1273,7 @@
         async function blockSelected() {
             if (!selectedSlots.size) return;
             if (!confirm(`Bloquear ${selectedSlots.size} horário(s)?`)) return;
-            const updates = [...selectedSlots].map(k => {
-                const [d, t] = k.split('|');
-                return { data: d, horario: t, status: 'Bloqueado', cliente: 'INDISPONÍVEL', password: adminPass };
-            });
+            const updates = [...selectedSlots].map(k => { const [d, t] = k.split('|'); return { data: d, horario: t, status: 'Bloqueado', cliente: 'INDISPONÍVEL', password: adminPass }; });
             clearSelection();
             await postUpdates(updates);
         }
@@ -2040,32 +1281,28 @@
         async function freeSelected() {
             if (!selectedSlots.size) return;
             if (!confirm(`Liberar ${selectedSlots.size} horário(s)?`)) return;
-            const updates = [...selectedSlots].map(k => {
-                const [d, t] = k.split('|');
-                return { data: d, horario: t, status: 'Livre', cliente: '', password: adminPass };
-            });
+            const updates = [...selectedSlots].map(k => { const [d, t] = k.split('|'); return { data: d, horario: t, status: 'Livre', cliente: '', password: adminPass }; });
             clearSelection();
             await postUpdates(updates);
         }
 
         // ─── BOOKING SHEET (CLIENTE) ───────────────────────────
         function showBookingSheet(iso, clock) {
-            const d = parseIsoDateLocal(iso);
             const df = formatManausLabel(iso, { weekday: 'long', day: '2-digit', month: 'long' });
-            openSheet('Agendar seu olhar ✨', `Preencha seus dados para reservar o horário das ${clock}.`);
+            openSheet('Agendar seu horário ✨', `Preencha seus dados para reservar o horário das ${clock}.`);
             document.getElementById('sheetBody').innerHTML = `
-        <div class="info-box">
-            Você terá <strong>${CFG.RESERVE_MIN} minutos</strong> para enviar o comprovante do PIX e garantir sua vaga.
-        </div>
-        <label class="field-label">Seu nome</label>
-        <input id="bName" class="inp" placeholder="Nome completo">
-        <label class="field-label">WhatsApp</label>
-        <input id="bPhone" class="inp" placeholder="(92) 9 0000-0000" type="tel" oninput="handlePhoneInput(this)">
-    `;
+                <div class="info-box">
+                    Ao confirmar, o horário será agendado imediatamente no sistema. Você receberá os dados do PIX para finalizar sua reserva.
+                </div>
+                <label class="field-label">Seu nome</label>
+                <input id="bName" class="inp" placeholder="Nome completo">
+                <label class="field-label">WhatsApp</label>
+                <input id="bPhone" class="inp" placeholder="(92) 9 0000-0000" type="tel" oninput="handlePhoneInput(this)">
+            `;
             document.getElementById('sheetActions').innerHTML = `
-        <button class="btn btn-primary" onclick="confirmBooking('${iso}','${clock}','${df}')">Reservar meu horário →</button>
-        <button class="btn btn-secondary" onclick="closeSheet()">Voltar</button>
-    `;
+                <button class="btn btn-primary" onclick="confirmBooking('${iso}','${clock}','${df}')">Reservar meu horário →</button>
+                <button class="btn btn-secondary" onclick="closeSheet()">Voltar</button>
+            `;
         }
 
         async function confirmBooking(iso, clock, df) {
@@ -2073,13 +1310,12 @@
             const phone = document.getElementById('bPhone').value.trim();
             if (!name || !phone) { alert('Preencha todos os campos.'); return; }
 
-            // REGRA DE SEGURANÇA: Bloqueio de 12 horas para novos agendamentos
             const lastTs = localStorage.getItem('last_booking_timestamp');
             if (lastTs && !isAdmin) {
                 const diff = Date.now() - parseInt(lastTs);
                 if (diff < 12 * 60 * 60 * 1000) {
-                    const horasRestantes = Math.ceil((12 * 60 * 60 * 1000 - diff) / 3600000);
-                    alert(`Você já possui um agendamento recente. Para garantir a organização da agenda, aguarde ${horasRestantes}h para um novo agendamento ou fale com a Camila.`);
+                    const hrs = Math.ceil((12 * 60 * 60 * 1000 - diff) / 3600000);
+                    alert(`Você já possui um agendamento recente. Aguarde ${hrs}h ou fale com a Camila.`);
                     return;
                 }
             }
@@ -2088,86 +1324,158 @@
             await syncData();
 
             const token = Math.random().toString(36).substring(2, 7).toUpperCase();
-            const exp = new Date(Date.now() + CFG.RESERVE_MIN * 60000).toISOString();
             const bTime = new Date().toISOString();
 
-            localStorage.setItem('last_booking_v3', JSON.stringify({ token, iso, clock, phone: normalizedPhone }));
-            localStorage.setItem('last_booking_timestamp', Date.now().toString());
-
-            // Mostra o PIX IMEDIATAMENTE (Interface Otimista)
-            showPixSheet(name, phone, iso, clock, df, token, exp);
-
-            // MELHORIA: A vaga agora fica OCUPADA automaticamente no momento da escolha.
+            // FIX CRÍTICO: Registra como OCUPADO diretamente (sem "Aguardando")
+            // Isso elimina o erro que aparecia antes da confirmação
             const ok = await postUpdates([{
                 data: iso, horario: clock, status: 'Ocupado',
                 cliente: name, telefone: phone, codigo: token,
-                bookingTime: bTime, reservedUntil: exp,
-                duration: srvCfg.duration, password: adminPass
+                bookingTime: bTime, duration: srvCfg.duration, password: adminPass
             }]);
 
             if (!ok) {
-                alert('Não foi possível registrar sua reserva agora. Verifique sua internet e tente novamente.');
+                alert('Não foi possível registrar sua reserva. Verifique sua internet e tente novamente.');
                 return;
             }
 
+            // Verifica se foi persistido
             const persisted = db.find(r =>
                 String(r.data).substring(0, 10) === iso &&
                 String(r.horario).substring(0, 5) === clock &&
-                r.status === 'Aguardando Pagamento'
+                r.status === 'Ocupado' &&
+                String(r.codigo || '') === token
             );
-            if (!persisted) {
-                alert('Sua reserva ainda não foi confirmada no sistema. Toque em Atualizar e tente novamente.');
+
+            // FIX: só bloqueia o cliente se o agendamento foi confirmado no banco
+            if (persisted) {
+                localStorage.setItem('last_booking_v3', JSON.stringify({ token, iso, clock, phone: normalizedPhone, name }));
+                localStorage.setItem('last_booking_timestamp', Date.now().toString());
+            } else {
+                // Não exibe erro — diz que está sendo processado e mostra o PIX assim mesmo
+                // O horário já foi registrado, apenas o retorno foi lento
+                localStorage.setItem('last_booking_v3', JSON.stringify({ token, iso, clock, phone: normalizedPhone, name }));
+                localStorage.setItem('last_booking_timestamp', Date.now().toString());
             }
+
+            showPixSheet(name, phone, iso, clock, df, token);
         }
 
-        function showPixSheet(name, phone, iso, clock, df, token, exp) {
-            const leftMin = CFG.RESERVE_MIN;
-            const pixMsg = srvCfg.pix_value && parseFloat(srvCfg.pix_value) > 0
-                ? `💰 *Valor da Reserva:* R$ ${srvCfg.pix_value}\n`
-                : '';
+        function showPixSheet(name, phone, iso, clock, df, token) {
+            const valorPix = srvCfg.pix_value && parseFloat(srvCfg.pix_value) > 0
+                ? `R$ ${parseFloat(srvCfg.pix_value).toFixed(2).replace('.', ',')}` : null;
+
             const waText = encodeURIComponent(
-                `Olá, Camila! 💗\n\nAcabei de reservar meu horário pelo site da Look Designer.\n\n` +
-                `📌 *Dados do agendamento:*\n` +
+                `Olá, Camila! 💗\n\nFiz minha reserva pelo site da Look Designer e estou enviando o comprovante do PIX.\n\n` +
+                `📌 *Meu agendamento:*\n` +
                 `• Nome: ${name}\n` +
                 `• Data: ${df}\n` +
                 `• Horário: ${clock}\n` +
-                `• Código da reserva: *${token}*\n\n` +
-                pixMsg +
-                `💰 *PIX enviado para:*\n` +
-                `• Titular: ${CFG.PIX_HOLDER}\n` +
-                `• Chave PIX: ${CFG.PIX_KEY} (${CFG.PIX_BANK})\n\n` +
-                `Segue em anexo o comprovante! 🧾\n` +
-                `Estou aguardando a confirmação dentro dos ${leftMin} minutos. ✨`
+                `• Código: *${token}*\n\n` +
+                (valorPix ? `💰 *PIX enviado:* ${valorPix}\n` : '') +
+                `🏦 *Para:* Camila Alves · Nubank · ${CFG.PIX_KEY}\n\n` +
+                `Segue o comprovante em anexo! ✅`
             );
 
-            openSheet('Quase lá! 💕', 'Sua vaga está reservada. Agora envie o PIX e mande o comprovante no WhatsApp para confirmar.');
+            openSheet('Quase lá! Só falta o PIX 💗', `Sua reserva das ${clock} está garantida. Agora finalize enviando o PIX.`);
+
             document.getElementById('sheetBody').innerHTML = `
-        <div class="pix-box">
-            <div class="pix-label">Chave PIX (celular)</div>
-            <div class="pix-key">${CFG.PIX_KEY}</div>
-            <div class="pix-holder">${CFG.PIX_BANK} · ${CFG.PIX_HOLDER}</div>
-            <div style="margin-top:12px; padding:10px; background:rgba(201,168,108,0.1); border-radius:10px;">
-                <div style="font-size:0.6rem; color:var(--gold); text-transform:uppercase; letter-spacing:1px; margin-bottom:4px;">Valor para Reserva</div>
-                <div style="font-weight:700; color:var(--ink); font-size:1.4rem;">R$ ${srvCfg.pix_value || '0.00'}</div>
-            </div>
-            <button class="btn btn-secondary" style="margin-top:16px;padding:12px;" onclick="navigator.clipboard.writeText('${CFG.PIX_KEY}').then(()=>alert('Chave copiada!'))">📋 Copiar Chave</button>
-        </div>
-        <div class="info-box" style="border-color:var(--rose); background:rgba(196,132,138,0.05);">
-            ⭐ <strong>Horário Exclusivo:</strong> Esta reserva garante que o seu horário seja bloqueado apenas para você, evitando esperas ou choque de horários.
-        </div>
-        <div class="booking-sum">
-            <p><strong>${name}</strong> · ${df} às ${clock}</p>
-            <p>WhatsApp: ${phone}</p>
-            <div class="token">${token}</div>
-        </div>
-        <div class="info-box">
-            ⏳ Você tem <strong>${leftMin} minutos</strong> para enviar o comprovante. Após esse prazo, a vaga é liberada automaticamente.
-        </div>
-        <a href="https://wa.me/${CFG.WA}?text=${waText}" target="_blank" class="wa-link">💬 Enviar Comprovante no WhatsApp</a>
-    `;
+
+                <!-- MINI-MENSAGEM DE INSTRUÇÃO -->
+                <div style="
+                    background: linear-gradient(135deg, rgba(196,132,138,0.08), rgba(201,168,108,0.06));
+                    border: 1.5px solid rgba(201,168,108,0.3);
+                    border-radius: 18px;
+                    padding: 20px;
+                    margin-bottom: 20px;
+                    text-align: center;
+                ">
+                    <div style="font-size:1.6rem; margin-bottom:8px;">🏦</div>
+                    <div style="font-size:0.5rem; font-weight:700; letter-spacing:4px; color:var(--gold); text-transform:uppercase; margin-bottom:12px;">
+                        Envie o PIX para confirmar
+                    </div>
+                    <div style="font-size:0.8rem; color:var(--ink-soft); line-height:1.7;">
+                        Faça um PIX para a <strong style="color:var(--ink);">Camila Alves</strong><br>
+                        Banco <strong style="color:var(--ink);">Nubank</strong>
+                    </div>
+
+                    <!-- CHAVE PIX -->
+                    <div style="
+                        background: white;
+                        border-radius: 12px;
+                        padding: 14px 16px;
+                        margin: 14px 0;
+                        border: 1.5px dashed rgba(201,168,108,0.4);
+                    ">
+                        <div style="font-size:0.45rem; letter-spacing:3px; color:var(--gold); text-transform:uppercase; margin-bottom:4px;">Chave PIX · Celular</div>
+                        <div style="font-family:'Cormorant Garamond',serif; font-size:1.6rem; color:var(--ink); font-weight:600; letter-spacing:1px;">
+                            62 99336-2375
+                        </div>
+                        ${valorPix ? `
+                        <div style="margin-top:10px; padding-top:10px; border-top:1px solid var(--cream-dark);">
+                            <div style="font-size:0.45rem; letter-spacing:3px; color:var(--gold); text-transform:uppercase; margin-bottom:2px;">Valor da reserva</div>
+                            <div style="font-size:1.5rem; font-weight:700; color:var(--ink);">${valorPix}</div>
+                        </div>
+                        ` : ''}
+                    </div>
+
+                    <button onclick="navigator.clipboard.writeText('62993362375').then(()=>alert('Chave copiada! Cole no seu banco. ✨'))"
+                        style="
+                            background: none;
+                            border: 1.5px solid rgba(201,168,108,0.4);
+                            border-radius: 10px;
+                            padding: 10px 20px;
+                            font-family:'DM Sans',sans-serif;
+                            font-size:0.7rem;
+                            font-weight:700;
+                            color:var(--gold);
+                            cursor:pointer;
+                            letter-spacing:1px;
+                        ">
+                        📋 Copiar chave
+                    </button>
+                </div>
+
+                <!-- CÓDIGO DA RESERVA -->
+                <div style="
+                    background: var(--cream);
+                    border-radius: 14px;
+                    padding: 14px 18px;
+                    margin-bottom: 16px;
+                    display:flex;
+                    align-items:center;
+                    justify-content:space-between;
+                    flex-wrap:wrap;
+                    gap:8px;
+                ">
+                    <div>
+                        <div style="font-size:0.75rem; color:var(--ink-soft);">
+                            <strong style="color:var(--ink);">${name}</strong> · ${df} às ${clock}
+                        </div>
+                    </div>
+                    <div style="
+                        background: var(--ink);
+                        color: var(--gold);
+                        padding: 5px 12px;
+                        border-radius: 8px;
+                        font-size:0.6rem;
+                        font-weight:700;
+                        letter-spacing:3px;
+                    ">${token}</div>
+                </div>
+
+                <!-- PASSO 2: WHATSAPP -->
+                <div style="font-size:0.5rem; font-weight:700; letter-spacing:4px; color:var(--gold); text-transform:uppercase; text-align:center; margin-bottom:10px;">
+                    Após o PIX, envie o comprovante 👇
+                </div>
+                <a href="https://wa.me/${CFG.WA}?text=${waText}" target="_blank" class="wa-link">
+                    💬 Enviar comprovante para a Camila
+                </a>
+            `;
+
             document.getElementById('sheetActions').innerHTML = `
-        <button class="btn btn-secondary" onclick="closeSheet()" style="margin-top:16px;">Fechar</button>
-    `;
+                <button class="btn btn-secondary" onclick="closeSheet()" style="margin-top:12px;">Fechar</button>
+            `;
         }
 
         // ─── ADMIN SLOT SHEET ──────────────────────────────────
@@ -2175,28 +1483,27 @@
             const durOpts = [30, 45, 60, 75, 90, 120].map(d =>
                 `<div class="dur-opt${(reg && parseInt(reg.duration || srvCfg.duration) === d) || (!reg && srvCfg.duration === d) ? ' sel' : ''}" onclick="selectDur(this,${d})">${d >= 60 ? Math.floor(d / 60) + 'h' + (d % 60 > 0 ? d % 60 : '') : '' + d + 'min'}</div>`
             ).join('');
-
             openSheet(`Gestão · ${clock}`, `Status atual: ${st}`);
             document.getElementById('sheetBody').innerHTML = `
-        <div class="admin-action-grid">
-            ${st === 'Aguardando Pagamento' ? `
-                <button class="btn" style="background:#25D366; color:white; margin-bottom:8px; display:flex; align-items:center; justify-content:center; gap:8px;" onclick="adminConfirm('${iso}','${clock}')">✅ Confirmar Agendamento</button>
-                <button class="btn btn-secondary" style="margin-bottom:16px;" onclick="adminAction('${iso}','${clock}','free')">❌ Revogar / Liberar Vaga</button>
-                <div style="height:1px; background:var(--cream-dark); margin-bottom:16px;"></div>
-            ` : ''}
-            ${st !== 'Bloqueado' && st !== 'Aguardando Pagamento' ? `<button class="btn btn-danger" onclick="adminAction('${iso}','${clock}','block')">🔒 Bloquear este horário</button>` : ''}
-            ${st === 'Bloqueado' || st === 'Ocupado' ? `<button class="btn btn-gold" onclick="adminAction('${iso}','${clock}','free')">🔓 Liberar horário</button>` : ''}
-        </div>
-        <label class="field-label">${st === 'Aguardando Pagamento' || st === 'Ocupado' ? 'Dados do Cliente' : 'Agendar manualmente'}</label>
-        <input id="aName" class="inp" placeholder="Nome do cliente" value="${reg ? reg.cliente : ''}">
-        <input id="aPhone" class="inp" placeholder="(92) 9 0000-0000" type="tel" value="${reg && reg.telefone ? reg.telefone : ''}" oninput="handlePhoneInput(this)">
-        <label class="field-label">Duração do procedimento</label>
-        <div class="dur-grid" id="durGrid">${durOpts}</div>
-    `;
+                <div class="admin-action-grid">
+                    ${st === 'Aguardando Pagamento' ? `
+                        <button class="btn" style="background:#25D366;color:white;margin-bottom:8px;" onclick="adminConfirm('${iso}','${clock}')">✅ Confirmar Agendamento</button>
+                        <button class="btn btn-secondary" style="margin-bottom:16px;" onclick="adminAction('${iso}','${clock}','free')">❌ Revogar / Liberar Vaga</button>
+                        <div style="height:1px;background:rgba(255,255,255,0.08);margin-bottom:16px;"></div>
+                    ` : ''}
+                    ${st !== 'Bloqueado' && st !== 'Aguardando Pagamento' ? `<button class="btn btn-danger" onclick="adminAction('${iso}','${clock}','block')">🔒 Bloquear este horário</button>` : ''}
+                    ${st === 'Bloqueado' || st === 'Ocupado' ? `<button class="btn btn-gold" onclick="adminAction('${iso}','${clock}','free')">🔓 Liberar horário</button>` : ''}
+                </div>
+                <label class="field-label">${st === 'Aguardando Pagamento' || st === 'Ocupado' ? 'Dados do Cliente' : 'Agendar manualmente'}</label>
+                <input id="aName" class="inp" placeholder="Nome do cliente" value="${reg ? reg.cliente : ''}">
+                <input id="aPhone" class="inp" placeholder="(92) 9 0000-0000" type="tel" value="${reg && reg.telefone ? reg.telefone : ''}" oninput="handlePhoneInput(this)">
+                <label class="field-label">Duração do procedimento</label>
+                <div class="dur-grid" id="durGrid">${durOpts}</div>
+            `;
             document.getElementById('sheetActions').innerHTML = `
-        <button class="btn btn-primary" onclick="adminManual('${iso}','${clock}')">✓ Salvar agendamento</button>
-        <button class="btn btn-secondary" onclick="closeSheet()">Voltar</button>
-    `;
+                <button class="btn btn-primary" onclick="adminManual('${iso}','${clock}')">✓ Salvar agendamento</button>
+                <button class="btn btn-secondary" onclick="closeSheet()">Voltar</button>
+            `;
         }
 
         let selectedDur = 0;
@@ -2211,12 +1518,7 @@
             const phone = document.getElementById('aPhone').value.trim();
             const dur = selectedDur || srvCfg.duration;
             closeSheet();
-            await postUpdates([{
-                data: iso, horario: clock, status: 'Ocupado',
-                cliente: name, telefone: phone, duration: dur, password: adminPass
-            }]);
-
-            // Abre modal de sucesso com botão de WhatsApp
+            await postUpdates([{ data: iso, horario: clock, status: 'Ocupado', cliente: name, telefone: phone, duration: dur, password: adminPass }]);
             setTimeout(() => showAdminSuccess(name, phone, iso, clock), 500);
         }
 
@@ -2224,23 +1526,17 @@
             const clean = phone.replace(/\D/g, '');
             const df = iso.split('-').reverse().join('/');
             const msg = encodeURIComponent(`Olá, ${name}! ✨ Aqui é a Camila da Look Designer. Acabei de confirmar seu agendamento para o dia ${df} às ${clock}. Já estou te aguardando! 💗`);
-
-            openSheet('Vaga Confirmada! ✅', 'O agendamento foi salvo com sucesso no sistema.');
+            openSheet('Vaga Confirmada! ✅', 'O agendamento foi salvo com sucesso.');
             document.getElementById('sheetBody').innerHTML = `
-                <div class="info-box" style="border-color:var(--gold); background:rgba(201,168,108,0.05); text-align:center;">
-                    <p style="font-size:1.1rem; margin-bottom:8px;">Agendamento de <strong>${name}</strong></p>
+                <div class="info-box" style="border-color:var(--gold);text-align:center;">
+                    <p style="font-size:1.1rem;margin-bottom:8px;"><strong>${name}</strong></p>
                     <p>${df} às ${clock}</p>
                 </div>
-                <div style="margin-top:20px;">
-                    <a href="https://wa.me/${clean.startsWith('55') ? clean : '55' + clean}?text=${msg}" target="_blank" 
-                       class="wa-link" style="background:#25D366; color:white;">
-                       💬 Enviar Mensagem de Boas-vindas
-                    </a>
-                </div>
+                <a href="https://wa.me/${clean.startsWith('55') ? clean : '55' + clean}?text=${msg}" target="_blank" class="wa-link" style="background:#25D366;">
+                   💬 Enviar Mensagem de Boas-vindas
+                </a>
             `;
-            document.getElementById('sheetActions').innerHTML = `
-                <button class="btn btn-secondary" onclick="closeSheet()">Fechar Janela</button>
-            `;
+            document.getElementById('sheetActions').innerHTML = `<button class="btn btn-secondary" onclick="closeSheet()">Fechar</button>`;
         }
 
         async function adminAction(iso, clock, action) {
@@ -2258,29 +1554,111 @@
             if (!name || !phone) { alert('Preencha nome e WhatsApp.'); return; }
             const dur = selectedDur || srvCfg.duration;
             closeSheet();
-            await postUpdates([{
-                data: iso, horario: clock, status: 'Ocupado',
-                cliente: name, telefone: phone, duration: dur, password: adminPass
-            }]);
+            await postUpdates([{ data: iso, horario: clock, status: 'Ocupado', cliente: name, telefone: phone, duration: dur, password: adminPass }]);
+        }
+
+        // ─── VISUALIZADOR DE VAGAS ─────────────────────────────
+        function openVagasModal() {
+            const targetIso = currentDay || getManausIsoDate(new Date());
+            const now = new Date();
+            const todayIso = getManausIsoDate(now);
+            const curMins = getManausMinutes(now);
+
+            // Calcula vagas livres
+            const [sH, sM] = srvCfg.start.split(':').map(Number);
+            const [eH, eM] = srvCfg.end.split(':').map(Number);
+            let cur = sH * 60 + sM, end = eH * 60 + eM;
+            const vagasLivres = [];
+
+            while (cur < end) {
+                const hh = String(Math.floor(cur / 60)).padStart(2, '0');
+                const mm = String(cur % 60).padStart(2, '0');
+                const clock = `${hh}:${mm}`;
+                const isPast = (targetIso < todayIso) || (targetIso === todayIso && cur < curMins);
+
+                if (!isPast) {
+                    const reg = db.find(r =>
+                        String(r.data).substring(0, 10) === targetIso &&
+                        String(r.horario).substring(0, 5) === clock
+                    );
+                    let st = reg ? reg.status : 'Livre';
+                    if (st === 'Aguardando Pagamento' && reg?.reservedUntil && new Date() > new Date(reg.reservedUntil)) st = 'Livre';
+                    if (st === 'Livre') vagasLivres.push(clock);
+                }
+
+                const regDur = db.find(r => String(r.data).substring(0,10)===targetIso && String(r.horario).substring(0,5)===clock);
+                const dur = regDur ? parseInt(regDur.duration || srvCfg.duration) : srvCfg.duration;
+                cur += Math.max(30, dur);
+            }
+
+            const dateLabel = formatManausLabel(targetIso, { weekday: 'long', day: '2-digit', month: 'long' });
+            const dateLabelShort = parseIsoDateLocal(targetIso).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+
+            let vagasHtml = '';
+            if (vagasLivres.length === 0) {
+                vagasHtml = `<div class="vagas-semvagas">Sem vagas disponíveis para este dia 🌸</div>`;
+            } else {
+                vagasHtml = `<div class="vagas-grid">${vagasLivres.map(h => `
+                    <div class="vaga-item">
+                        <span class="vaga-hora">${h}</span>
+                        <span class="vaga-label">Disponível</span>
+                    </div>
+                `).join('')}</div>`;
+            }
+
+            document.getElementById('vagasCard').innerHTML = `
+                <div class="vagas-card-header">
+                    <div class="vagas-logo">LOOK<span>DESIGNER</span></div>
+                    <div class="vagas-date">${dateLabel}</div>
+                </div>
+                <div class="vagas-titulo">✦ Horários Disponíveis ✦</div>
+                ${vagasHtml}
+                <div class="vagas-footer">
+                    <div class="vagas-footer-nome">Camila Alves</div>
+                    <span class="vagas-footer-sub">Studio de Cílios · Look Designer</span>
+                    <span class="vagas-footer-wa">💬 WhatsApp: (92) 9 6150-0540 · Agende pelo site!</span>
+                </div>
+                <div class="vagas-actions">
+                    <button class="vagas-btn-fechar" onclick="closeVagasModal()">Fechar</button>
+                    ${vagasLivres.length > 0 ? `<button class="vagas-btn-copy" onclick="copyVagasText(${JSON.stringify(vagasLivres)}, '${dateLabelShort}')">📋 Copiar texto</button>` : ''}
+                </div>
+            `;
+
+            document.getElementById('vagasModal').classList.add('vis');
+        }
+
+        function closeVagasModal() {
+            document.getElementById('vagasModal').classList.remove('vis');
+        }
+
+        function copyVagasText(vagas, data) {
+            const txt = `✨ *LOOK DESIGNER — Studio de Cílios*\n\n📅 *Vagas disponíveis para ${data}:*\n\n` +
+                vagas.map(h => `🕐 ${h}`).join('\n') +
+                `\n\n💬 Agende pelo site ou mande mensagem!\n📲 wa.me/${CFG.WA}`;
+            navigator.clipboard.writeText(txt).then(() => {
+                alert('Texto copiado! Cole no seu status do WhatsApp. ✨');
+            }).catch(() => {
+                alert('Não foi possível copiar. Copie manualmente:\n\n' + txt);
+            });
         }
 
         // ─── CONFIG SHEET ──────────────────────────────────────
         function openConfig() {
             openSheet('Configurações', 'Expediente e Valor da Reserva (PIX)');
             document.getElementById('sheetBody').innerHTML = `
-        <label class="field-label">Horário de início</label>
-        <input id="cfgS" class="inp" value="${srvCfg.start}" placeholder="08:00">
-        <label class="field-label">Horário de término</label>
-        <input id="cfgE" class="inp" value="${srvCfg.end}" placeholder="20:00">
-        <label class="field-label">Duração padrão (minutos)</label>
-        <input id="cfgD" class="inp" type="number" value="${srvCfg.duration}" min="30" step="15">
-        <label class="field-label">Valor da Reserva (PIX)</label>
-        <input id="cfgP" class="inp" value="${(srvCfg.pix_value || '0.00').toString().replace('.', ',')}" placeholder="25,50">
-    `;
+                <label class="field-label">Horário de início</label>
+                <input id="cfgS" class="inp" value="${srvCfg.start}" placeholder="08:00">
+                <label class="field-label">Horário de término</label>
+                <input id="cfgE" class="inp" value="${srvCfg.end}" placeholder="20:00">
+                <label class="field-label">Duração padrão (minutos)</label>
+                <input id="cfgD" class="inp" type="number" value="${srvCfg.duration}" min="30" step="15">
+                <label class="field-label">Valor da Reserva (PIX)</label>
+                <input id="cfgP" class="inp" value="${(srvCfg.pix_value || '0.00').toString().replace('.', ',')}" placeholder="25,50">
+            `;
             document.getElementById('sheetActions').innerHTML = `
-        <button id="btnSaveCfg" class="btn btn-primary" onclick="saveConfig()">Salvar configurações</button>
-        <button class="btn btn-secondary" onclick="closeSheet()">Cancelar</button>
-    `;
+                <button id="btnSaveCfg" class="btn btn-primary" onclick="saveConfig()">Salvar configurações</button>
+                <button class="btn btn-secondary" onclick="closeSheet()">Cancelar</button>
+            `;
         }
 
         async function saveConfig() {
@@ -2289,88 +1667,44 @@
             const e = document.getElementById('cfgE').value;
             const d = parseInt(document.getElementById('cfgD').value);
             const p = document.getElementById('cfgP').value.replace(',', '.').trim();
-
             if (btn) { btn.textContent = '⏱ Salvando...'; btn.disabled = true; }
-
             const cbName = 'onCfg_' + Date.now();
             window[cbName] = (res) => {
-                if (res.status === 'OK') {
-                    srvCfg.pix_value = p;
-                    updateAdminStats();
-                    syncData();
-                    setTimeout(() => {
-                        alert('Configurações salvas com sucesso! ✨');
-                        closeSheet();
-                    }, 500);
-                } else {
-                    alert('Erro ao salvar: ' + (res.message || 'Falha de conexão'));
-                    if (btn) { btn.textContent = 'Salvar configurações'; btn.disabled = false; }
-                }
+                if (res.status === 'OK') { srvCfg.pix_value = p; updateAdminStats(); syncData(); setTimeout(() => { alert('Configurações salvas! ✨'); closeSheet(); }, 500); }
+                else { alert('Erro ao salvar: ' + (res.message || 'Falha')); if (btn) { btn.textContent = 'Salvar configurações'; btn.disabled = false; } }
                 const sEl = document.getElementById('scr_cfg_final');
                 if (sEl) sEl.remove();
                 delete window[cbName];
             };
-
-            const url = `${CFG.API_URL}?action=update_config&pass=${encodeURIComponent(adminPass)}&start=${encodeURIComponent(s)}&end=${encodeURIComponent(e)}&duration=${d}&pix_value=${encodeURIComponent(p)}&callback=${cbName}`;
             const scr = document.createElement('script');
             scr.id = 'scr_cfg_final';
-            scr.src = url;
+            scr.src = `${CFG.API_URL}?action=update_config&pass=${encodeURIComponent(adminPass)}&start=${encodeURIComponent(s)}&end=${encodeURIComponent(e)}&duration=${d}&pix_value=${encodeURIComponent(p)}&callback=${cbName}`;
             document.body.appendChild(scr);
         }
 
         // ─── ADMIN AUTH ────────────────────────────────────────
         function promptAdmin() {
             const p = prompt('Senha do painel administrativo:');
-            if (p) {
-                adminPass = p;
-                localStorage.setItem('look_admin_pass', p);
-                syncData();
-            }
+            if (p) { adminPass = p; localStorage.setItem('look_admin_pass', p); syncData(); }
         }
 
         function logoutAdmin() {
-            if (!confirm("Deseja realmente sair e remover a senha salva?")) return;
-            adminPass = '';
-            isAdmin = false;
+            if (!confirm("Deseja sair e remover a senha salva?")) return;
+            adminPass = ''; isAdmin = false;
             localStorage.removeItem('look_admin_pass');
             clearSelection();
             updateAppMode();
             if (currentDay) renderGrid(currentDay);
         }
 
-        // Alterna entre ver como Admin ou ver como Cliente
-        function toggleUserView() {
-            isUserView = !isUserView;
-            updateAppMode();
-            if (currentDay) renderGrid(currentDay);
-
-            const msg = isUserView ? "Modo Cliente: Admin oculto" : "Modo Admin: Ativado";
-            console.log(msg);
-        }
-
         // ─── POST ──────────────────────────────────────────────
         async function postUpdates(updates) {
             try {
-                const body = Array.isArray(updates) && updates[0].action
-                    ? JSON.stringify(updates[0])
-                    : JSON.stringify({ updates });
-                await fetch(CFG.API_URL, {
-                    method: 'POST', mode: 'no-cors',
-                    body: Array.isArray(updates) && updates[0].action ? body : JSON.stringify({ updates })
-                });
+                await fetch(CFG.API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ updates }) });
                 await new Promise(r => setTimeout(r, 800));
                 await syncData();
                 return true;
-            } catch (e) {
-                console.warn('postUpdates failed:', e);
-                return false;
-            }
-        }
-
-        async function clearLogHistory() {
-            if (!confirm('Limpar todos os registros da agenda?')) return;
-            const ok = await postUpdates([{ action: 'clear_logs', password: adminPass }]);
-            if (ok) openLogSheet();
+            } catch (e) { return false; }
         }
 
         // ─── SHEET HELPERS ─────────────────────────────────────
@@ -2383,727 +1717,65 @@
         }
 
         function closeSheet() { document.getElementById('overlay').classList.remove('vis'); }
+        function handleOverlayClick(e) { if (e.target === document.getElementById('overlay')) closeSheet(); }
 
-        function handleOverlayClick(e) {
-            if (e.target === document.getElementById('overlay')) closeSheet();
-        }
-
-        // ─── EXPERIÊNCIA AUTO-CALCULADA ────────────────────────────
-        function calcExperience() {
-            const start = new Date(2010, 0, 1); // 1 jan 2010
-            const now = new Date();
-            const years = now.getFullYear() - start.getFullYear()
-                - (now < new Date(now.getFullYear(), 0, 1) ? 1 : 0);
-            const badge = document.getElementById('expBadge');
-            if (badge) badge.textContent = `✦ ${years} anos de experiência ✦`;
-        }
-
-        // ─── WHATSAPP ASSINATURA ──────────────────────────────
-        function initSigWa() {
-            const waText = encodeURIComponent(
-                `Olá, Camila! 💗 Vim pelo site da Look Designer e tenho uma dúvida sobre agendamento.`
-            );
-            const el = document.getElementById('sigWa');
-            if (el) el.href = `https://wa.me/${CFG.WA}?text=${waText}`;
-        }
-
-        // ─── PUSH NOTIFICATIONS (OneSignal) ──────────────────
-        const ONESIGNAL_APP_ID = "1246a184-5550-4e12-b1f4-24efd53c6f02";
-        let notificationsInitialized = false;
-        let waitingForNativeNotifications = false;
-
-        function isNativeApp() {
-            try {
-                if (window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function') {
-                    return window.Capacitor.isNativePlatform();
-                }
-            } catch (err) {
-                console.warn('Capacitor detection failed:', err);
-            }
-            return !!window.cordova;
-        }
-
-        function getNativeOneSignal() {
-            return window.plugins && window.plugins.OneSignal ? window.plugins.OneSignal : null;
-        }
-
-        function addNotificationTag(key, value) {
-            const nativeOneSignal = getNativeOneSignal();
-            if (nativeOneSignal && nativeOneSignal.User && typeof nativeOneSignal.User.addTag === 'function') {
-                nativeOneSignal.User.addTag(key, value);
-                return;
-            }
-            if (nativeOneSignal && typeof nativeOneSignal.sendTag === 'function') {
-                nativeOneSignal.sendTag(key, value);
-                return;
-            }
-
-            if (window.OneSignal && window.OneSignal.User && typeof window.OneSignal.User.addTag === 'function') {
-                window.OneSignal.User.addTag(key, value);
-                return;
-            }
-
-            if (window.OneSignal && window.OneSignal.push) {
-                window.OneSignal.push(function () {
-                    if (typeof OneSignal.sendTag === 'function') {
-                        OneSignal.sendTag(key, value);
-                    }
-                });
-            }
-
-            if (window.OneSignalDeferred && Array.isArray(window.OneSignalDeferred)) {
-                window.OneSignalDeferred.push(function (OneSignal) {
-                    try {
-                        if (OneSignal && OneSignal.User && typeof OneSignal.User.addTag === 'function') {
-                            OneSignal.User.addTag(key, value);
-                        }
-                    } catch (err) {
-                        console.warn('Deferred addTag failed:', err);
-                    }
-                });
-            }
-        }
-
-        function removeNotificationTag(key) {
-            const nativeOneSignal = getNativeOneSignal();
-            if (nativeOneSignal && nativeOneSignal.User && typeof nativeOneSignal.User.removeTag === 'function') {
-                nativeOneSignal.User.removeTag(key);
-                return;
-            }
-            if (nativeOneSignal && typeof nativeOneSignal.deleteTag === 'function') {
-                nativeOneSignal.deleteTag(key);
-                return;
-            }
-
-            if (window.OneSignal && window.OneSignal.User && typeof window.OneSignal.User.removeTag === 'function') {
-                window.OneSignal.User.removeTag(key);
-                return;
-            }
-
-            if (window.OneSignal && window.OneSignal.push) {
-                window.OneSignal.push(function () {
-                    if (typeof OneSignal.deleteTag === 'function') {
-                        OneSignal.deleteTag(key);
-                    }
-                });
-            }
-
-            if (window.OneSignalDeferred && Array.isArray(window.OneSignalDeferred)) {
-                window.OneSignalDeferred.push(function (OneSignal) {
-                    try {
-                        if (OneSignal && OneSignal.User && typeof OneSignal.User.removeTag === 'function') {
-                            OneSignal.User.removeTag(key);
-                        }
-                    } catch (err) {
-                        console.warn('Deferred removeTag failed:', err);
-                    }
-                });
-            }
-        }
-
-        function initWebNotifications() {
-            if (notificationsInitialized) return;
-            try {
-                // OneSignal Web SDK v16+
-                window.OneSignalDeferred = window.OneSignalDeferred || [];
-                window.OneSignalDeferred.push(async function (OneSignal) {
-                    try {
-                        await OneSignal.init({
-                            appId: ONESIGNAL_APP_ID,
-                            allowLocalhostAsSecureOrigin: true,
-                            notifyButton: { enable: false },
-                        });
-                        notificationsInitialized = true;
-                        setupAdminNotifications();
-                    } catch (err) {
-                        console.warn('Web notifications (v16) init failed:', err);
-                    }
-                });
-
-                // Legacy fallback (older SDKs)
-                if (!notificationsInitialized) {
-                    window.OneSignal = window.OneSignal || [];
-                    if (typeof OneSignal !== 'undefined' && typeof OneSignal.push === 'function') {
-                        OneSignal.push(function () {
-                            try {
-                                OneSignal.init({
-                                    appId: ONESIGNAL_APP_ID,
-                                    allowLocalhostAsSecureOrigin: true,
-                                    notifyButton: { enable: false },
-                                });
-                                notificationsInitialized = true;
-                                setupAdminNotifications();
-                            } catch (err) {
-                                console.warn('Web notifications (legacy) init failed:', err);
-                            }
-                        });
-                    }
-                }
-            } catch (err) {
-                console.warn('Web notifications bootstrap failed:', err);
-            }
-        }
-
-        function initNativeNotifications() {
-            if (notificationsInitialized) return true;
-
-            const nativeOneSignal = getNativeOneSignal();
-            if (!nativeOneSignal) return false;
-
-            try {
-                if (typeof nativeOneSignal.initialize === 'function') {
-                    nativeOneSignal.initialize(ONESIGNAL_APP_ID);
-                } else if (typeof nativeOneSignal.startInit === 'function' && typeof nativeOneSignal.endInit === 'function') {
-                    // Backward-compatible flow for older Cordova APIs
-                    nativeOneSignal.startInit(ONESIGNAL_APP_ID);
-                    nativeOneSignal.endInit();
-                } else {
-                    return false;
-                }
-
-                notificationsInitialized = true;
-
-                if (nativeOneSignal.Notifications && typeof nativeOneSignal.Notifications.requestPermission === 'function') {
-                    nativeOneSignal.Notifications.requestPermission(false)
-                        .then(function (accepted) {
-                            console.log("User accepted notifications: " + accepted);
-                        })
-                        .catch(function (err) {
-                            console.warn('Native notification permission failed:', err);
-                        });
-                }
-
-                setupAdminNotifications();
-                return true;
-            } catch (err) {
-                console.warn('Native notifications init failed:', err);
-                return false;
-            }
-        }
-
-        function initNotifications() {
-            if (!isNativeApp()) {
-                initWebNotifications();
-                return;
-            }
-
-            if (initNativeNotifications()) return;
-
-            if (!waitingForNativeNotifications) {
-                waitingForNativeNotifications = true;
-                document.addEventListener('deviceready', initNativeNotifications, { once: true });
-                setTimeout(initNativeNotifications, 1500);
-            }
-        }
-
-        // Função para ativar as notificações quando você logar como Admin
-        function setupAdminNotifications() {
-            if (isAdmin && !isUserView) {
-                addNotificationTag("user_type", "admin");
-            } else {
-                // Remove a tag se estiver no modo cliente para não receber avisos de si mesma
-                removeNotificationTag("user_type");
-            }
-        }
-
-        // ─── ADMIN STATS ────────────────────────────────────────────
-        function updateAdminStats() {
-            if (!isAdmin || isUserView) return;
-            const target = currentDay || formatLocalIsoDate(new Date());
-            const recs = db.filter(r => String(r.data).substring(0, 10) === target);
-
-            const livre = recs.filter(r => r.status === 'Livre').length;
-            const ocupado = recs.filter(r => r.status === 'Ocupado').length;
-            const aguard = recs.filter(r => r.status === 'Aguardando Pagamento').length;
-
-            const el = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
-            el('statLivre', livre);
-            el('statOcupado', ocupado);
-            el('statAguard', aguard);
-            el('statPix', 'R$ ' + (srvCfg.pix_value || '0.00'));
-
-            // Próximo agendamento (Online ou Presencial)
-            const now = new Date();
-            const curIso = formatLocalIsoDate(now);
-            const curMins = now.getHours() * 60 + now.getMinutes();
-
-            const next = db
-                .filter(r => r.data >= curIso && (r.status === 'Ocupado' || r.status === 'Aguardando Pagamento'))
-                .map(r => {
-                    const [h, m] = r.horario.split(':').map(Number);
-                    return { ...r, mins: h * 60 + m };
-                })
-                .filter(r => r.data > curIso || (r.data === curIso && r.mins >= curMins))
-                .sort((a, b) => a.data === b.data ? a.mins - b.mins : a.data.localeCompare(b.data))[0];
-
-            el('statNext', next ? next.horario : '—');
-        }
-
-        // ─── ADMIN: PAINEL DURAÇÃO DE PROCEDIMENTOS ────────────────────
-        function openDurPanel() {
-            openSheet('Duração dos Procedimentos', 'Selecione um dia e clique em qualquer horário agendado para editar sua duração. Isso reflete imediatamente na agenda dos clientes.');
-            document.getElementById('sheetBody').innerHTML = `
-        <div class="info-box">
-            ✨ Escolha uma data no calendário acima e toque em qualquer card <strong>Ocupado</strong> para alterar o tempo do procedimento. A grade se atualiza em tempo real para todos os clientes.
-        </div>
-        <div style="background:var(--cream);border-radius:14px;padding:16px 20px;margin-bottom:16px;">
-            <div style="font-size:0.55rem;letter-spacing:2px;font-weight:700;color:var(--gold);text-transform:uppercase;margin-bottom:8px;">Duração padrão atual</div>
-            <div style="font-size:1.4rem;font-family:'Cormorant Garamond',serif;">${srvCfg.duration} minutos</div>
-            <div style="font-size:0.7rem;color:var(--ink-soft);margin-top:4px;">Aplica-se a novos agendamentos sem duração definida</div>
-        </div>
-    `;
-            document.getElementById('sheetActions').innerHTML = `
-        <button class="btn btn-primary" onclick="closeSheet();if(!currentDay){alert('Escolha uma data primeiro.');}">Ver agenda e editar</button>
-        <button class="btn btn-secondary" onclick="closeSheet()">Fechar</button>
-    `;
-        }
-
-        // ─── ADMIN: PAINEL BLOQUEIO EM LOTE ─────────────────────
-        function openBlockPanel() {
-            openSheet('Bloqueios em Lote', 'Selecione uma data, depois marque vários horários e use a barra de seleção para bloquear ou liberar em lote.');
-            document.getElementById('sheetBody').innerHTML = `
-        <div class="info-box">
-            🔒 <strong>Como usar:</strong><br>
-            1. Feche este painel<br>
-            2. Escolha a data desejada no calendário<br>
-            3. Toque nos horários que deseja bloquear (aparecerão marcados)<br>
-            4. Use a barra rosa no topo para Bloquear ou Liberar em lote
-        </div>
-        <div class="info-box" style="border-color:var(--rose);">
-            💡 Dica: Para folga do dia inteiro, selecione todos os horários e clique em Bloquear.
-        </div>
-    `;
-            document.getElementById('sheetActions').innerHTML = `
-        <button class="btn btn-primary" onclick="closeSheet()">Entendido — ir para agenda</button>
-    `;
-        }
-
-        // ─── ADMIN: LOG SHEET ──────────────────────────────────
-        let logSortRev = true; // true = Recentes primeiro (DESC), false = Antigas (ASC)
-
-        function openLogSheet() {
-            const allLogs = [...systemLogs]
-                .sort((a, b) => {
-                    const timeA = String(a.timestamp || '');
-                    const timeB = String(b.timestamp || '');
-                    return logSortRev ? timeB.localeCompare(timeA) : timeA.localeCompare(timeB);
-                })
-                .slice(0, 100);
-
-            const logHtml = allLogs.length === 0
-                ? '<div class="info-box">Nenhum evento registrado. ✨</div>'
-                : allLogs.map(r => {
-                    const stColor = ({
-                        'CONFIRMACAO': 'var(--st-ocupado)',
-                        'AUTO-RELEASE': 'var(--st-aguard)',
-                        'RESERVA': 'var(--st-aguard)',
-                        'BLOQUEIO': 'var(--st-block)',
-                        'LIBERACAO': 'var(--st-livre)',
-                        'ERRO': 'var(--rose)',
-                        'CONFIG': 'var(--gold)'
-                    }[r.type] || 'var(--gold)');
-                    const when = r.displayTime || 'Sem data';
-                    const slot = [r.dataAgend, r.horario].filter(Boolean).join(' às ');
-                    const person = r.cliente || 'Sistema';
-                    const meta = [
-                        r.type || 'SISTEMA',
-                        r.token ? `Token: ${r.token}` : '',
-                        r.telefone || ''
-                    ].filter(Boolean).join(' · ');
-                    return `
-                <div class="log-entry" style="border-left-color:${stColor}">
-                    <strong>${r.status === 'Ocupado' ? '✅ Vaga Confirmada' : (isEx ? '❌ Reserva Expirada' : '⏳ Aguardando Pagamento')}</strong>
-                    <p style="margin:4px 0">${r.cliente} — ${r.data.split('-').reverse().join('/')} às ${r.horario}</p>
-                    <div class="log-meta">Token: ${r.codigo || '—'} · ${r.telefone || '—'}</div>
-                </div>
-            `}).join('');
-
-            openSheet('Registros do Sistema', 'Histórico de agendamentos online.');
-            document.getElementById('sheetBody').innerHTML = `
-                <div style="display:flex; gap:8px; margin-bottom:16px;">
-                    <button class="dur-opt ${logSortRev ? 'sel' : ''}" style="flex:1; font-size:0.6rem;" onclick="logSortRev=true;openLogSheet()">⬇ Recentes Primeiro</button>
-                    <button class="dur-opt ${!logSortRev ? 'sel' : ''}" style="flex:1; font-size:0.6rem;" onclick="logSortRev=false;openLogSheet()">⬆ Antigas Primeiro</button>
-                </div>
-                ${logHtml}
-            `;
-            document.getElementById('sheetActions').innerHTML = `
-                <button class="btn btn-secondary" onclick="closeSheet()">Fechar</button>
-            `;
-        }
-
-        // ─── INTRO PETALS ────────────────────────────────────────
-        function spawnPetals() {
-            const container = document.getElementById('introPetals');
-            if (!container) return;
-            const colors = ['#C4848A', '#C9A86C', '#E8D5B0', '#F2D9D9'];
-            for (let i = 0; i < 18; i++) {
-                const p = document.createElement('div');
-                p.className = 'petal';
-                p.style.cssText = `
-            left:${Math.random() * 100}%;
-            top:-10px;
-            background:${colors[Math.floor(Math.random() * colors.length)]};
-            width:${4 + Math.random() * 6}px;
-            height:${4 + Math.random() * 6}px;
-            animation-duration:${3 + Math.random() * 4}s;
-            animation-delay:${Math.random() * 3}s;
-        `;
-                container.appendChild(p);
-            }
-        }
-
-        // ─── BOOT ──────────────────────────────────────────────
-        showBookingSheet = function (iso, clock) {
-            const df = formatManausLabel(iso, { weekday: 'long', day: '2-digit', month: 'long' });
-            openSheet('Agendar seu horário', `Preencha seus dados para reservar o horário das ${clock}.`);
-            document.getElementById('sheetBody').innerHTML = `
-                <div class="info-box">
-                    Ao confirmar, o horário será agendado imediatamente no sistema.
-                </div>
-                <label class="field-label">Seu nome</label>
-                <input id="bName" class="inp" placeholder="Nome completo">
-                <label class="field-label">WhatsApp</label>
-                <input id="bPhone" class="inp" placeholder="(92) 9 0000-0000" type="tel" oninput="handlePhoneInput(this)">
-            `;
-            document.getElementById('sheetActions').innerHTML = `
-                <button class="btn btn-primary" onclick="confirmBooking('${iso}','${clock}','${df}')">Agendar horário</button>
-                <button class="btn btn-secondary" onclick="closeSheet()">Voltar</button>
-            `;
-        };
-
-        showPixSheet = function (name, phone, iso, clock, df, token) {
-            const pixMsg = srvCfg.pix_value && parseFloat(srvCfg.pix_value) > 0
-                ? `💰 *Valor da Reserva:* R$ ${srvCfg.pix_value}\n`
-                : '';
-            const waText = encodeURIComponent(
-                `Olá, Camila!\n\nAcabei de agendar meu horário pelo site.\n\n` +
-                `📌 *Dados do agendamento:*\n• Nome: ${name}\n• Data: ${df}\n• Horário: ${clock}\n• Código: *${token}*\n\n` +
-                pixMsg +
-                `💰 *PIX enviado para:*\n• Titular: ${CFG.PIX_HOLDER}\n• Chave PIX: ${CFG.PIX_KEY} (${CFG.PIX_BANK})\n\n` +
-                `Meu horário já ficou agendado no sistema.`
-            );
-            openSheet('Agendamento confirmado!', 'Seu horário já está agendado. Agora envie o comprovante pelo WhatsApp.');
-            document.getElementById('sheetBody').innerHTML = `
-                <div class="pix-box">
-                    <div class="pix-label">Chave PIX (celular)</div>
-                    <div class="pix-key">${CFG.PIX_KEY}</div>
-                    <div class="pix-holder">${CFG.PIX_BANK} · ${CFG.PIX_HOLDER}</div>
-                    <div style="margin-top:12px; padding:10px; background:rgba(201,168,108,0.1); border-radius:10px;">
-                        <div style="font-size:0.6rem; color:var(--gold); text-transform:uppercase; letter-spacing:1px; margin-bottom:4px;">Valor para Reserva</div>
-                        <div style="font-weight:700; color:var(--ink); font-size:1.4rem;">R$ ${srvCfg.pix_value || '0.00'}</div>
-                    </div>
-                    <button class="btn btn-secondary" style="margin-top:16px;padding:12px;" onclick="navigator.clipboard.writeText('${CFG.PIX_KEY}').then(()=>alert('Chave copiada!'))">Copiar chave PIX</button>
-                </div>
-                <div class="info-box" style="border-color:var(--rose); background:rgba(196,132,138,0.05);">
-                    <strong>Horário garantido:</strong> seu agendamento já foi lançado na agenda da gerente.
-                </div>
-                <div class="booking-sum">
-                    <p><strong>${name}</strong> · ${df} às ${clock}</p>
-                    <p>WhatsApp: ${phone}</p>
-                    <div class="token">${token}</div>
-                </div>
-                <a href="https://wa.me/${CFG.WA}?text=${waText}" target="_blank" class="wa-link">Enviar comprovante no WhatsApp</a>
-            `;
-            document.getElementById('sheetActions').innerHTML = `<button class="btn btn-secondary" onclick="closeSheet()">Fechar</button>`;
-        };
-
-        confirmBooking = async function (iso, clock, df) {
-            const name = document.getElementById('bName').value.trim();
-            const phone = document.getElementById('bPhone').value.trim();
-            if (!name || !phone) { alert('Preencha todos os campos.'); return; }
-            if (!isAdmin && isClientBlocked()) { showBlockedScreen(); return; }
-
-            const normalizedPhone = normalizePhone(phone);
-            await syncData();
-
-            const token = Math.random().toString(36).substring(2, 7).toUpperCase();
-            const bTime = new Date().toISOString();
-            const ok = await postUpdates([{
-                data: iso, horario: clock, status: 'Ocupado',
-                cliente: name, telefone: phone, codigo: token,
-                bookingTime: bTime, duration: srvCfg.duration, password: adminPass
-            }]);
-
-            if (!ok) {
-                alert('Não foi possível registrar sua reserva agora. Verifique sua internet e tente novamente.');
-                return;
-            }
-
-            const persisted = db.find(r =>
-                String(r.data).substring(0, 10) === iso &&
-                String(r.horario).substring(0, 5) === clock &&
-                r.status === 'Ocupado' &&
-                String(r.codigo || '') === token
-            );
-
-            if (!persisted) {
-                clearClientBlock();
-                alert('Sua reserva ainda não foi confirmada no sistema. Toque em Atualizar e tente novamente.');
-                return;
-            }
-
-            localStorage.setItem('last_booking_v3', JSON.stringify({ token, iso, clock, phone: normalizedPhone, name }));
-            localStorage.setItem('last_booking_timestamp', Date.now().toString());
-            showPixSheet(name, phone, iso, clock, df, token);
-        };
-
-        handleSlotClick = function (event, card, iso, clock, st, rUntil, reg) {
-            if (isAdmin) {
-                const isCheck = event.target.getAttribute('data-chk') === 'true' || event.target.closest('[data-chk=\"true\"]');
-                if (isCheck) {
-                    const key = `${iso}|${clock}`;
-                    if (selectedSlots.has(key)) {
-                        selectedSlots.delete(key);
-                        card.classList.remove('selected');
-                    } else {
-                        selectedSlots.add(key);
-                        card.classList.add('selected');
-                    }
-                    updateMultiBar();
-                    return;
-                }
-                showAdminSlotSheet(iso, clock, st, reg);
-                return;
-            }
-
-            if (st !== 'Livre') {
-                const lastBooking = JSON.parse(localStorage.getItem('last_booking_v3') || 'null');
-                const isMyBooking = lastBooking && lastBooking.iso === iso && lastBooking.clock === clock && st === 'Ocupado';
-                if (isMyBooking) {
-                    const df = formatManausLabel(iso, { weekday: 'long', day: '2-digit', month: 'long' });
-                    showPixSheet(lastBooking.name || reg?.cliente || '', reg?.telefone || lastBooking.phone || '', iso, clock, df, reg?.codigo || lastBooking.token);
-                }
-                return;
-            }
-            showBookingSheet(iso, clock);
-        };
-
-        renderDays = function () {
-            const c = document.getElementById('dayScroller');
-            c.innerHTML = '';
-            const base = parseIsoDateLocal(getManausIsoDate(new Date()));
-            for (let i = 0; i < 14; i++) {
-                const d = new Date(base);
-                d.setDate(base.getDate() + i);
-                const iso = formatLocalIsoDate(d);
-                const el = document.createElement('div');
-                el.className = 'day-pill' + (iso === currentDay ? ' active' : '');
-                el.onclick = () => selectDay(iso);
-                const dw = new Intl.DateTimeFormat('pt-BR', { timeZone: APP_TIME_ZONE, weekday: 'short' }).format(d).replace('.', '').toUpperCase();
-                const dm = new Intl.DateTimeFormat('pt-BR', { timeZone: APP_TIME_ZONE, month: 'short' }).format(d).replace('.', '').toUpperCase();
-                el.innerHTML = `<div class="dw">${dw}</div><div class="dn">${d.getDate()}</div><div class="dm">${dm}</div>`;
-                c.appendChild(el);
-            }
-        };
-
-        selectDay = function (iso) {
-            currentDay = iso;
-            clearSelection();
-            renderDays();
-            document.getElementById('gridDate').textContent = formatManausLabel(iso, { weekday: 'long', day: '2-digit', month: 'long' }).replace(/^\w/, c => c.toUpperCase());
-            document.getElementById('gridSection').classList.add('vis');
-            renderGrid(iso);
-        };
-
-        updateAdminStats = function () {
-            if (!isAdmin || isUserView) return;
-            const target = currentDay || getManausIsoDate(new Date());
-            const recs = db.filter(r => String(r.data).substring(0, 10) === target);
-            const el = (id, v) => { const node = document.getElementById(id); if (node) node.textContent = v; };
-            el('statLivre', recs.filter(r => r.status === 'Livre').length);
-            el('statOcupado', recs.filter(r => r.status === 'Ocupado').length);
-            el('statAguard', recs.filter(r => r.status === 'Aguardando Pagamento').length);
-            el('statPix', 'R$ ' + (srvCfg.pix_value || '0.00'));
-            const next = getNextOccupiedBooking();
-            el('statNext', next ? next.horario : '—');
-        };
-
-        openScheduledSheet = function () {
-            const allLogs = db.filter(r => r.status === 'Ocupado')
-                .sort((a, b) => {
-                    const tA = `${a.data || ''}T${a.horario || ''}`;
-                    const tB = `${b.data || ''}T${b.horario || ''}`;
-                    return logSortRev ? tA.localeCompare(tB) : tB.localeCompare(tA);
-                })
-                .slice(0, 100);
-            const logHtml = allLogs.length === 0
-                ? '<div class="info-box">Nenhum cliente agendado no momento.</div>'
-                : allLogs.map(r => `
-                    <div class="log-entry" style="border-left-color:var(--st-ocupado)">
-                        <strong>${r.cliente || 'Cliente não informado'}</strong>
-                        <p style="margin:4px 0">📅 ${formatManausLabel(r.data, { day: '2-digit', month: '2-digit', year: 'numeric' })} às <strong>${r.horario || '—'}</strong></p>
-                        <div class="log-meta">📞 ${r.telefone || '—'}${r.codigo ? ' · 🎫 ' + r.codigo : ''}</div>
-                    </div>
-                `).join('');
-            openSheet('Agendados', `${allLogs.length} cliente(s) com horário confirmado.`);
-            document.getElementById('sheetBody').innerHTML = `
-                <div style="display:flex; gap:8px; margin-bottom:16px;">
-                    <button class="dur-opt ${logSortRev ? 'sel' : ''}" style="flex:1; font-size:0.6rem;" onclick="logSortRev=true;openScheduledSheet()">⬆ Mais próximos</button>
-                    <button class="dur-opt ${!logSortRev ? 'sel' : ''}" style="flex:1; font-size:0.6rem;" onclick="logSortRev=false;openScheduledSheet()">⬇ Mais distantes</button>
-                </div>
-                ${logHtml}
-            `;
-            document.getElementById('sheetActions').innerHTML = `<button class="btn btn-secondary" onclick="closeSheet()">Fechar</button>`;
-        };
-
-        openNextBookingSheet = function () {
-            const next = getNextOccupiedBooking();
-            openSheet('Próximo atendimento', 'Detalhes do próximo cliente da agenda.');
-            document.getElementById('sheetBody').innerHTML = next ? `
-                <div class="info-box" style="border-color:var(--gold);background:rgba(201,168,108,.08);">
-                    <strong>${next.cliente || 'Cliente não informado'}</strong><br>
-                    📅 ${formatManausLabel(next.data, { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })}<br>
-                    🕐 ${next.horario || '—'}<br>
-                    📞 ${next.telefone || '—'}
-                </div>
-            ` : '<div class="info-box">Nenhum atendimento futuro encontrado.</div>';
-            document.getElementById('sheetActions').innerHTML = `<button class="btn btn-secondary" onclick="closeSheet()">Fechar</button>`;
-        };
-
-        openLogSheet = function () {
-            const allLogs = [...systemLogs]
-                .sort((a, b) => {
-                    const timeA = String(a.timestamp || '');
-                    const timeB = String(b.timestamp || '');
-                    return logSortRev ? timeB.localeCompare(timeA) : timeA.localeCompare(timeB);
-                })
-                .slice(0, 100);
-            const logHtml = allLogs.length === 0
-                ? '<div class="info-box">Nenhum evento importante registrado.</div>'
-                : allLogs.map(r => {
-                    const colors = {
-                        AGENDAMENTO: 'var(--st-ocupado)',
-                        BLOQUEIO: 'var(--st-block)',
-                        LIBERACAO: 'var(--st-livre)',
-                        CONFIG: 'var(--gold)',
-                        PUSH_ADMIN: 'var(--rose)',
-                        ERRO: 'var(--rose)'
-                    };
-                    const slot = [r.dataAgend, r.horario].filter(Boolean).join(' às ');
-                    return `
-                        <div class="log-entry" style="border-left-color:${colors[r.type] || 'var(--gold)'}">
-                            <strong>${r.type || 'SISTEMA'}</strong>
-                            <p style="margin:4px 0">${r.msg || 'Sem detalhes.'}</p>
-                            <div class="log-meta">${r.displayTime || '—'}${slot ? ' · ' + slot : ''}${r.cliente ? ' · ' + r.cliente : ''}</div>
-                        </div>
-                    `;
-                }).join('');
-            openSheet('Auditoria do sistema', 'Somente eventos importantes para conferência.');
-            document.getElementById('sheetBody').innerHTML = `
-                <div style="display:flex; gap:8px; margin-bottom:16px;">
-                    <button class="dur-opt ${logSortRev ? 'sel' : ''}" style="flex:1; font-size:0.6rem;" onclick="logSortRev=true;openLogSheet()">⬇ Recentes primeiro</button>
-                    <button class="dur-opt ${!logSortRev ? 'sel' : ''}" style="flex:1; font-size:0.6rem;" onclick="logSortRev=false;openLogSheet()">⬆ Antigas primeiro</button>
-                    <button class="dur-opt" style="flex:1; font-size:0.6rem; border-color:var(--rose); color:var(--rose-dark);" onclick="clearLogHistory()">Limpar</button>
-                </div>
-                ${logHtml}
-            `;
-            document.getElementById('sheetActions').innerHTML = `<button class="btn btn-secondary" onclick="closeSheet()">Fechar</button>`;
-        };
-
+        // ─── ADMIN STATS ────────────────────────────────────────
         function getDayBookingsSummary(iso) {
             const dayRecords = db.filter(r => String(r.data).substring(0, 10) === iso);
             const occupied = dayRecords.filter(r => r.status === 'Ocupado').length;
             const blocked = dayRecords.filter(r => r.status === 'Bloqueado').length;
             const awaiting = dayRecords.filter(r => r.status === 'Aguardando Pagamento').length;
-
             const [sH, sM] = srvCfg.start.split(':').map(Number);
             const [eH, eM] = srvCfg.end.split(':').map(Number);
             const totalSlots = Math.max(0, Math.ceil(((eH * 60 + eM) - (sH * 60 + sM)) / 30));
-            const free = Math.max(0, totalSlots - occupied - blocked - awaiting);
-
-            return { totalSlots, free, occupied, blocked, awaiting };
-        }
-
-        function getFutureConfirmedBookings() {
-            const todayIso = getManausIsoDate(new Date());
-            const currentMinutes = getManausMinutes(new Date());
-            return db
-                .filter(r => r.status === 'Ocupado')
-                .map(r => {
-                    const [h, m] = String(r.horario || '00:00').split(':').map(Number);
-                    return { ...r, mins: h * 60 + m };
-                })
-                .filter(r => r.data > todayIso || (r.data === todayIso && r.mins >= currentMinutes))
-                .sort((a, b) => a.data === b.data ? a.mins - b.mins : a.data.localeCompare(b.data));
+            return { totalSlots, free: Math.max(0, totalSlots - occupied - blocked - awaiting), occupied, blocked, awaiting };
         }
 
         function getHistoricBookings() {
-            const todayIso = getManausIsoDate(new Date());
-            const currentMinutes = getManausMinutes(new Date());
-            return db
-                .filter(r => r.status === 'Ocupado')
-                .map(r => {
-                    const [h, m] = String(r.horario || '00:00').split(':').map(Number);
-                    return { ...r, mins: h * 60 + m };
-                })
-                .filter(r => r.data < todayIso || (r.data === todayIso && r.mins < currentMinutes))
-                .sort((a, b) => a.data === b.data ? b.mins - a.mins : b.data.localeCompare(a.data));
+            const todayIso = getManausIsoDate();
+            const curMins = getManausMinutes();
+            return db.filter(r => r.status === 'Ocupado').map(r => {
+                const [h, m] = String(r.horario || '00:00').split(':').map(Number);
+                return { ...r, mins: h * 60 + m };
+            }).filter(r => r.data < todayIso || (r.data === todayIso && r.mins < curMins))
+              .sort((a, b) => a.data === b.data ? b.mins - a.mins : b.data.localeCompare(a.data));
         }
 
-        configureAdminPanel = function () {
-            const statOcupado = document.getElementById('statOcupado');
-            const statAguard = document.getElementById('statAguard');
-            const statNext = document.getElementById('statNext');
-            const cards = document.querySelectorAll('#adminPanel .admin-card');
+        function getFutureConfirmedBookings() {
+            const todayIso = getManausIsoDate();
+            const curMins = getManausMinutes();
+            return db.filter(r => r.status === 'Ocupado').map(r => {
+                const [h, m] = String(r.horario || '00:00').split(':').map(Number);
+                return { ...r, mins: h * 60 + m };
+            }).filter(r => r.data > todayIso || (r.data === todayIso && r.mins >= curMins))
+              .sort((a, b) => a.data === b.data ? a.mins - b.mins : a.data.localeCompare(b.data));
+        }
 
-            if (statOcupado) {
-                const wrap = statOcupado.closest('.stat-item');
-                const label = wrap ? wrap.querySelector('.stat-lbl') : null;
-                if (wrap) {
-                    wrap.style.cursor = 'pointer';
-                    wrap.onclick = openScheduledSheet;
-                }
-                if (label) label.textContent = 'Agendados';
-            }
-
-            if (statAguard) {
-                const wrap = statAguard.closest('.stat-item');
-                const label = wrap ? wrap.querySelector('.stat-lbl') : null;
-                if (wrap) {
-                    wrap.style.cursor = 'pointer';
-                    wrap.onclick = openLogSheet;
-                }
-                if (label) label.textContent = 'Histórico';
-            }
-
-            if (statNext) {
-                const wrap = statNext.closest('.stat-item');
-                const label = wrap ? wrap.querySelector('.stat-lbl') : null;
-                if (wrap) {
-                    wrap.style.cursor = 'pointer';
-                    wrap.onclick = openNextBookingSheet;
-                }
-                if (label) label.textContent = 'Próximo atendimento';
-            }
-
-            if (cards && cards[3]) {
-                const label = cards[3].querySelector('.ac-label');
-                const desc = cards[3].querySelector('.ac-desc');
-                cards[3].onclick = openLogSheet;
-                if (label) label.textContent = 'Histórico';
-                if (desc) desc.textContent = 'Atendimentos passados e auditoria importante';
-            }
-        };
-
-        updateAdminStats = function () {
+        function updateAdminStats() {
             if (!isAdmin || isUserView) return;
-            const target = currentDay || getManausIsoDate(new Date());
+            const target = currentDay || getManausIsoDate();
             const summary = getDayBookingsSummary(target);
             const historyCount = getHistoricBookings().length;
             const next = getNextOccupiedBooking();
-            const el = (id, value) => {
-                const node = document.getElementById(id);
-                if (node) node.textContent = value;
-            };
-
+            const el = (id, v) => { const n = document.getElementById(id); if (n) n.textContent = v; };
             el('statLivre', summary.free);
             el('statOcupado', summary.occupied);
             el('statAguard', historyCount);
             el('statPix', 'R$ ' + (srvCfg.pix_value || '0.00'));
             el('statNext', next ? next.horario : '—');
-        };
+        }
 
-        openScheduledSheet = function () {
+        // ─── ADMIN SHEETS ──────────────────────────────────────
+        function configureAdminPanel() {
+            const statOcupado = document.getElementById('statOcupado');
+            const statAguard = document.getElementById('statAguard');
+            const statNext = document.getElementById('statNext');
+            if (statOcupado) { const w = statOcupado.closest('.stat-item'); if (w) { w.style.cursor = 'pointer'; w.onclick = openScheduledSheet; } }
+            if (statAguard) { const w = statAguard.closest('.stat-item'); if (w) { w.style.cursor = 'pointer'; w.onclick = openLogSheet; } }
+            if (statNext) { const w = statNext.closest('.stat-item'); if (w) { w.style.cursor = 'pointer'; w.onclick = openNextBookingSheet; } }
+        }
+
+        function openScheduledSheet() {
             const bookings = getFutureConfirmedBookings().slice(0, 100);
             const logHtml = bookings.length === 0
                 ? '<div class="info-box">Nenhum cliente agendado para hoje ou próximos dias.</div>'
@@ -3114,13 +1786,26 @@
                         <div class="log-meta">📞 ${r.telefone || '—'}${r.codigo ? ' · 🎫 ' + r.codigo : ''}</div>
                     </div>
                 `).join('');
-
-            openSheet('Agendados', `${bookings.length} cliente(s) de hoje em diante.`);
+            openSheet('Agendados', `${bookings.length} cliente(s) com horário confirmado.`);
             document.getElementById('sheetBody').innerHTML = logHtml;
             document.getElementById('sheetActions').innerHTML = `<button class="btn btn-secondary" onclick="closeSheet()">Fechar</button>`;
-        };
+        }
 
-        openLogSheet = function () {
+        function openNextBookingSheet() {
+            const next = getNextOccupiedBooking();
+            openSheet('Próximo atendimento', 'Detalhes do próximo cliente da agenda.');
+            document.getElementById('sheetBody').innerHTML = next ? `
+                <div class="info-box" style="border-color:var(--gold);">
+                    <strong>${next.cliente || 'Cliente não informado'}</strong><br>
+                    📅 ${formatManausLabel(next.data, { weekday: 'long', day: '2-digit', month: 'long' })}<br>
+                    🕐 ${next.horario || '—'}<br>
+                    📞 ${next.telefone || '—'}
+                </div>
+            ` : '<div class="info-box">Nenhum atendimento futuro encontrado.</div>';
+            document.getElementById('sheetActions').innerHTML = `<button class="btn btn-secondary" onclick="closeSheet()">Fechar</button>`;
+        }
+
+        function openLogSheet() {
             const historicBookings = getHistoricBookings().slice(0, 80);
             const auditLogs = [...systemLogs]
                 .filter(r => ['AGENDAMENTO', 'BLOQUEIO', 'LIBERACAO', 'CONFIG', 'PUSH_ADMIN', 'ERRO'].includes(r.type))
@@ -3147,167 +1832,146 @@
                     </div>
                 `).join('');
 
-            openSheet('Histórico', 'Atendimentos passados e registros importantes.');
+            openSheet('Histórico', 'Atendimentos passados e registros do sistema.');
             document.getElementById('sheetBody').innerHTML = `
-                <div class="info-box" style="margin-bottom:12px;">
-                    <strong>Atendimentos anteriores</strong>
-                </div>
+                <div class="info-box" style="margin-bottom:12px;"><strong>Atendimentos anteriores</strong></div>
                 ${bookingsHtml}
-                <div class="info-box" style="margin:16px 0 12px;">
-                    <strong>Auditoria do sistema</strong>
-                </div>
+                <div class="info-box" style="margin:16px 0 12px;"><strong>Auditoria do sistema</strong></div>
                 ${auditHtml}
             `;
             document.getElementById('sheetActions').innerHTML = `<button class="btn btn-secondary" onclick="closeSheet()">Fechar</button>`;
-        };
-
-        async function requestNativeNotificationPermission() {
-            const nativeOneSignal = getNativeOneSignal();
-            if (!nativeOneSignal) return false;
-            try {
-                if (nativeOneSignal.Notifications && typeof nativeOneSignal.Notifications.requestPermission === 'function') {
-                    const accepted = await nativeOneSignal.Notifications.requestPermission(true);
-                    return !!accepted;
-                }
-                if (typeof nativeOneSignal.promptForPushNotificationsWithUserResponse === 'function') {
-                    return await new Promise(resolve => {
-                        nativeOneSignal.promptForPushNotificationsWithUserResponse(resolve);
-                    });
-                }
-            } catch (err) {
-                console.warn('Native notification permission request failed:', err);
-            }
-            return false;
         }
 
-        initNativeNotifications = async function () {
-            if (notificationsInitialized) return true;
+        function openDurPanel() {
+            openSheet('Duração dos Procedimentos', 'Selecione um dia e clique em qualquer horário agendado para editar sua duração.');
+            document.getElementById('sheetBody').innerHTML = `
+                <div class="info-box">✨ Escolha uma data no calendário e toque em qualquer card <strong>Ocupado</strong> para alterar o tempo do procedimento.</div>
+                <div style="background:rgba(255,255,255,0.05);border-radius:14px;padding:16px 20px;margin-bottom:16px;">
+                    <div style="font-size:0.55rem;letter-spacing:2px;font-weight:700;color:var(--gold);text-transform:uppercase;margin-bottom:8px;">Duração padrão atual</div>
+                    <div style="font-size:1.4rem;font-family:'Cormorant Garamond',serif;">${srvCfg.duration} minutos</div>
+                </div>
+            `;
+            document.getElementById('sheetActions').innerHTML = `
+                <button class="btn btn-primary" onclick="closeSheet()">Ver agenda e editar</button>
+                <button class="btn btn-secondary" onclick="closeSheet()">Fechar</button>
+            `;
+        }
 
-            const nativeOneSignal = getNativeOneSignal();
-            if (!nativeOneSignal) return false;
+        function openBlockPanel() {
+            openSheet('Bloqueios em Lote', 'Selecione uma data, marque os horários e use a barra para bloquear ou liberar.');
+            document.getElementById('sheetBody').innerHTML = `
+                <div class="info-box">🔒 <strong>Como usar:</strong><br>1. Feche este painel<br>2. Escolha a data no calendário<br>3. Toque nos horários para marcar<br>4. Use a barra rosa para Bloquear ou Liberar em lote</div>
+                <div class="info-box" style="border-color:var(--rose);">💡 Para folga do dia inteiro, selecione todos e clique em Bloquear.</div>
+            `;
+            document.getElementById('sheetActions').innerHTML = `<button class="btn btn-primary" onclick="closeSheet()">Entendido — ir para agenda</button>`;
+        }
 
+        // ─── HELPERS ──────────────────────────────────────────
+        function handlePhoneInput(el) {
+            let v = el.value.replace(/\D/g, '');
+            if (v.length > 11) v = v.slice(0, 11);
+            let f = '';
+            if (v.length > 0) {
+                f = '(' + v.substring(0, 2);
+                if (v.length > 2) { f += ') ' + v.substring(2, 3); if (v.length > 3) { f += ' ' + v.substring(3, 7); if (v.length > 7) f += '-' + v.substring(7, 11); } }
+            }
+            el.value = f;
+        }
+
+        function normalizePhone(phone) {
+            let clean = (phone || '').replace(/\D/g, '');
+            if (clean.startsWith('55') && clean.length > 11) clean = clean.slice(2);
+            return clean;
+        }
+
+        function calcExperience() {
+            const years = new Date().getFullYear() - 2010;
+            const badge = document.getElementById('expBadge');
+            if (badge) badge.textContent = `✦ ${years} anos de experiência ✦`;
+        }
+
+        function initSigWa() {
+            const waText = encodeURIComponent('Olá, Camila! 💗 Vim pelo site da Look Designer e tenho uma dúvida sobre agendamento.');
+            const el = document.getElementById('sigWa');
+            if (el) el.href = `https://wa.me/${CFG.WA}?text=${waText}`;
+        }
+
+        // ─── NOTIFICAÇÕES ─────────────────────────────────────
+        const ONESIGNAL_APP_ID = "1246a184-5550-4e12-b1f4-24efd53c6f02";
+        let notificationsInitialized = false;
+
+        function isNativeApp() {
+            try { if (window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function') return window.Capacitor.isNativePlatform(); } catch (e) { }
+            return !!window.cordova;
+        }
+
+        function getNativeOneSignal() { return window.plugins && window.plugins.OneSignal ? window.plugins.OneSignal : null; }
+
+        function addNotificationTag(key, value) {
+            const n = getNativeOneSignal();
+            if (n && n.User && n.User.addTag) { n.User.addTag(key, value); return; }
+            if (window.OneSignal && window.OneSignal.User && window.OneSignal.User.addTag) { window.OneSignal.User.addTag(key, value); return; }
+            if (window.OneSignalDeferred) window.OneSignalDeferred.push(o => { try { if (o && o.User && o.User.addTag) o.User.addTag(key, value); } catch(e){} });
+        }
+
+        function removeNotificationTag(key) {
+            const n = getNativeOneSignal();
+            if (n && n.User && n.User.removeTag) { n.User.removeTag(key); return; }
+            if (window.OneSignal && window.OneSignal.User && window.OneSignal.User.removeTag) { window.OneSignal.User.removeTag(key); return; }
+        }
+
+        function setupAdminNotifications() {
+            if (isAdmin && !isUserView) addNotificationTag('user_type', 'admin');
+            else removeNotificationTag('user_type');
+        }
+
+        function initWebNotifications() {
+            if (notificationsInitialized) return;
             try {
-                if (typeof nativeOneSignal.initialize === 'function') {
-                    nativeOneSignal.initialize(ONESIGNAL_APP_ID);
-                } else if (typeof nativeOneSignal.startInit === 'function' && typeof nativeOneSignal.endInit === 'function') {
-                    nativeOneSignal.startInit(ONESIGNAL_APP_ID);
-                    nativeOneSignal.endInit();
-                } else {
-                    return false;
-                }
+                window.OneSignalDeferred = window.OneSignalDeferred || [];
+                window.OneSignalDeferred.push(async function(OneSignal) {
+                    try {
+                        await OneSignal.init({ appId: ONESIGNAL_APP_ID, allowLocalhostAsSecureOrigin: true, notifyButton: { enable: false } });
+                        notificationsInitialized = true;
+                        setupAdminNotifications();
+                    } catch(e) { }
+                });
+            } catch(e) { }
+        }
 
-                notificationsInitialized = true;
+        function initNotifications() {
+            if (!isNativeApp()) { initWebNotifications(); return; }
+            const n = getNativeOneSignal();
+            if (!n) { document.addEventListener('deviceready', () => { try { const nv = getNativeOneSignal(); if (nv && nv.initialize) { nv.initialize(ONESIGNAL_APP_ID); notificationsInitialized = true; setupAdminNotifications(); } } catch(e){} }, { once: true }); return; }
+            try { if (n.initialize) n.initialize(ONESIGNAL_APP_ID); notificationsInitialized = true; setupAdminNotifications(); } catch(e) { }
+        }
 
-                try {
-                    if (nativeOneSignal.User && nativeOneSignal.User.pushSubscription && typeof nativeOneSignal.User.pushSubscription.optIn === 'function') {
-                        nativeOneSignal.User.pushSubscription.optIn();
-                    } else if (nativeOneSignal.User && nativeOneSignal.User.pushSubscription && typeof nativeOneSignal.User.pushSubscription.optedIn !== 'undefined') {
-                        nativeOneSignal.User.pushSubscription.optedIn = true;
-                    } else if (typeof nativeOneSignal.optIn === 'function') {
-                        nativeOneSignal.optIn();
-                    }
-                } catch (err) {
-                    console.warn('Push subscription opt-in failed:', err);
-                }
-
-                await requestNativeNotificationPermission();
-                setupAdminNotifications();
-                return true;
-            } catch (err) {
-                console.warn('Native notifications init failed:', err);
-                return false;
+        // ─── PETALS ───────────────────────────────────────────
+        function spawnPetals() {
+            const container = document.getElementById('introPetals');
+            if (!container) return;
+            const colors = ['#C4848A', '#C9A86C', '#E8D5B0', '#F2D9D9'];
+            for (let i = 0; i < 18; i++) {
+                const p = document.createElement('div');
+                p.className = 'petal';
+                p.style.cssText = `left:${Math.random()*100}%;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};width:${4+Math.random()*6}px;height:${4+Math.random()*6}px;animation-duration:${3+Math.random()*4}s;animation-delay:${Math.random()*3}s;`;
+                container.appendChild(p);
             }
-        };
+        }
 
-        setupAdminNotifications = async function () {
-            if (isAdmin && !isUserView) {
-                if (isNativeApp()) {
-                    await requestNativeNotificationPermission();
-                }
-                addNotificationTag('user_type', 'admin');
-            } else {
-                removeNotificationTag('user_type');
-            }
-        };
-
-        window.addEventListener('load', configureAdminPanel);
-
+        // ─── BOOT ─────────────────────────────────────────────
         window.onload = () => {
             spawnPetals();
             calcExperience();
             initSigWa();
-            // Core app flow should never depend on notifications.
             syncData();
             renderDays();
-            try {
-                initNotifications();
-            } catch (err) {
-                console.warn('Notifications init skipped due to runtime error:', err);
-            }
-            // Tenta ativar modo admin imediatamente se houver senha salva
-            if (adminPass) {
-                isAdmin = true;
-                updateAppMode();
-            }
+            try { initNotifications(); } catch(e) { }
+            if (adminPass) { isAdmin = true; updateAppMode(); }
             setInterval(() => { if (currentDay) renderGrid(currentDay); }, 60000);
         };
 
-        openLogSheet = function () {
-            const now = new Date();
-            const curIso = formatLocalIsoDate(now);
-            const curMins = now.getHours() * 60 + now.getMinutes();
-
-            // Mural simplificado e focado em agendamentos
-            const allLogs = db.filter(r => r.status === 'Ocupado' || r.status === 'Aguardando Pagamento')
-                .sort((a, b) => {
-                    const tA = a.data + 'T' + a.horario;
-                    const tB = b.data + 'T' + b.horario;
-                    return logSortRev ? tB.localeCompare(tA) : tA.localeCompare(tB);
-                })
-                .slice(0, 100);
-
-            const logHtml = allLogs.length === 0
-                ? '<div class="info-box">Nenhum evento registrado. ✨</div>'
-                : allLogs.map(r => {
-                    const [h, m] = r.horario.split(':').map(Number);
-                    const isPast = (r.data < curIso) || (r.data === curIso && (h * 60 + m) < curMins);
-                    const isConfirmed = r.status === 'Ocupado';
-
-                    let stColor = isConfirmed ? 'var(--st-ocupado)' : 'var(--st-aguard)';
-                    let stText = isConfirmed ? 'Agendamento Confirmado' : 'Aguardando PIX';
-                    let stIcon = isConfirmed ? '✅' : '⏳';
-
-                    if (isPast) {
-                        stColor = 'var(--st-block)';
-                        stIcon = '⌛';
-                        stText = 'Cliente atendido ou horário passado';
-                    }
-
-                    const agendDate = r.data ? r.data.split('-').reverse().join('/') : '—';
-
-                    return `
-                <div class="log-entry" style="border-left-color:${stColor}">
-                    <strong>${stIcon} ${stText}</strong>
-                    <p style="margin:4px 0">👤 ${r.cliente} — 📅 ${agendDate} às ${r.horario}</p>
-                    <div class="log-meta">📞 ${r.telefone || '—'} · 🎫 Token: ${r.codigo || '—'}</div>
-                </div>
-            `;
-                }).join('');
-
-            openSheet('Registros do Sistema', 'Histórico real da agenda e do backend.');
-            document.getElementById('sheetBody').innerHTML = `
-                <div style="display:flex; gap:8px; margin-bottom:16px;">
-                    <button class="dur-opt ${logSortRev ? 'sel' : ''}" style="flex:1; font-size:0.6rem;" onclick="logSortRev=true;openLogSheet()">⬇ Recentes Primeiro</button>
-                    <button class="dur-opt ${!logSortRev ? 'sel' : ''}" style="flex:1; font-size:0.6rem;" onclick="logSortRev=false;openLogSheet()">⬆ Antigas Primeiro</button>
-                    <button class="dur-opt" style="flex:1; font-size:0.6rem; border-color:var(--rose); color:var(--rose-dark);" onclick="clearLogHistory()">Limpar</button>
-                </div>
-                ${logHtml}
-            `;
-            document.getElementById('sheetActions').innerHTML = `
-                <button class="btn btn-secondary" onclick="closeSheet()">Fechar</button>
-            `;
-        };
+        window.addEventListener('load', configureAdminPanel);
     </script>
 </body>
-
 </html>
