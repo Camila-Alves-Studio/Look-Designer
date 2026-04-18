@@ -962,15 +962,25 @@
                 .sort((a, b) => a.data === b.data ? a.mins - b.mins : a.data.localeCompare(b.data))[0] || null;
         }
 
-        // ─── CORREÇÃO: clearClientBlock só remove se banco confirmou liberação ──────
+        // clearClientBlock: só libera quando AMBAS as condições forem verdadeiras:
+        // 1. Passaram 12h desde o agendamento, E
+        // 2. O banco não tem mais aquele token como Ocupado
+        // Isso evita que um POST lento apague o bloqueio prematuramente.
         function clearClientBlock() {
             const lastBooking = JSON.parse(localStorage.getItem('last_booking_v3') || 'null');
-            // Só limpa se o token não está mais como Ocupado no banco
-            if (lastBooking && db.find(r => r.codigo === lastBooking.token && r.status === 'Ocupado')) {
-                return; // banco ainda tem como ocupado — não limpa
+            const lastTs = Number(localStorage.getItem('last_booking_timestamp') || '0');
+            if (!lastBooking) return;
+
+            const passou12h = lastTs > 0 && (Date.now() - lastTs) >= 12 * 60 * 60 * 1000;
+            const aindaOcupado = !!db.find(r => r.codigo === lastBooking.token && r.status === 'Ocupado');
+
+            // Só limpa se passou 12h E o banco já não tem mais como ocupado
+            if (passou12h && !aindaOcupado) {
+                localStorage.removeItem('last_booking_timestamp');
+                localStorage.removeItem('last_booking_v3');
             }
-            localStorage.removeItem('last_booking_timestamp');
-            localStorage.removeItem('last_booking_v3');
+            // Se o banco ainda confirma como ocupado: libera só após o admin encerrar
+            // Se não passou 12h: mantém o bloqueio independente do banco
         }
 
         // ─── INTRO ───────────────────────────────────────────
@@ -1006,12 +1016,9 @@
                     isAdmin = !!r.isAdmin;
 
                     if (!isAdmin) {
-                        const saved = localStorage.getItem('last_booking_v3');
-                        if (saved) {
-                            const booking = JSON.parse(saved);
-                            const stillOccupied = db.find(rec => rec.codigo === booking.token && rec.status === 'Ocupado');
-                            if (!stillOccupied) clearClientBlock();
-                        }
+                        // Tenta liberar o bloqueio — clearClientBlock só age se
+                        // passaram 12h E o banco não confirma mais o token como Ocupado
+                        clearClientBlock();
                     }
 
                     configureAdminPanel();
@@ -1523,20 +1530,18 @@
             await postUpdates(updates);
         }
 
-        // ─── BOOKING SHEET (CLIENTE) — CORREÇÃO PRINCIPAL ─────
+        // ─── BOOKING SHEET (CLIENTE) ───────────────────────────
         function showBookingSheet(iso, clock) {
             if (!isAdmin) {
                 const lastBooking = JSON.parse(localStorage.getItem('last_booking_v3') || 'null');
                 const lastTs = Number(localStorage.getItem('last_booking_timestamp') || '0');
                 const dentro12h = lastTs > 0 && (Date.now() - lastTs) < 12 * 60 * 60 * 1000;
-
-                // Verifica se o token ainda consta como Ocupado no banco
                 const tokenAindaOcupado = lastBooking
                     ? !!db.find(r => r.codigo === lastBooking.token && r.status === 'Ocupado')
                     : false;
 
-                // CORREÇÃO: bloqueia se tem token salvo E (ainda dentro de 12h OU banco confirma ocupado)
-                // Isso impede o segundo agendamento mesmo antes do banco responder ao primeiro POST
+                // Bloqueia se: tem token local E (dentro de 12h OU banco ainda confirma ocupado)
+                // O token local é a fonte primária — não depende do banco ter respondido
                 const deveBloquear = lastBooking && (dentro12h || tokenAindaOcupado);
 
                 if (deveBloquear) {
@@ -1669,7 +1674,20 @@
             const phone = document.getElementById('bPhone').value.trim();
             if (!name || !phone) { alert('Preencha todos os campos.'); return; }
 
-            // Proteção contra duplo clique no botão
+            // Verificação de segurança: checar bloqueio de novo antes de confirmar
+            // Evita race condition se a tela ficou aberta enquanto outro agendamento foi feito
+            const _lb  = JSON.parse(localStorage.getItem('last_booking_v3') || 'null');
+            const _lts = Number(localStorage.getItem('last_booking_timestamp') || '0');
+            const _12h = _lts > 0 && (Date.now() - _lts) < 12 * 60 * 60 * 1000;
+            const _ocp = _lb ? !!db.find(r => r.codigo === _lb.token && r.status === 'Ocupado') : false;
+            if (_lb && (_12h || _ocp)) {
+                // Bloqueio ainda ativo — não confirma, fecha o sheet e mostra o banner
+                closeSheet();
+                if (currentDay) renderGrid(currentDay);
+                return;
+            }
+
+            // Desabilita botão imediatamente contra duplo clique
             const btn = document.getElementById('btnConfirmarAgendamento');
             if (btn) { btn.disabled = true; btn.textContent = '⏳ Aguarde...'; }
 
@@ -1677,14 +1695,13 @@
             const token = Math.random().toString(36).substring(2, 7).toUpperCase();
             const bTime = new Date().toISOString();
 
-            // CORREÇÃO: salva token localmente ANTES de qualquer coisa
-            // O bloqueio é imediato — independe do banco ter recebido o POST
+            // Grava bloqueio LOCAL antes de qualquer coisa — independe do banco
             localStorage.setItem('last_booking_v3', JSON.stringify({ token, iso, clock, phone: normalizedPhone, name }));
             localStorage.setItem('last_booking_timestamp', Date.now().toString());
 
             showPixSheet(name, phone, iso, clock, df, token);
 
-            // POST em segundo plano — não bloqueia a experiência da cliente
+            // POST em segundo plano
             postUpdates([{
                 data: iso, horario: clock, status: 'Ocupado',
                 cliente: name, telefone: phone, codigo: token,
