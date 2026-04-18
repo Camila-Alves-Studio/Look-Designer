@@ -51,6 +51,9 @@
             min-height: 100vh;
             overflow-x: hidden;
             transition: background 0.5s ease, color 0.5s ease;
+            overscroll-behavior-y: none;
+            -webkit-overflow-scrolling: auto;
+            touch-action: pan-y;
         }
 
         body.admin-on {
@@ -313,7 +316,18 @@
         .stat-num { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; color: var(--gold); display: block; line-height: 1; }
         .stat-lbl { font-size: 0.48rem; letter-spacing: 2px; color: var(--ink-soft); text-transform: uppercase; margin-top: 4px; display: block; }
 
-        .app { max-width: 480px; margin: 0 auto; padding: 0 20px 160px; position: relative; z-index: 1; }
+        .app {
+            max-width: 480px; margin: 0 auto;
+            padding: 0 16px 140px;
+            position: relative; z-index: 1;
+        }
+        @media (max-width: 390px) {
+            .app { padding: 0 12px 130px; }
+            .logo-main { font-size: 2.4rem; }
+            .admin-stats { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+            .admin-cards { grid-template-columns: 1fr; }
+            .admin-card.card-vagas { grid-column: 1; }
+        }
 
         header { padding: 48px 0 32px; text-align: center; position: relative; }
         body.admin-on header { padding-top: 58px; }
@@ -374,17 +388,23 @@
         .slots-wrap {
             position: relative;
             margin: 0 -20px;
+            touch-action: pan-x;
         }
         .slots {
             display: flex;
             flex-direction: row;
             gap: 14px;
             overflow-x: auto;
+            overflow-y: hidden;
             padding: 12px 28px 28px;
             scrollbar-width: none;
-            scroll-snap-type: x proximity;
+            scroll-snap-type: x mandatory;
             -webkit-overflow-scrolling: touch;
+            overscroll-behavior-x: contain;
+            overscroll-behavior-y: none;
+            -webkit-scroll-behavior: smooth;
             scroll-behavior: smooth;
+            will-change: scroll-position;
             mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
             -webkit-mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
         }
@@ -399,18 +419,19 @@
             align-items: flex-start;
             gap: 6px;
             cursor: pointer;
-            transition: transform 0.35s var(--ease), box-shadow 0.35s var(--ease), border-color 0.3s, background 0.3s;
+            transition: transform 0.3s var(--ease), box-shadow 0.3s var(--ease), border-color 0.25s, background 0.25s;
             border: 1.5px solid transparent;
             box-shadow: 0 4px 16px rgba(42,32,32,0.07), 0 1px 4px rgba(42,32,32,0.04);
             position: relative;
-            overflow: visible;
-            animation: cardIn 0.5s var(--ease) backwards;
-            scroll-snap-align: center;
+            overflow: hidden;
+            animation: cardIn 0.45s var(--ease) backwards;
+            scroll-snap-align: start;
             flex-shrink: 0;
-            width: 148px;
-            min-height: 116px;
+            width: 150px;
+            min-height: 118px;
             user-select: none;
             -webkit-user-select: none;
+            touch-action: manipulation;
         }
 
         @keyframes cardIn { from { opacity: 0; transform: translateY(12px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
@@ -473,8 +494,36 @@
 
         .log-expired { display: inline-block; background: rgba(139,75,85,0.1); color: var(--deep-rose); padding: 4px 10px; border-radius: 10px; font-size: 0.5rem; font-weight: 700; margin-top: 4px; letter-spacing: 1px; }
 
-        .nav-float { position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%); background: white; border-radius: 50px; padding: 14px 28px; display: flex; gap: 4px; box-shadow: 0 8px 40px rgba(42,32,32,0.15); z-index: 6000; border: 1px solid rgba(196,132,138,0.15); opacity: 0; animation: fadeUp 1s 4.5s var(--ease) forwards; transition: background 0.5s, border-color 0.5s; }
-        .nav-btn { background: none; border: none; font-family: 'DM Sans', sans-serif; font-size: 0.6rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--ink); cursor: pointer; padding: 8px 16px; border-radius: 40px; transition: all 0.3s; }
+        .nav-float {
+            position: fixed;
+            bottom: max(24px, env(safe-area-inset-bottom, 24px));
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            border-radius: 50px;
+            padding: 10px 16px;
+            display: flex;
+            gap: 2px;
+            box-shadow: 0 8px 40px rgba(42,32,32,0.15);
+            z-index: 6000;
+            border: 1px solid rgba(196,132,138,0.15);
+            opacity: 0;
+            animation: fadeUp 1s 4.5s var(--ease) forwards;
+            transition: background 0.5s, border-color 0.5s;
+            max-width: calc(100vw - 32px);
+            overflow: hidden;
+        }
+        .nav-btn {
+            background: none; border: none;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.55rem; font-weight: 700;
+            letter-spacing: 1.5px; text-transform: uppercase;
+            color: var(--ink); cursor: pointer;
+            padding: 8px 12px; border-radius: 40px;
+            transition: all 0.3s;
+            white-space: nowrap;
+            touch-action: manipulation;
+        }
         .nav-btn:hover { background: var(--cream-dark); }
         .nav-btn.primary { background: linear-gradient(135deg, var(--rose), var(--deep-rose)); color: white; }
 
@@ -494,14 +543,41 @@
         body.admin-on .log-entry strong { color: var(--ink); }
         .log-entry .log-meta { font-size: 0.6rem; color: var(--rose); margin-top: 4px; }
 
-        .overlay { position: fixed; inset: 0; background: rgba(42,32,32,0.4); backdrop-filter: blur(12px); z-index: 8000; display: none; align-items: flex-end; justify-content: center; }
+        .overlay {
+            position: fixed; inset: 0;
+            background: rgba(42,32,32,0.4);
+            backdrop-filter: blur(12px);
+            z-index: 8000; display: none;
+            align-items: flex-end; justify-content: center;
+        }
         .overlay.vis { display: flex; }
-        .sheet { background: white; width: 100%; max-width: 480px; border-radius: 32px 32px 0 0; padding: 36px 32px 48px; animation: sheetUp 0.6s var(--ease); max-height: 90vh; overflow-y: auto; }
+        .sheet {
+            background: white;
+            width: 100%; max-width: 480px;
+            border-radius: 32px 32px 0 0;
+            padding: 36px 32px 48px;
+            animation: sheetUp 0.5s var(--ease);
+            max-height: 92vh;
+            overflow-y: auto;
+            overscroll-behavior: contain;
+            touch-action: pan-y;
+            transition: transform 0.3s var(--ease);
+            will-change: transform;
+        }
         body.admin-on .sheet { background: #FDF0F2; color: var(--ink); }
 
         @keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
-        .sheet-handle { width: 40px; height: 4px; background: var(--cream-dark); border-radius: 4px; margin: 0 auto 28px; }
+        .sheet-handle {
+            width: 48px; height: 5px;
+            background: var(--cream-dark);
+            border-radius: 4px;
+            margin: 0 auto 28px;
+            cursor: grab;
+            touch-action: none;
+            transition: background 0.2s, width 0.2s;
+        }
+        .sheet-handle:active { background: var(--rose); width: 56px; }
         body.admin-on .sheet-handle { background: rgba(196,132,138,0.25); }
         .sheet-title { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 300; margin-bottom: 4px; }
         .sheet-sub { font-size: 0.8rem; color: var(--ink-soft); margin-bottom: 28px; line-height: 1.6; }
@@ -520,7 +596,16 @@
         body.admin-on .dur-opt { background: var(--cream); border-color: rgba(196,132,138,0.2); color: var(--ink-soft); }
         body.admin-on .dur-opt.sel { border-color: var(--rose); background: rgba(196,132,138,0.1); color: var(--rose); }
 
-        .btn { width: 100%; padding: 18px; border-radius: 14px; border: none; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; font-weight: 700; letter-spacing: 1px; cursor: pointer; transition: all 0.3s; }
+        .btn {
+            width: 100%; padding: 16px 18px;
+            border-radius: 14px; border: none;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.85rem; font-weight: 700;
+            letter-spacing: 1px; cursor: pointer;
+            transition: all 0.25s;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
         .btn-primary { background: linear-gradient(135deg, var(--rose) 0%, var(--deep-rose) 100%); color: white; box-shadow: 0 8px 24px rgba(139,79,85,0.3); margin-bottom: 12px; }
         .btn-primary:active { transform: scale(0.98); }
         .btn-secondary { background: var(--cream-dark); color: var(--ink); }
@@ -1222,39 +1307,25 @@
             }
         }
 
-        // ─── SLOT CLICK + LONG PRESS (1.2s) ──────────────────────
+        // ─── INTERAÇÃO COM CARDS ──────────────────────────────
+        // Cliente: toque simples abre sheet — sem long-press
+        // Admin:   toque simples abre sheet | segurar 1.2s seleciona
         const LP_MS = 1200;
-        let _lpTimer = null;
-        let _lpCard = null;
-        let _lpRaf = null;
-        let _lpStart = 0;
-        let _scrolling = false;
-        let _scrollX = 0;
-
-        // Detecta scroll do container para cancelar long-press durante arrasto
-        document.addEventListener('DOMContentLoaded', () => {
-            const sc = document.getElementById('slotsContainer');
-            if (sc) sc.addEventListener('scroll', () => { _scrolling = true; }, { passive: true });
-        });
+        let _lpTimer = null, _lpCard = null, _lpRaf = null;
+        let _lpScrolling = false, _lpStartX = 0, _lpStartY = 0;
 
         function _lpToggleSelect(card, iso, clock) {
             const key = `${iso}|${clock}`;
-            if (selectedSlots.has(key)) {
-                selectedSlots.delete(key);
-                card.classList.remove('selected');
-            } else {
-                selectedSlots.add(key);
-                card.classList.add('selected');
-            }
+            if (selectedSlots.has(key)) { selectedSlots.delete(key); card.classList.remove('selected'); }
+            else { selectedSlots.add(key); card.classList.add('selected'); }
             updateMultiBar();
-            // Vibração haptica leve se disponível
-            if (navigator.vibrate) navigator.vibrate([18, 8, 28]);
+            if (navigator.vibrate) navigator.vibrate([12, 6, 24]);
         }
 
         function _lpCancel() {
             if (_lpTimer) { clearTimeout(_lpTimer); _lpTimer = null; }
-            if (_lpRaf) { cancelAnimationFrame(_lpRaf); _lpRaf = null; }
-            if (_lpCard) {
+            if (_lpRaf)   { cancelAnimationFrame(_lpRaf); _lpRaf = null; }
+            if (_lpCard)  {
                 _lpCard.classList.remove('pressing');
                 const ring = _lpCard.querySelector('.lp-ring');
                 if (ring) ring.style.setProperty('--lp', '0%');
@@ -1270,62 +1341,66 @@
             if (pct < 100) _lpRaf = requestAnimationFrame(() => _lpAnimate(card, startTs));
         }
 
-        function _lpStart2(card, iso, clock) {
+        function _lpBegin(card, iso, clock) {
             _lpCancel();
-            _scrolling = false;
+            _lpScrolling = false;
             _lpCard = card;
             card.classList.add('pressing');
             const startTs = performance.now();
             _lpRaf = requestAnimationFrame(() => _lpAnimate(card, startTs));
             _lpTimer = setTimeout(() => {
-                if (_scrolling) { _lpCancel(); return; }
+                if (_lpScrolling) { _lpCancel(); return; }
                 _lpCancel();
                 _lpToggleSelect(card, iso, clock);
             }, LP_MS);
         }
 
         function attachLongPress(card, iso, clock, st, reg) {
-            // Touch
+            // Só o admin tem long-press para selecionar
+            const isAdminMode = () => isAdmin && !isUserView;
+
+            // ── TOUCH ──────────────────────────────────────────
             card.addEventListener('touchstart', (e) => {
-                _scrollX = e.touches[0].clientX;
-                _lpStart2(card, iso, clock);
+                _lpStartX = e.touches[0].clientX;
+                _lpStartY = e.touches[0].clientY;
+                _lpScrolling = false;
+                if (isAdminMode()) _lpBegin(card, iso, clock);
             }, { passive: true });
 
             card.addEventListener('touchmove', (e) => {
-                const dx = Math.abs(e.touches[0].clientX - _scrollX);
-                if (dx > 8) { _scrolling = true; _lpCancel(); }
+                const dx = Math.abs(e.touches[0].clientX - _lpStartX);
+                const dy = Math.abs(e.touches[0].clientY - _lpStartY);
+                if (dx > 6 || dy > 6) { _lpScrolling = true; _lpCancel(); }
             }, { passive: true });
 
-            card.addEventListener('touchend', (e) => {
+            card.addEventListener('touchend', () => {
                 const wasPressing = _lpCard === card;
-                const hadTimer = !!_lpTimer;
+                const hadTimer    = !!_lpTimer;
                 _lpCancel();
-                // Se soltou antes do long-press: toque normal
-                if (wasPressing && hadTimer && !_scrolling) {
-                    handleCardTap(card, iso, clock, st, reg);
-                }
+                if (_lpScrolling) return;
+                // Long-press completou? não dispara tap
+                // Toque rápido: sempre dispara tap (admin ou cliente)
+                if (!wasPressing || hadTimer) handleCardTap(card, iso, clock, st, reg);
             });
 
             card.addEventListener('touchcancel', _lpCancel);
 
-            // Mouse (desktop)
-            card.addEventListener('mousedown', () => _lpStart2(card, iso, clock));
-            card.addEventListener('mouseup', (e) => {
+            // ── MOUSE (desktop) ────────────────────────────────
+            card.addEventListener('mousedown', () => {
+                if (isAdminMode()) _lpBegin(card, iso, clock);
+            });
+            card.addEventListener('mouseup', () => {
                 const wasPressing = _lpCard === card;
-                const hadTimer = !!_lpTimer;
+                const hadTimer    = !!_lpTimer;
                 _lpCancel();
-                if (wasPressing && hadTimer) handleCardTap(card, iso, clock, st, reg);
+                if (!wasPressing || hadTimer) handleCardTap(card, iso, clock, st, reg);
             });
             card.addEventListener('mouseleave', _lpCancel);
         }
 
         function handleCardTap(card, iso, clock, st, reg) {
             const showAsClient = !isAdmin || isUserView;
-            if (!showAsClient) {
-                // Toque simples no admin abre o sheet
-                showAdminSlotSheet(iso, clock, st, reg);
-                return;
-            }
+            if (!showAsClient) { showAdminSlotSheet(iso, clock, st, reg); return; }
             if (st !== 'Livre') {
                 const lastBooking = JSON.parse(localStorage.getItem('last_booking_v3') || 'null');
                 const isMyBooking = lastBooking && lastBooking.iso === iso && lastBooking.clock === clock && st === 'Ocupado';
@@ -1338,9 +1413,7 @@
             showBookingSheet(iso, clock);
         }
 
-        function handleSlotClick(event, card, iso, clock, st, rUntil, reg) {
-            // Mantido para compatibilidade — lógica migrada para attachLongPress + handleCardTap
-        }
+        function handleSlotClick(event, card, iso, clock, st, rUntil, reg) { /* compatibilidade */ }
 
         // ─── MULTI SELECT ──────────────────────────────────────
         function updateMultiBar() {
@@ -1848,7 +1921,53 @@
             document.getElementById('overlay').classList.add('vis');
         }
 
-        function closeSheet() { document.getElementById('overlay').classList.remove('vis'); }
+        function closeSheet() {
+            const sheet = document.getElementById('sheet');
+            sheet.style.transition = 'transform 0.32s var(--ease)';
+            sheet.style.transform = 'translateY(105%)';
+            setTimeout(() => {
+                document.getElementById('overlay').classList.remove('vis');
+                sheet.style.transform = '';
+                sheet.style.transition = '';
+            }, 320);
+        }
+
+        // Fechar sheet puxando o handle para baixo
+        function initSheetDrag() {
+            const handle = document.querySelector('.sheet-handle');
+            const sheet  = document.getElementById('sheet');
+            if (!handle || !sheet) return;
+            let startY = 0, curY = 0, dragging = false;
+
+            function onStart(y) {
+                startY = y; curY = y; dragging = true;
+                sheet.style.transition = 'none';
+            }
+            function onMove(y) {
+                if (!dragging) return;
+                curY = y;
+                const dy = Math.max(0, y - startY);
+                sheet.style.transform = `translateY(${dy}px)`;
+            }
+            function onEnd() {
+                if (!dragging) return;
+                dragging = false;
+                const dy = curY - startY;
+                if (dy > 80) { closeSheet(); }
+                else {
+                    sheet.style.transition = 'transform 0.3s var(--ease)';
+                    sheet.style.transform = '';
+                    setTimeout(() => { sheet.style.transition = ''; }, 300);
+                }
+            }
+
+            handle.addEventListener('touchstart', e => onStart(e.touches[0].clientY), { passive: true });
+            handle.addEventListener('touchmove',  e => { e.preventDefault(); onMove(e.touches[0].clientY); }, { passive: false });
+            handle.addEventListener('touchend',   onEnd);
+            handle.addEventListener('mousedown',  e => onStart(e.clientY));
+            window.addEventListener('mousemove',  e => { if (dragging) onMove(e.clientY); });
+            window.addEventListener('mouseup',    onEnd);
+        }
         function handleOverlayClick(e) { if (e.target === document.getElementById('overlay')) closeSheet(); }
 
         // ─── ADMIN STATS ────────────────────────────────────────
@@ -2194,48 +2313,6 @@
             }
         }
 
-        // ─── SCROLL SUAVE PREMIUM NOS SLOTS ──────────────────
-        function initSlotsScroll() {
-            const el = document.getElementById('slotsContainer');
-            if (!el) return;
-            let isDown = false, startX = 0, scrollLeft = 0, velX = 0, lastX = 0, lastT = 0, rafId = null;
-
-            function momentum() {
-                velX *= 0.90; // atrito suave
-                el.scrollLeft += velX;
-                if (Math.abs(velX) > 0.4) rafId = requestAnimationFrame(momentum);
-            }
-
-            el.addEventListener('mousedown', (e) => {
-                isDown = true;
-                startX = e.pageX - el.offsetLeft;
-                scrollLeft = el.scrollLeft;
-                velX = 0; lastX = e.pageX; lastT = Date.now();
-                if (rafId) cancelAnimationFrame(rafId);
-                el.style.cursor = 'grabbing';
-                el.style.userSelect = 'none';
-            });
-
-            window.addEventListener('mousemove', (e) => {
-                if (!isDown) return;
-                e.preventDefault();
-                const x = e.pageX - el.offsetLeft;
-                el.scrollLeft = scrollLeft - (x - startX);
-                const now = Date.now();
-                const dt = now - lastT || 1;
-                velX = (e.pageX - lastX) / dt * 14;
-                lastX = e.pageX; lastT = now;
-            });
-
-            window.addEventListener('mouseup', () => {
-                if (!isDown) return;
-                isDown = false;
-                el.style.cursor = '';
-                el.style.userSelect = '';
-                rafId = requestAnimationFrame(momentum);
-            });
-        }
-
         // ─── BOOT ─────────────────────────────────────────────
         window.onload = () => {
             spawnPetals();
@@ -2246,7 +2323,7 @@
             try { initNotifications(); } catch(e) { }
             if (adminPass) { isAdmin = true; updateAppMode(); }
             setInterval(() => { if (currentDay) renderGrid(currentDay); }, 60000);
-            setTimeout(initSlotsScroll, 100);
+            setTimeout(initSheetDrag, 200);
         };
 
         window.addEventListener('load', configureAdminPanel);
