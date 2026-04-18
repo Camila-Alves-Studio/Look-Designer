@@ -378,51 +378,86 @@
         .slots {
             display: flex;
             flex-direction: row;
-            gap: 12px;
+            gap: 14px;
             overflow-x: auto;
-            padding: 8px 20px 20px;
+            padding: 12px 28px 28px;
             scrollbar-width: none;
-            scroll-snap-type: x mandatory;
+            scroll-snap-type: x proximity;
             -webkit-overflow-scrolling: touch;
-            mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
-            -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+            scroll-behavior: smooth;
+            mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
         }
         .slots::-webkit-scrollbar { display: none; }
 
         .slot-card {
             background: white;
-            border-radius: 20px;
-            padding: 18px 16px;
+            border-radius: 22px;
+            padding: 18px 16px 16px;
             display: flex;
             flex-direction: column;
             align-items: flex-start;
             gap: 6px;
             cursor: pointer;
-            transition: all 0.4s var(--ease);
+            transition: transform 0.35s var(--ease), box-shadow 0.35s var(--ease), border-color 0.3s, background 0.3s;
             border: 1.5px solid transparent;
-            box-shadow: var(--shadow);
+            box-shadow: 0 4px 16px rgba(42,32,32,0.07), 0 1px 4px rgba(42,32,32,0.04);
             position: relative;
-            overflow: hidden;
+            overflow: visible;
             animation: cardIn 0.5s var(--ease) backwards;
-            scroll-snap-align: start;
+            scroll-snap-align: center;
             flex-shrink: 0;
-            width: 140px;
-            min-height: 110px;
+            width: 148px;
+            min-height: 116px;
+            user-select: none;
+            -webkit-user-select: none;
         }
 
-        @keyframes cardIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes cardIn { from { opacity: 0; transform: translateY(12px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
 
-        .slot-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-deep); }
-        .slot-card.past { opacity: 0.3; pointer-events: none; }
-        .slot-card.selected { border-color: var(--rose); background: rgba(196,132,138,0.05); }
+        .slot-card:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 12px 32px rgba(42,32,32,0.12), 0 2px 8px rgba(42,32,32,0.06); }
+        .slot-card:active { transform: scale(0.96); box-shadow: 0 2px 8px rgba(42,32,32,0.08); transition: transform 0.12s ease, box-shadow 0.12s ease; }
+        .slot-card.pressing { transform: scale(0.94); box-shadow: 0 2px 8px rgba(196,132,138,0.15); border-color: rgba(196,132,138,0.5); transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .slot-card.past { opacity: 0.28; pointer-events: none; }
+        .slot-card.selected { border-color: var(--rose); background: rgba(196,132,138,0.06); box-shadow: 0 4px 20px rgba(196,132,138,0.18), 0 0 0 3px rgba(196,132,138,0.12); }
+
+        /* Anel de progresso do long-press */
+        .slot-card .lp-ring {
+            position: absolute;
+            inset: -3px;
+            border-radius: 25px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.15s;
+        }
+        .slot-card.pressing .lp-ring { opacity: 1; }
 
         body.admin-on .slot-card { background: white; border-color: rgba(196,132,138,0.15); }
         body.admin-on .slot-card:hover { border-color: var(--rose); box-shadow: 0 8px 24px rgba(196,132,138,0.15); }
         body.admin-on .slot-card.selected { border-color: var(--rose); background: rgba(196,132,138,0.08); }
 
-        .slot-check { display: none; width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--rose); align-items: center; justify-content: center; color: white; font-size: 0.6rem; flex-shrink: 0; transition: all 0.3s; position: absolute; top: 10px; right: 10px; background: white; }
-        body.admin-on .slot-check { display: flex; opacity: 0.4; }
-        .slot-card.selected .slot-check { background: var(--rose); opacity: 1; }
+        .slot-check {
+            display: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 2px solid var(--rose);
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.65rem;
+            flex-shrink: 0;
+            transition: background 0.25s, opacity 0.25s, transform 0.2s var(--ease), border-color 0.25s;
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: white;
+            box-shadow: 0 2px 8px rgba(196,132,138,0.15);
+            touch-action: manipulation;
+        }
+        body.admin-on .slot-check { display: flex; opacity: 0.35; }
+        .slot-card.selected .slot-check { background: var(--rose); opacity: 1; transform: scale(1.1); border-color: var(--deep-rose); }
+        .slot-card.pressing .slot-check { opacity: 0.8; transform: scale(1.15); border-color: var(--rose); }
 
         .slot-pip { width: 100%; height: 3px; border-radius: 3px; flex-shrink: 0; transition: background 0.3s; margin-bottom: 4px; }
         .slot-time { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; font-weight: 400; color: var(--ink); line-height: 1; transition: color 0.5s; }
@@ -1155,9 +1190,10 @@
                 card.dataset.status = st;
                 card.style.animationDelay = `${idx * 0.04}s`;
                 card.className = 'slot-card' + (isPast && (!isAdmin || isUserView) ? ' past' : '');
-                card.onclick = (e) => handleSlotClick(e, card, iso, clock, st, reservedUntil, reg);
+                attachLongPress(card, iso, clock, st, reg);
 
                 card.innerHTML = `
+                    <div class="lp-ring" style="background:conic-gradient(var(--rose) var(--lp,0%), transparent var(--lp,0%)); border-radius:25px;"></div>
                     <div class="slot-check" data-chk="true">✓</div>
                     <div class="slot-pip" style="background:${pipColor}"></div>
                     <div class="slot-time">${clock}</div>
@@ -1186,18 +1222,107 @@
             }
         }
 
-        // ─── SLOT CLICK ────────────────────────────────────────
-        function handleSlotClick(event, card, iso, clock, st, rUntil, reg) {
+        // ─── SLOT CLICK + LONG PRESS (1.2s) ──────────────────────
+        const LP_MS = 1200;
+        let _lpTimer = null;
+        let _lpCard = null;
+        let _lpRaf = null;
+        let _lpStart = 0;
+        let _scrolling = false;
+        let _scrollX = 0;
+
+        // Detecta scroll do container para cancelar long-press durante arrasto
+        document.addEventListener('DOMContentLoaded', () => {
+            const sc = document.getElementById('slotsContainer');
+            if (sc) sc.addEventListener('scroll', () => { _scrolling = true; }, { passive: true });
+        });
+
+        function _lpToggleSelect(card, iso, clock) {
+            const key = `${iso}|${clock}`;
+            if (selectedSlots.has(key)) {
+                selectedSlots.delete(key);
+                card.classList.remove('selected');
+            } else {
+                selectedSlots.add(key);
+                card.classList.add('selected');
+            }
+            updateMultiBar();
+            // Vibração haptica leve se disponível
+            if (navigator.vibrate) navigator.vibrate([18, 8, 28]);
+        }
+
+        function _lpCancel() {
+            if (_lpTimer) { clearTimeout(_lpTimer); _lpTimer = null; }
+            if (_lpRaf) { cancelAnimationFrame(_lpRaf); _lpRaf = null; }
+            if (_lpCard) {
+                _lpCard.classList.remove('pressing');
+                const ring = _lpCard.querySelector('.lp-ring');
+                if (ring) ring.style.setProperty('--lp', '0%');
+                _lpCard = null;
+            }
+        }
+
+        function _lpAnimate(card, startTs) {
+            const elapsed = performance.now() - startTs;
+            const pct = Math.min(elapsed / LP_MS * 100, 100);
+            const ring = card.querySelector('.lp-ring');
+            if (ring) ring.style.setProperty('--lp', pct.toFixed(1) + '%');
+            if (pct < 100) _lpRaf = requestAnimationFrame(() => _lpAnimate(card, startTs));
+        }
+
+        function _lpStart2(card, iso, clock) {
+            _lpCancel();
+            _scrolling = false;
+            _lpCard = card;
+            card.classList.add('pressing');
+            const startTs = performance.now();
+            _lpRaf = requestAnimationFrame(() => _lpAnimate(card, startTs));
+            _lpTimer = setTimeout(() => {
+                if (_scrolling) { _lpCancel(); return; }
+                _lpCancel();
+                _lpToggleSelect(card, iso, clock);
+            }, LP_MS);
+        }
+
+        function attachLongPress(card, iso, clock, st, reg) {
+            // Touch
+            card.addEventListener('touchstart', (e) => {
+                _scrollX = e.touches[0].clientX;
+                _lpStart2(card, iso, clock);
+            }, { passive: true });
+
+            card.addEventListener('touchmove', (e) => {
+                const dx = Math.abs(e.touches[0].clientX - _scrollX);
+                if (dx > 8) { _scrolling = true; _lpCancel(); }
+            }, { passive: true });
+
+            card.addEventListener('touchend', (e) => {
+                const wasPressing = _lpCard === card;
+                const hadTimer = !!_lpTimer;
+                _lpCancel();
+                // Se soltou antes do long-press: toque normal
+                if (wasPressing && hadTimer && !_scrolling) {
+                    handleCardTap(card, iso, clock, st, reg);
+                }
+            });
+
+            card.addEventListener('touchcancel', _lpCancel);
+
+            // Mouse (desktop)
+            card.addEventListener('mousedown', () => _lpStart2(card, iso, clock));
+            card.addEventListener('mouseup', (e) => {
+                const wasPressing = _lpCard === card;
+                const hadTimer = !!_lpTimer;
+                _lpCancel();
+                if (wasPressing && hadTimer) handleCardTap(card, iso, clock, st, reg);
+            });
+            card.addEventListener('mouseleave', _lpCancel);
+        }
+
+        function handleCardTap(card, iso, clock, st, reg) {
             const showAsClient = !isAdmin || isUserView;
             if (!showAsClient) {
-                const isCheck = event.target.getAttribute('data-chk') === 'true' || event.target.closest('[data-chk="true"]');
-                if (isCheck) {
-                    const key = `${iso}|${clock}`;
-                    if (selectedSlots.has(key)) { selectedSlots.delete(key); card.classList.remove('selected'); }
-                    else { selectedSlots.add(key); card.classList.add('selected'); }
-                    updateMultiBar();
-                    return;
-                }
+                // Toque simples no admin abre o sheet
                 showAdminSlotSheet(iso, clock, st, reg);
                 return;
             }
@@ -1211,6 +1336,10 @@
                 return;
             }
             showBookingSheet(iso, clock);
+        }
+
+        function handleSlotClick(event, card, iso, clock, st, rUntil, reg) {
+            // Mantido para compatibilidade — lógica migrada para attachLongPress + handleCardTap
         }
 
         // ─── MULTI SELECT ──────────────────────────────────────
@@ -2065,6 +2194,48 @@
             }
         }
 
+        // ─── SCROLL SUAVE PREMIUM NOS SLOTS ──────────────────
+        function initSlotsScroll() {
+            const el = document.getElementById('slotsContainer');
+            if (!el) return;
+            let isDown = false, startX = 0, scrollLeft = 0, velX = 0, lastX = 0, lastT = 0, rafId = null;
+
+            function momentum() {
+                velX *= 0.90; // atrito suave
+                el.scrollLeft += velX;
+                if (Math.abs(velX) > 0.4) rafId = requestAnimationFrame(momentum);
+            }
+
+            el.addEventListener('mousedown', (e) => {
+                isDown = true;
+                startX = e.pageX - el.offsetLeft;
+                scrollLeft = el.scrollLeft;
+                velX = 0; lastX = e.pageX; lastT = Date.now();
+                if (rafId) cancelAnimationFrame(rafId);
+                el.style.cursor = 'grabbing';
+                el.style.userSelect = 'none';
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (!isDown) return;
+                e.preventDefault();
+                const x = e.pageX - el.offsetLeft;
+                el.scrollLeft = scrollLeft - (x - startX);
+                const now = Date.now();
+                const dt = now - lastT || 1;
+                velX = (e.pageX - lastX) / dt * 14;
+                lastX = e.pageX; lastT = now;
+            });
+
+            window.addEventListener('mouseup', () => {
+                if (!isDown) return;
+                isDown = false;
+                el.style.cursor = '';
+                el.style.userSelect = '';
+                rafId = requestAnimationFrame(momentum);
+            });
+        }
+
         // ─── BOOT ─────────────────────────────────────────────
         window.onload = () => {
             spawnPetals();
@@ -2075,6 +2246,7 @@
             try { initNotifications(); } catch(e) { }
             if (adminPass) { isAdmin = true; updateAppMode(); }
             setInterval(() => { if (currentDay) renderGrid(currentDay); }, 60000);
+            setTimeout(initSlotsScroll, 100);
         };
 
         window.addEventListener('load', configureAdminPanel);
