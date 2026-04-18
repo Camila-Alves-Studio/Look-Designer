@@ -1097,32 +1097,94 @@
             const curMins = getManausMinutes(now);
             const lastBooking = JSON.parse(localStorage.getItem('last_booking_v3') || 'null');
 
-            const activeRec = showAsClient && lastBooking
+            // Verificação de bloqueio: mesma lógica do showBookingSheet
+            // Local-first: basta ter token no localStorage dentro de 12h OU banco confirmar ocupado
+            const lastTs = Number(localStorage.getItem('last_booking_timestamp') || '0');
+            const dentro12h = lastTs > 0 && (Date.now() - lastTs) < 12 * 60 * 60 * 1000;
+            const activeRec = lastBooking
                 ? db.find(r => r.codigo === lastBooking.token && r.status === 'Ocupado')
                 : null;
-            const hasActiveBooking = !!activeRec;
+            const tokenAindaOcupado = !!activeRec;
+            // Bloqueio ativo se: tem token local E (dentro das 12h OU banco confirma ocupado)
+            const clienteBloqueado = showAsClient && lastBooking && (dentro12h || tokenAindaOcupado);
+            const hasActiveBooking = clienteBloqueado;
+
+            // Dados a exibir: prioriza banco, fallback para localStorage
+            const activeClock = activeRec ? activeRec.horario : (lastBooking ? lastBooking.clock : '');
+            const activeIso   = activeRec ? String(activeRec.data).substring(0,10) : (lastBooking ? lastBooking.iso : '');
 
             const bannerContainer = document.getElementById('activeBanner');
             if (bannerContainer) {
-                if (showAsClient && hasActiveBooking && activeRec) {
-                    const dataFmt = formatManausLabel(activeRec.data ? String(activeRec.data).substring(0,10) : lastBooking.iso,
-                        { weekday: 'long', day: '2-digit', month: 'long' }).replace(/^\w/, c => c.toUpperCase());
-                    const waGerente = encodeURIComponent('Olá, Camila! Tenho um agendamento ativo no sistema e preciso de ajuda.');
+                if (clienteBloqueado) {
+                    const dataFmt = activeIso
+                        ? formatManausLabel(activeIso, { weekday: 'long', day: '2-digit', month: 'long' }).replace(/^\w/, c => c.toUpperCase())
+                        : '';
+                    const dataCurta = activeIso ? activeIso.split('-').reverse().slice(0,2).join('/') : '';
+                    const remainMs = lastTs > 0 ? Math.max(0, (lastTs + 12 * 60 * 60 * 1000) - Date.now()) : 0;
+                    const remHrs  = Math.floor(remainMs / 3600000);
+                    const remMins = Math.floor((remainMs % 3600000) / 60000);
+
+                    const waMsgAtivo = encodeURIComponent(
+                        'Olá, Camila! 💗 Tenho um agendamento ativo e preciso de ajuda.\n\n' +
+                        '📌 *Meu agendamento:*\n' +
+                        (activeClock ? '🕐 Horário: *' + activeClock + '*\n' : '') +
+                        (dataCurta   ? '📅 Data: *' + dataCurta + '*\n'     : '') +
+                        (lastBooking && lastBooking.name  ? '👤 Nome: '  + lastBooking.name  + '\n' : '') +
+                        (lastBooking && lastBooking.token ? '🎫 Código: *' + lastBooking.token + '*\n' : '') +
+                        '\nGostaria de cancelar ou alterar.'
+                    );
+
                     bannerContainer.innerHTML =
-                        '<div style="background:linear-gradient(135deg,rgba(196,132,138,0.1),rgba(201,168,108,0.07));' +
-                        'border:1.5px solid rgba(196,132,138,0.35);border-radius:18px;padding:18px 20px;margin-bottom:20px;">' +
-                            '<div style="font-size:0.48rem;font-weight:700;letter-spacing:4px;color:var(--rose);text-transform:uppercase;margin-bottom:8px;">📌 Agendamento ativo</div>' +
-                            '<div style="font-size:0.9rem;font-weight:600;color:var(--ink);margin-bottom:4px;">' +
-                                (activeRec.horario || lastBooking.clock) + ' · ' + dataFmt +
+                        '<div style="background:linear-gradient(135deg,rgba(196,132,138,0.08),rgba(201,168,108,0.05));' +
+                        'border:1.5px solid rgba(196,132,138,0.35);border-radius:20px;padding:20px;margin-bottom:20px;">' +
+
+                            '<div style="font-size:0.44rem;font-weight:700;letter-spacing:4px;' +
+                                'color:var(--rose);text-transform:uppercase;margin-bottom:12px;">📌 Você já tem uma reserva ativa</div>' +
+
+                            '<div style="font-family:Cormorant Garamond,serif;font-size:2.6rem;' +
+                                'font-weight:400;color:var(--ink);line-height:1;margin-bottom:4px;text-align:center;">' +
+                                activeClock +
                             '</div>' +
-                            '<div style="font-size:0.72rem;color:var(--ink-soft);margin-bottom:12px;">' +
-                                'Sua vaga está reservada. Precisa de ajuda? Fale com a gerente.' +
-                            '</div>' +
-                            '<a href="https://wa.me/5592961505540?text=' + waGerente + '" target="_blank" ' +
+
+                            (dataFmt ?
+                                '<div style="font-size:0.8rem;color:var(--ink-soft);margin-bottom:14px;text-align:center;">' +
+                                    dataFmt +
+                                '</div>'
+                            : '') +
+
+                            (lastBooking && lastBooking.token ?
+                                '<div style="text-align:center;margin-bottom:14px;">' +
+                                '<div style="display:inline-block;background:var(--ink);color:var(--gold);' +
+                                    'padding:3px 12px;border-radius:8px;font-size:0.55rem;font-weight:700;letter-spacing:3px;">' +
+                                    lastBooking.token +
+                                '</div></div>'
+                            : '') +
+
+                            (remainMs > 0 ?
+                                '<div style="background:rgba(201,168,108,0.1);border-left:3px solid var(--gold);' +
+                                    'border-radius:0 10px 10px 0;padding:10px 14px;margin-bottom:14px;">' +
+                                    '<div style="font-size:0.42rem;font-weight:700;letter-spacing:3px;color:var(--gold);' +
+                                        'text-transform:uppercase;margin-bottom:4px;">Novo agendamento liberado em</div>' +
+                                    '<div style="font-family:Cormorant Garamond,serif;font-size:1.6rem;color:var(--ink);line-height:1;">' +
+                                        (remHrs > 0 ? remHrs + 'h ' : '') + remMins + 'min' +
+                                    '</div>' +
+                                '</div>'
+                            :
+                                '<div style="background:rgba(139,184,148,0.1);border-left:3px solid var(--st-livre);' +
+                                    'border-radius:0 10px 10px 0;padding:10px 14px;margin-bottom:14px;">' +
+                                    '<div style="font-size:0.72rem;color:var(--ink-soft);line-height:1.5;">' +
+                                        'Reserva confirmada! Após o atendimento você poderá fazer um novo agendamento.' +
+                                    '</div>' +
+                                '</div>'
+                            ) +
+
+                            '<a href="https://wa.me/5592961505540?text=' + waMsgAtivo + '" target="_blank" ' +
                             'style="display:block;background:#25D366;color:white;text-decoration:none;' +
-                            'padding:12px 16px;border-radius:12px;font-weight:700;font-size:0.75rem;text-align:center;">' +
-                                '💬 Falar com a Camila · (92) 9 6150-0540' +
+                            'padding:13px 16px;border-radius:12px;font-weight:700;font-size:0.78rem;text-align:center;' +
+                            'box-shadow:0 4px 14px rgba(37,211,102,0.28);">' +
+                                '💬 Falar com a Camila sobre este agendamento' +
                             '</a>' +
+
                         '</div>';
                     bannerContainer.style.display = 'block';
                 } else {
@@ -1195,8 +1257,11 @@
 
                 if (showAsClient) {
                     if (hasActiveBooking) {
+                        // Cliente bloqueado: só mostra o próprio agendamento ativo (se estiver neste dia)
+                        // Todos os outros slots ficam ocultos — o banner já explica o motivo
                         if (!isMyBooking) { cur += Math.max(15, durMin || 30); continue; }
                     } else {
+                        // Cliente livre: só mostra slots disponíveis
                         if (st !== 'Livre') { cur += Math.max(15, durMin || 30); continue; }
                     }
                 }
@@ -1324,12 +1389,15 @@
             }
 
             if (showAsClient && container.children.length === 0) {
-                container.innerHTML = `
-                    <div class="info-box" style="text-align:center;margin-top:8px;">
-                        Nenhum horário disponível para este dia. 🌸<br>
-                        <span style="font-size:0.75rem;margin-top:4px;display:block;">Tente outro dia ou fale com a Camila pelo WhatsApp.</span>
-                    </div>
-                `;
+                // Se bloqueado, o banner já explica — não mostrar mensagem adicional confusa
+                if (!hasActiveBooking) {
+                    container.innerHTML = `
+                        <div class="info-box" style="text-align:center;margin-top:8px;">
+                            Nenhum horário disponível para este dia. 🌸<br>
+                            <span style="font-size:0.75rem;margin-top:4px;display:block;">Tente outro dia ou fale com a Camila pelo WhatsApp.</span>
+                        </div>
+                    `;
+                }
             }
         }
 
