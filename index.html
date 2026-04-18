@@ -1983,12 +1983,49 @@
             try { el.setSelectionRange(cursor + diff, cursor + diff); } catch(e) {}
         }
 
-        // handlePhonePaste: ao colar qualquer formato do WhatsApp, normaliza e formata
+        // handlePhonePaste: intercepta o paste, abre popup de confirmação
+        let _pasteTargetEl = null;
+
         function handlePhonePaste(el) {
-            setTimeout(() => {
-                el.value = formatPhoneMask(normalizePhone(el.value));
-            }, 0);
+            // Captura o texto colado antes de entrar no campo
+            document.addEventListener('paste', function _interceptPaste(e) {
+                document.removeEventListener('paste', _interceptPaste, true);
+                const raw = (e.clipboardData || window.clipboardData).getData('text');
+                // Só abre popup se parecer um número (tem dígitos suficientes)
+                const digits = raw.replace(/\D/g, '');
+                if (digits.length >= 8) {
+                    e.preventDefault();
+                    _pasteTargetEl = el;
+                    const normalized = normalizePhone(raw);
+                    const formatted = formatPhoneMask(normalized);
+                    document.getElementById('pastePhoneInput').value = formatted;
+                    document.getElementById('pastePhoneRaw').textContent = 'Original copiado: ' + raw.trim();
+                    const popup = document.getElementById('pastePopup');
+                    popup.style.display = 'flex';
+                    setTimeout(() => document.getElementById('pastePhoneInput').focus(), 80);
+                }
+            }, true);
         }
+
+        function confirmPaste() {
+            if (_pasteTargetEl) {
+                const val = document.getElementById('pastePhoneInput').value;
+                _pasteTargetEl.value = val;
+                _pasteTargetEl.focus();
+                _pasteTargetEl = null;
+            }
+            document.getElementById('pastePopup').style.display = 'none';
+        }
+
+        function cancelPaste() {
+            _pasteTargetEl = null;
+            document.getElementById('pastePopup').style.display = 'none';
+        }
+
+        // Fechar popup ao clicar fora
+        document.getElementById('pastePopup').addEventListener('click', function(e) {
+            if (e.target === this) cancelPaste();
+        });
 
         function calcExperience() {
             const years = new Date().getFullYear() - 2010;
@@ -2079,5 +2116,52 @@
 
         window.addEventListener('load', configureAdminPanel);
     </script>
+
+    <!-- POPUP DE CONFIRMAÇÃO DE NÚMERO COLADO -->
+    <div id="pastePopup" style="
+        display:none;
+        position:fixed;
+        inset:0;
+        z-index:9500;
+        align-items:center;
+        justify-content:center;
+        padding:20px;
+        background:rgba(42,32,32,0.45);
+        backdrop-filter:blur(8px);
+    ">
+        <div style="
+            background:white;
+            border-radius:22px;
+            padding:28px 24px 22px;
+            width:100%;
+            max-width:340px;
+            box-shadow:0 20px 60px rgba(42,32,32,0.2);
+            border:1.5px solid rgba(196,132,138,0.25);
+            animation: sheetUp 0.35s cubic-bezier(0.16,1,0.3,1);
+        ">
+            <div style="font-size:0.48rem;font-weight:700;letter-spacing:4px;color:var(--gold);text-transform:uppercase;margin-bottom:6px;">📋 Número colado</div>
+            <div style="font-size:0.78rem;color:var(--ink-soft);margin-bottom:14px;line-height:1.5;">
+                Confira ou edite o número antes de confirmar:
+            </div>
+            <input id="pastePhoneInput" class="inp" type="tel"
+                style="font-size:1.1rem;font-weight:600;text-align:center;letter-spacing:1px;margin-bottom:6px;"
+                oninput="handlePhoneInput(this)"
+                placeholder="(92) 9 0000-0000">
+            <div id="pastePhoneRaw" style="font-size:0.6rem;color:var(--ink-soft);text-align:center;margin-bottom:18px;opacity:0.6;"></div>
+            <button onclick="confirmPaste()"
+                style="width:100%;padding:15px;border-radius:12px;border:none;
+                background:linear-gradient(135deg,var(--rose),var(--deep-rose));
+                color:white;font-family:'DM Sans',sans-serif;font-size:0.85rem;
+                font-weight:700;cursor:pointer;margin-bottom:10px;">
+                ✓ Usar este número
+            </button>
+            <button onclick="cancelPaste()"
+                style="width:100%;padding:12px;border-radius:12px;border:none;
+                background:var(--cream-dark);color:var(--ink-soft);
+                font-family:'DM Sans',sans-serif;font-size:0.8rem;cursor:pointer;">
+                Cancelar
+            </button>
+        </div>
+    </div>
 </body>
 </html>
