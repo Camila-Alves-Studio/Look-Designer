@@ -724,6 +724,7 @@ function gasCall(p){
 
 // ════════════════════════════════════════════════════════════
 //  GAS POST — escrita via fetch (actions de CMS)
+//  NÃO chama syncData — operações de CMS são independentes da agenda
 // ════════════════════════════════════════════════════════════
 async function gasPost(action, payload){
   const body={action, password:adminPass, ...payload};
@@ -734,8 +735,8 @@ async function gasPost(action, payload){
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify([body])
     });
-    // no-cors não retorna dados — aguarda e relê
-    await new Promise(r=>setTimeout(r,1200));
+    // no-cors não retorna resposta — apenas aguarda o GAS processar
+    await new Promise(r=>setTimeout(r,1000));
     return {ok:true};
   }catch(e){
     console.error('gasPost error:',e);
@@ -871,18 +872,25 @@ function toggleSound(){const v=document.getElementById('heroVideo');v.muted=!v.m
 async function saveAbas(){
   await gasPost('setAbas',{dados:JSON.stringify(ABAS.map(a=>[a.id,a.nome,a.emoji]))});
   cacheWrite(CACHE.abas,ABAS);
+  // Recarrega só ABAS do servidor para confirmar persistência
+  await loadAbas();
 }
 async function saveProcs(){
   await gasPost('setProcs',{dados:JSON.stringify(PROCS.map(p=>[p.aba,p.nome,p.descricao,p.valor,p.duracao,p.fixacao,serializeProcTags(p.tags||parseProcTags(p.indicado||'')),serializeFotos(p.fotos||parseFotos(p.imagem)),p.imgPosY??50,p.imgAltura??145,p.temManut?'true':'false',p.manutPrazo||'',p.manutValor||'',p.id||makeId('proc')]))});
   cacheWrite(CACHE.procs,PROCS);
+  // Recarrega só PROCS do servidor para confirmar persistência
+  await loadProcs();
 }
 async function saveProcSingle(proc,editing){
   const action=editing?'updateProc':'addProc';
   const dado={...proc,indicado:serializeProcTags(proc.tags||parseProcTags(proc.indicado||'')),imagem:serializeFotos(proc.fotos||parseFotos(proc.imagem))};
   await gasPost(action,{dado:JSON.stringify(dado)});
+  // Confirma persistência recarregando só PROCS — sem tocar na agenda
+  await loadProcs();
 }
 async function deleteProc(id){
   await gasPost('deleteProc',{id});
+  await loadProcs();
 }
 async function renameProcAba(old,neu){
   await gasPost('renameProcAba',{oldName:old,newName:neu});
@@ -1054,7 +1062,7 @@ function removerProcAdmin(chave){
   if(idx===-1)return;
   confirmar(`Excluir "${PROCS[idx].nome}"?`,async()=>{
     const[rm]=PROCS.splice(idx,1);
-    await deleteProc(rm.id||'');
+    await deleteProc(rm.id||''); // já faz loadProcs internamente
     cacheWrite(CACHE.procs,PROCS);
     renderProcsAbaSheet();renderServicesTabs();toast('Removido!','ok');
   });
@@ -1177,10 +1185,12 @@ async function salvarProcAdmin(){
     const atual=isEditing?PROCS[parseInt(ei)]:null;
     const obj={id:atual?.id||makeId('proc'),aba:abaAtiva.nome,nome,descricao:desc,valor:document.getElementById('fpValor').value.trim(),duracao:document.getElementById('fpDur').value.trim(),fixacao:document.getElementById('fpFix').value.trim(),tags:collectProcTags(),imagem:fotos[0]||'',fotos,imgPosY:posY,imgAltura:alt,temManut,manutPrazo:document.getElementById('fpManutPrazo').value.trim(),manutValor:document.getElementById('fpManutValor').value.trim()};
     if(isEditing)PROCS[parseInt(ei)]=obj;else PROCS.push(obj);
-    // ✅ Salva no GAS via POST
+    // ✅ Salva no GAS via POST (já faz loadProcs internamente para confirmar)
     await saveProcSingle(obj,isEditing);
     cacheWrite(CACHE.procs,PROCS);
-    renderServicesTabs();refreshPublicMainSections();
+    // Re-renderiza usando dados já em memória — sem chamar syncData
+    renderServicesTabs();
+    refreshPublicMainSections();
     toast(isEditing?'Atualizado!':'Criado!','ok');
     entrarAbaAdmin(abaAtiva.id);
   }catch(e){toast('Erro: '+e.message,'err');}
@@ -1199,8 +1209,9 @@ async function confirmarNovaAba(){
   const emoji=document.getElementById('novaAbaEmoji').value.trim()||'✦';
   if(!nome){toast('Informe o nome','warn');return;}
   ABAS.push({id:Date.now().toString(),nome,emoji});
-  await saveAbas();
-  renderServicesTabs();fecharModal('modalNovaAba');toast('Categoria criada!','ok');
+  await saveAbas(); // salva + recarrega ABAS do servidor
+  renderServicesTabs(); // usa dados já em memória
+  fecharModal('modalNovaAba');toast('Categoria criada!','ok');
   if(document.getElementById('overlay').classList.contains('vis'))renderServicosSheet();
 }
 function editarAbaAdmin(id){const a=ABAS.find(x=>x.id===id);if(!a)return;document.getElementById('editAbaId').value=id;document.getElementById('editAbaNome').value=a.nome;fecharModal('modalNovaAba');document.getElementById('modalEditarAba').classList.add('open');setTimeout(()=>document.getElementById('editAbaNome').focus(),100);}
@@ -1211,16 +1222,25 @@ async function confirmarEditarAba(){
   const a=ABAS.find(x=>x.id===id);if(!a)return;
   const old=a.nome;a.nome=novoNome;
   PROCS.forEach(p=>{if(p.aba===old)p.aba=novoNome;});
-  await Promise.all([saveAbas(),renameProcAba(old,novoNome)]);
-  cacheWrite(CACHE.procs,PROCS);renderServicesTabs();fecharModal('modalEditarAba');toast('Atualizado!','ok');
+  // salva + recarrega cada um do servidor independentemente
+  await saveAbas();
+  await renameProcAba(old,novoNome);
+  await loadProcs();
+  cacheWrite(CACHE.procs,PROCS);
+  renderServicesTabs(); // usa dados já em memória
+  fecharModal('modalEditarAba');toast('Atualizado!','ok');
   if(document.getElementById('overlay').classList.contains('vis'))renderServicosSheet();
 }
 async function removerAbaAdmin(id){
   const a=ABAS.find(x=>x.id===id);if(!a)return;
   confirmar(`Excluir a categoria "${a.nome}" e todos os procedimentos?`,async()=>{
     PROCS=PROCS.filter(p=>p.aba!==a.nome);ABAS=ABAS.filter(x=>x.id!==id);
-    await Promise.all([saveAbas(),deleteAbaProcs(a.nome)]);
-    cacheWrite(CACHE.procs,PROCS);renderServicesTabs();toast('Categoria removida!','ok');
+    await saveAbas();
+    await deleteAbaProcs(a.nome);
+    await loadProcs();
+    cacheWrite(CACHE.procs,PROCS);
+    renderServicesTabs(); // usa dados já em memória
+    toast('Categoria removida!','ok');
     if(document.getElementById('overlay').classList.contains('vis'))renderServicosSheet();
   });
 }
