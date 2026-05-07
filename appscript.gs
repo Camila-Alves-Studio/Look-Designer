@@ -225,6 +225,7 @@ function doGet(e) {
   if (params.aba==="FOTO")        return respond(cb, getFoto(ss));
   if (params.aba==="FOTO_CONFIG") return respond(cb, getFotoConfig(ss));
   if (params.aba==="MIDIA_CONFIG") return respond(cb, getMidiaConfig(ss));
+  if (params.aba==="LOCALIZACAO") return respond(cb, getLocalizacao(ss));
 
   // ── agenda ──
   const sh = ss.getSheetByName(SHEET_NAME);
@@ -280,6 +281,7 @@ function doPost(e) {
     if(action==="setFoto")     return jsonOut(setFoto(ss,updates[0].url));
     if(action==="setFotoConfig") return jsonOut(setFotoConfig(ss,updates[0].posY,updates[0].altura));
     if(action==="setMidiaConfig") return jsonOut(setMidiaConfig(ss,updates[0].tipoMidia));
+    if(action==="setLocalizacao") return jsonOut(setLocalizacao(ss,updates[0].url,updates[0].titulo));
     if(action==="update_config") { if(!adminOk)return jsonOut({status:"ERRO",message:"Senha incorreta."}); saveConfig(updates[0].config); return jsonOut({status:"OK"}); }
     if(action==="clear_logs") { if(!adminOk)return jsonOut({status:"ERRO",message:"Senha incorreta."}); return jsonOut({status:"OK",cleared:clearSystemLogs(ss)}); }
 
@@ -405,6 +407,18 @@ function getFotoConfig(ss) { const sh=getOrCreateSheet(ss,"FOTO_CONFIG",["PosY",
 function setFotoConfig(ss,posY,altura) { const sh=getOrCreateSheet(ss,"FOTO_CONFIG",["PosY","Altura"]);sh.clearContents();sh.getRange(1,1,1,2).setValues([[posY||50,altura||420]]);return{ok:true,posY,altura}; }
 function getMidiaConfig(ss) { const sh=getOrCreateSheet(ss,"MIDIA_CONFIG",["Tipo"]);const d=sh.getDataRange().getValues();if(!d||!d[0]||!d[0][0])return[{col1:"video"}];return[{col1:String(d[0][0]).trim()}]; }
 function setMidiaConfig(ss,tipo) { const sh=getOrCreateSheet(ss,"MIDIA_CONFIG",["Tipo"]);sh.clearContents();if(tipo)sh.getRange(1,1).setValue(tipo);return{ok:true,tipo}; }
+function getLocalizacao(ss) {
+  const sh=getOrCreateSheet(ss,"LOCALIZACAO",["URL","Titulo"]);
+  const d=sh.getDataRange().getValues();
+  if(!d||!d[0])return[{col1:"",col2:""}];
+  return[{col1:String(d[0][0]||"").trim(),col2:String(d[0][1]||"").trim()}];
+}
+function setLocalizacao(ss,url,titulo) {
+  const sh=getOrCreateSheet(ss,"LOCALIZACAO",["URL","Titulo"]);
+  sh.clearContents();
+  sh.getRange(1,1,1,2).setValues([[url||"",titulo||""]]);
+  return{ok:true,url:url||"",titulo:titulo||""};
+}
 
 // ═══════════════ PUSH NOTIFICATION ════════════════════════════
 function sendPushNotification(booking) {
