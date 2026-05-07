@@ -226,6 +226,7 @@ function doGet(e) {
   if (params.aba==="FOTO_CONFIG") return respond(cb, getFotoConfig(ss));
   if (params.aba==="MIDIA_CONFIG") return respond(cb, getMidiaConfig(ss));
   if (params.aba==="LOCALIZACAO") return respond(cb, getLocalizacao(ss));
+  if (params.aba==="SITE_TEXTOS") return respond(cb, getSiteTextos(ss));
 
   // ── agenda ──
   const sh = ss.getSheetByName(SHEET_NAME);
@@ -282,6 +283,7 @@ function doPost(e) {
     if(action==="setFotoConfig") return jsonOut(setFotoConfig(ss,updates[0].posY,updates[0].altura));
     if(action==="setMidiaConfig") return jsonOut(setMidiaConfig(ss,updates[0].tipoMidia));
     if(action==="setLocalizacao") return jsonOut(setLocalizacao(ss,updates[0].url,updates[0].titulo));
+    if(action==="setSiteTextos") return jsonOut(setSiteTextos(ss,updates[0].dados));
     if(action==="update_config") { if(!adminOk)return jsonOut({status:"ERRO",message:"Senha incorreta."}); saveConfig(updates[0].config); return jsonOut({status:"OK"}); }
     if(action==="clear_logs") { if(!adminOk)return jsonOut({status:"ERRO",message:"Senha incorreta."}); return jsonOut({status:"OK",cleared:clearSystemLogs(ss)}); }
 
@@ -421,6 +423,27 @@ function setLocalizacao(ss,url,titulo) {
 }
 
 // ═══════════════ PUSH NOTIFICATION ════════════════════════════
+function getSiteTextos(ss) {
+  const sh=getOrCreateSheet(ss,"SITE_TEXTOS",["Chave","Texto"]);
+  const data=sh.getDataRange().getValues();
+  const out={};
+  data.forEach(r=>{
+    const key=String(r[0]||"").trim();
+    if(key&&key!=="Chave") out[key]=String(r[1]||"");
+  });
+  return[{col1:JSON.stringify(out)}];
+}
+function setSiteTextos(ss,dados) {
+  const sh=getOrCreateSheet(ss,"SITE_TEXTOS",["Chave","Texto"]);
+  let obj={};
+  try{obj=typeof dados==="string"?JSON.parse(dados):(dados||{});}catch(_){obj={};}
+  const rows=Object.keys(obj).map(k=>[k,String(obj[k]||"")]);
+  sh.clearContents();
+  sh.getRange(1,1,1,2).setValues([["Chave","Texto"]]);
+  if(rows.length)sh.getRange(2,1,rows.length,2).setValues(rows);
+  return{ok:true,rows:rows.length};
+}
+
 function sendPushNotification(booking) {
   const ss=SpreadsheetApp.getActiveSpreadsheet();
   const apiKey=(PropertiesService.getScriptProperties().getProperty("onesignal_api_key")||ONESIGNAL_API_KEY||"").trim();
