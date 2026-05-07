@@ -32,7 +32,7 @@ const ONESIGNAL_API_KEY = "";          // Use Script Properties: onesignal_api_k
 
 const IMPORTANT_LOG_TYPES = {
   AGENDAMENTO: true, BLOQUEIO: true, LIBERACAO: true,
-  CONFIG: true, PUSH_ADMIN: true, ERRO: true
+  CONFIG: true, PUSH_ADMIN: true, ERRO: true, "AUTO-RELEASE": true
 };
 
 // ═══════════════ UTILITÁRIOS ══════════════════════════════════
@@ -78,6 +78,107 @@ function saveConfig(cfg) {
   } catch(e) {}
 }
 
+function compareDateTime_(dateA, timeA, dateB, timeB) {
+  return `${dateA}T${timeA}`.localeCompare(`${dateB}T${timeB}`);
+}
+function isExpiredPending_(status, reservedUntil, now) {
+  if ((status || "").toString().trim() !== "Aguardando Pagamento") return false;
+  if (!reservedUntil) return false;
+  try { return new Date(reservedUntil) < now; } catch (e) { return false; }
+}
+function isFutureSlot_(dateIso, timeText, now, tz) {
+  const nowDate = fmtDate(now, tz);
+  const nowTime = fmt(now, tz, "HH:mm");
+  return compareDateTime_(dateIso, timeText, nowDate, nowTime) >= 0;
+}
+function reservePublicBooking_(ss, tz, params) {
+  const nome = (params.nome || params.cliente || "").toString().trim();
+  const telefone = (params.telefone || "").toString().trim();
+  const normalizedPhone = normalizePhoneValue(telefone);
+  const dataAgend = (params.data || "").toString().trim();
+  const horario = toComparableTime(params.horario);
+  const codigo = ((params.codigo || "").toString().trim() || Utilities.getUuid().replace(/-/g, "").slice(0, 5)).toUpperCase();
+  const bookingTime = (params.bookingTime || new Date().toISOString()).toString().trim();
+  const holdMin = Math.max(5, Math.min(90, parseInt(params.reserve_minutes, 10) || 20));
+  const reservedUntil = (params.reservedUntil || new Date(Date.now() + holdMin * 60000).toISOString()).toString().trim();
+  const duration = parseInt(params.duration, 10) || getConfig().duration || 60;
+  const now = new Date();
+
+  if (!nome || !telefone || !normalizedPhone || !dataAgend || !horario) {
+    return { status: "ERRO", code: "INVALID", message: "Preencha nome, WhatsApp, data e horário." };
+  }
+  if (!isFutureSlot_(dataAgend, horario, now, tz)) {
+    return { status: "ERRO", code: "PAST_SLOT", message: "Esse horário já passou. Escolha outro horário." };
+  }
+
+  const sh = getOrCreateSheet(ss, SHEET_NAME, ["Data", "Horário", "Status", "Cliente", "Telefone", "Código", "Início Reserva", "Expira em", "Log", "Duração"]);
+  const data = sh.getDataRange().getValues();
+
+  for (let i = 1; i < data.length; i++) {
+    const row = data[i];
+    const rowDate = fmtDate(row[0], tz);
+    const rowTime = toComparableTime(fmtTime(row[1], tz));
+    const rowStatus = (row[2] || "Livre").toString().trim();
+    const rowPhone = normalizePhoneValue(row[4] || "");
+    const rowReservedUntil = (row[7] || "").toString().trim();
+    const expired = isExpiredPending_(rowStatus, rowReservedUntil, now);
+    if (rowPhone !== normalizedPhone) continue;
+    if (!isFutureSlot_(rowDate, rowTime, now, tz)) continue;
+    if (rowStatus === "Ocupado" || (rowStatus === "Aguardando Pagamento" && !expired)) {
+      return {
+        status: "ERRO",
+        code: "PHONE_ALREADY_BOOKED",
+        message: "Já existe uma pré-reserva ou agendamento ativo para este WhatsApp."
+      };
+    }
+  }
+
+  const slotIdx = data.findIndex(r => fmtDate(r[0], tz) === dataAgend && toComparableTime(fmtTime(r[1], tz)) === horario);
+  if (slotIdx > -1) {
+    const rowStatus = (data[slotIdx][2] || "Livre").toString().trim();
+    const rowReservedUntil = (data[slotIdx][7] || "").toString().trim();
+    const expired = isExpiredPending_(rowStatus, rowReservedUntil, now);
+    if (rowStatus === "Bloqueado" || rowStatus === "Ocupado" || (rowStatus === "Aguardando Pagamento" && !expired)) {
+      return {
+        status: "ERRO",
+        code: "SLOT_UNAVAILABLE",
+        message: "Esse horário acabou de ser reservado. Escolha outro."
+      };
+    }
+    sh.getRange(slotIdx + 1, 3, 1, 8).setValues([["Aguardando Pagamento", nome, telefone, codigo, bookingTime, reservedUntil, "", duration]]);
+  } else {
+    sh.appendRow([dataAgend, horario, "Aguardando Pagamento", nome, telefone, codigo, bookingTime, reservedUntil, "", duration]);
+  }
+
+  appendLog(ss, {
+    type: "AGENDAMENTO",
+    dataAgend,
+    horario,
+    cliente: nome,
+    telefone,
+    token: codigo,
+    msg: `Pré-reserva criada. Prazo de ${holdMin} min para envio do comprovante.`
+  });
+  sendPushNotification({ cliente: nome, telefone, codigo, data: dataAgend, horario, status: "Aguardando Pagamento" });
+
+  return {
+    status: "OK",
+    code: "BOOKED_PENDING",
+    message: `Pré-reserva criada. Envie o comprovante em até ${holdMin} minutos.`,
+    booking: {
+      data: dataAgend,
+      horario,
+      status: "Aguardando Pagamento",
+      cliente: nome,
+      telefone,
+      codigo,
+      bookingTime,
+      reservedUntil,
+      duration
+    }
+  };
+}
+
 // ═══════════════ LOG HELPERS ══════════════════════════════════
 function appendLog(ss, entry) {
   const type = (entry.type||"SISTEMA").toString().trim();
@@ -98,6 +199,7 @@ function clearSystemLogs(ss) { const sh=ss.getSheetByName(LOG_SHEET);if(!sh)retu
 function doGet(e) {
   const ss=SpreadsheetApp.getActiveSpreadsheet(), tz=ss.getSpreadsheetTimeZone();
   const params=(e&&e.parameter)||{}, cb=params.callback||null;
+  const clientToken = (params.client_token || "").toString().trim();
 
   if (params.ping) return ContentService.createTextOutput('ok').setMimeType(ContentService.MimeType.TEXT);
 
@@ -111,6 +213,9 @@ function doGet(e) {
     if(!vPix||isNaN(parseFloat(vPix)))vPix="0.00";
     saveConfig({start:params.start,end:params.end,duration:params.duration,pix_value:vPix});
     appendLog(ss,{type:"CONFIG",msg:`Config salva: R$ ${vPix}`});
+  }
+  if (params.action==="book_slot") {
+    return respond(cb, reservePublicBooking_(ss, tz, params));
   }
 
   // ── CMS reads ──
@@ -134,7 +239,19 @@ function doGet(e) {
     const codigo=(row[5]||"").toString().trim(), bookingTime=(row[6]||"").toString().trim();
     const reservedUntil=(row[7]||"").toString().trim(), log=(row[8]||"").toString().trim();
     const duration=(row[9]||"").toString().trim();
-    agenda.push({data:rowDate,horario:rowTime,status,cliente:adminOk?cliente:maskName(cliente),telefone:adminOk?telefone:maskPhone(telefone),codigo:adminOk?codigo:maskToken(codigo),bookingTime:adminOk?bookingTime:"",reservedUntil,log:adminOk?log:"",duration});
+    const isClientOwner = !adminOk && clientToken && codigo && codigo === clientToken;
+    agenda.push({
+      data:rowDate,
+      horario:rowTime,
+      status,
+      cliente:(adminOk||isClientOwner)?cliente:maskName(cliente),
+      telefone:(adminOk||isClientOwner)?telefone:maskPhone(telefone),
+      codigo:(adminOk||isClientOwner)?codigo:maskToken(codigo),
+      bookingTime:adminOk?bookingTime:"",
+      reservedUntil,
+      log:adminOk?log:"",
+      duration
+    });
   }
   return respond(cb,{status:"OK",agenda,logs:adminOk?getSystemLogs(ss,tz,100):[],isAdmin:adminOk,config:getConfig(),serverTime:new Date().toISOString()});
 }
@@ -294,7 +411,15 @@ function sendPushNotification(booking) {
   const ss=SpreadsheetApp.getActiveSpreadsheet();
   const apiKey=(PropertiesService.getScriptProperties().getProperty("onesignal_api_key")||ONESIGNAL_API_KEY||"").trim();
   if(!ONESIGNAL_APP_ID||!apiKey){appendLog(ss,{type:"PUSH_ADMIN",msg:"Push ignorado: OneSignal não configurado."});return;}
-  const payload={app_id:ONESIGNAL_APP_ID,target_channel:"push",filters:[{field:"tag",key:"user_type",relation:"=",value:"admin"}],headings:{pt:"Novo agendamento"},contents:{pt:`${booking.cliente||"?"} · ${booking.data||""} às ${booking.horario||""}`},data:{event:"booking_confirmed",...booking}};
+  const isPending = (booking?.status || "").toString().trim() === "Aguardando Pagamento";
+  const payload={
+    app_id:ONESIGNAL_APP_ID,
+    target_channel:"push",
+    filters:[{field:"tag",key:"user_type",relation:"=",value:"admin"}],
+    headings:{pt:isPending?"Nova pré-reserva":"Novo agendamento"},
+    contents:{pt:`${booking.cliente||"?"} · ${booking.data||""} às ${booking.horario||""}${isPending?" · aguardando comprovante":""}`},
+    data:{event:isPending?"booking_pending":"booking_confirmed",...booking}
+  };
   try{
     const r=UrlFetchApp.fetch("https://api.onesignal.com/notifications",{method:"post",contentType:"application/json",muteHttpExceptions:true,headers:{Authorization:"Key "+apiKey},payload:JSON.stringify(payload)});
     appendLog(ss,{type:"PUSH_ADMIN",cliente:booking.cliente,telefone:booking.telefone,token:booking.codigo,dataAgend:booking.data,horario:booking.horario,msg:`Push enviado. HTTP ${r.getResponseCode()}`});
