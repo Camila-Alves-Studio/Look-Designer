@@ -97,7 +97,11 @@ body{
   border-bottom:1px solid var(--border);
   margin-bottom:40px;
 }
-.topbar-brand{display:flex;align-items:baseline;gap:10px;}
+.topbar-brand{display:flex;align-items:center;gap:12px;}
+.topbar-logo-img{
+  width:190px;max-height:82px;object-fit:contain;display:block;
+  opacity:0;animation:fadeUp .7s 3.45s var(--ease) forwards;
+}
 .topbar-name{
   font-family:'Cormorant Garamond',serif;
   font-size:1.7rem;font-weight:400;letter-spacing:3px;
@@ -1556,6 +1560,7 @@ body.admin-on #logPanel{display:block;}
   <!-- TOPBAR -->
   <header class="topbar">
     <div class="topbar-brand">
+      <img class="topbar-logo-img" src="logo.png" alt="LOOK DESIGNER">
       <div class="topbar-name">LOOK<span class="topbar-dot"></span><strong>DESIGNER</strong></div>
     </div>
     <div class="topbar-actions">
