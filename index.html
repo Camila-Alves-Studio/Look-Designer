@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>LOOK DESIGNER | Studio de Cílios</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async=""></script>
@@ -21,9 +21,10 @@
   --sh-lg:0 24px 64px rgba(30,20,20,.14);
   --ease:cubic-bezier(.22,1,.36,1);
   --st-livre:#6BAF78; --st-aguard:#C9A86C; --st-ocupado:#C4848A; --st-block:#ADA5A5;
+  --green-soft:#E8F5E9; --green:#4CAF50; --green-deep:#2E7D32;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-html{scroll-behavior:smooth;}
+html{scroll-behavior:smooth;overflow-x:hidden;}
 body{
   font-family:'Outfit',sans-serif;
   background:var(--cream);
@@ -41,13 +42,17 @@ body{
   display:flex;align-items:center;justify-content:center;
   overflow:hidden;
   transition:opacity 1.6s cubic-bezier(.4,0,.2,1),visibility 1.6s;
+  /* Evita qualquer overflow que cause zoom no mobile */
+  max-width:100vw;
+  max-height:100vh;
+  touch-action:none;
 }
 #intro.out{opacity:0;visibility:hidden;pointer-events:none;}
 .ib-wash{position:absolute;inset:0;pointer-events:none;}
 .ib-c1,.ib-c2,.ib-c3{position:absolute;border-radius:50%;opacity:0;}
-.ib-c1{width:110vw;height:110vw;top:50%;left:50%;transform:translate(-50%,-50%) scale(.1);background:radial-gradient(circle,rgba(242,217,217,.52) 0%,rgba(249,243,238,0) 65%);animation:ibExpand 2.2s .1s cubic-bezier(.16,1,.3,1) forwards;}
-.ib-c2{width:80vw;height:80vw;bottom:-20%;right:-15%;background:radial-gradient(circle,rgba(201,168,108,.22) 0%,rgba(249,243,238,0) 60%);animation:ibFadeIn 1.8s .5s ease forwards;}
-.ib-c3{width:60vw;height:60vw;top:-10%;left:-10%;background:radial-gradient(circle,rgba(238,206,206,.38) 0%,rgba(249,243,238,0) 60%);animation:ibFadeIn 2s .8s ease forwards;}
+.ib-c1{width:min(110vw,110vh);height:min(110vw,110vh);top:50%;left:50%;transform:translate(-50%,-50%) scale(.1);background:radial-gradient(circle,rgba(242,217,217,.52) 0%,rgba(249,243,238,0) 65%);animation:ibExpand 2.2s .1s cubic-bezier(.16,1,.3,1) forwards;}
+.ib-c2{width:min(80vw,80vh);height:min(80vw,80vh);bottom:-20%;right:-15%;background:radial-gradient(circle,rgba(201,168,108,.22) 0%,rgba(249,243,238,0) 60%);animation:ibFadeIn 1.8s .5s ease forwards;}
+.ib-c3{width:min(60vw,60vh);height:min(60vw,60vh);top:-10%;left:-10%;background:radial-gradient(circle,rgba(238,206,206,.38) 0%,rgba(249,243,238,0) 60%);animation:ibFadeIn 2s .8s ease forwards;}
 @keyframes ibExpand{0%{opacity:0;transform:translate(-50%,-50%) scale(.1);}40%{opacity:1;}100%{opacity:1;transform:translate(-50%,-50%) scale(1);}}
 @keyframes ibFadeIn{from{opacity:0;}to{opacity:1;}}
 .ib-corner{position:absolute;width:64px;height:64px;opacity:0;}
@@ -70,7 +75,7 @@ body{
 .ib-line-r{background:linear-gradient(90deg,rgba(196,132,138,.4),transparent);transform-origin:left;}
 .ib-line-gem{width:6px;height:6px;border-radius:1px;background:#C9A86C;transform:rotate(45deg);opacity:0;animation:ibFadeIn .4s 1.5s ease forwards;flex-shrink:0;}
 @keyframes ibLineIn{to{transform:scaleX(1);}}
-.ib-title{font-family:'Cormorant Garamond',serif;font-size:clamp(3rem,8vw,5rem);font-weight:300;letter-spacing:18px;text-transform:uppercase;line-height:1;color:#2A2020;display:flex;gap:0;align-items:baseline;overflow:visible;}
+.ib-title{font-family:'Cormorant Garamond',serif;font-size:clamp(2rem,8vw,5rem);font-weight:300;letter-spacing:clamp(6px,3vw,18px);text-transform:uppercase;line-height:1;color:#2A2020;display:flex;gap:0;align-items:baseline;overflow:visible;}
 .ib-title-word{display:flex;overflow:hidden;margin-right:20px;}
 .ib-title-word:last-child{margin-right:0;}
 .ib-char{display:inline-block;opacity:0;transform:translateY(100%);animation:ibCharIn .7s cubic-bezier(.16,1,.3,1) forwards;}
@@ -435,6 +440,238 @@ body{
 
 /* ── BOOKING ─────────────────────────────────────────────── */
 #bookingSection{display:none;}
+
+/* ── MY BOOKING BANNER ──────────────────────────────────── */
+/* Banner que aparece no topo da seção de agendamento
+   quando a cliente já tem um horário ativo */
+.my-booking-banner{
+  background:linear-gradient(135deg,var(--ink) 0%,#2E1A1E 60%,#3A2010 100%);
+  border-radius:20px;padding:24px;margin-bottom:28px;
+  box-shadow:var(--sh-lg);
+  border:1px solid rgba(201,168,108,.2);
+  animation:fadeUp .5s var(--ease);
+  cursor:pointer;
+  transition:transform .25s var(--ease), box-shadow .25s var(--ease);
+}
+.my-booking-banner:hover{
+  transform:translateY(-3px);
+  box-shadow:0 28px 60px rgba(30,20,20,.2);
+}
+.my-booking-banner-top{
+  display:flex;align-items:center;gap:10px;
+  margin-bottom:18px;
+}
+.my-booking-banner-badge{
+  background:rgba(201,168,108,.18);
+  border:1px solid rgba(201,168,108,.3);
+  color:var(--gold);
+  font-size:.48rem;font-weight:700;letter-spacing:3px;
+  text-transform:uppercase;
+  padding:5px 11px;border-radius:20px;
+}
+.my-booking-banner-status{
+  display:flex;align-items:center;gap:6px;
+  font-size:.58rem;color:rgba(255,255,255,.45);letter-spacing:1px;
+}
+.my-booking-banner-status::before{
+  content:'';width:6px;height:6px;border-radius:50%;
+  background:var(--st-livre);
+  box-shadow:0 0 6px var(--st-livre);
+  display:inline-block;
+  animation:pulse-dot 2s ease-in-out infinite;
+}
+@keyframes pulse-dot{0%,100%{opacity:.6;transform:scale(.9);}50%{opacity:1;transform:scale(1.1);}}
+.my-booking-banner-body{
+  display:grid;grid-template-columns:auto 1fr auto;
+  gap:16px;align-items:center;
+}
+.my-booking-banner-time{
+  font-family:'Cormorant Garamond',serif;
+  font-size:3.2rem;font-weight:300;
+  color:#fff;line-height:1;
+  letter-spacing:2px;
+}
+.my-booking-banner-divider{
+  width:1px;height:54px;
+  background:linear-gradient(to bottom,transparent,rgba(201,168,108,.3),transparent);
+}
+.my-booking-banner-details{
+  display:flex;flex-direction:column;gap:5px;
+}
+.my-booking-banner-date{
+  font-size:.75rem;font-weight:600;
+  color:rgba(255,255,255,.75);letter-spacing:.5px;
+}
+.my-booking-banner-name{
+  font-size:.65rem;color:rgba(255,255,255,.4);letter-spacing:1px;
+  text-transform:uppercase;
+}
+.my-booking-banner-arrow{
+  width:40px;height:40px;border-radius:50%;
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.12);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--gold);font-size:16px;
+  transition:all .2s;
+}
+.my-booking-banner:hover .my-booking-banner-arrow{
+  background:rgba(201,168,108,.15);
+  border-color:rgba(201,168,108,.3);
+}
+.my-booking-banner-footer{
+  margin-top:16px;padding-top:14px;
+  border-top:1px solid rgba(255,255,255,.06);
+  font-size:.6rem;color:rgba(255,255,255,.3);
+  letter-spacing:1px;text-transform:uppercase;
+  text-align:center;
+}
+
+/* ── CONFIRMATION SUCCESS ────────────────────────────────── */
+/* Tela de confirmação imediata após agendamento */
+.confirm-success-wrap{
+  display:flex;flex-direction:column;align-items:center;
+  text-align:center;gap:0;
+}
+.confirm-check-ring{
+  position:relative;width:80px;height:80px;margin-bottom:20px;
+}
+.confirm-check-ring svg{
+  width:80px;height:80px;
+  animation:confirmRingIn .6s var(--ease) forwards;
+}
+@keyframes confirmRingIn{
+  from{opacity:0;transform:scale(.5) rotate(-90deg);}
+  to{opacity:1;transform:scale(1) rotate(0deg);}
+}
+.confirm-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:2rem;font-weight:400;letter-spacing:1px;
+  color:var(--ink);margin-bottom:6px;
+}
+.confirm-subtitle{
+  font-size:.72rem;color:var(--ink-mid);
+  margin-bottom:24px;line-height:1.6;
+  max-width:30ch;margin-left:auto;margin-right:auto;
+}
+
+/* A "etiqueta" de agendamento — o bilhete visual */
+.booking-tag{
+  width:100%;
+  background:var(--ink);
+  border-radius:16px;
+  padding:24px;
+  margin-bottom:20px;
+  position:relative;
+  overflow:hidden;
+}
+.booking-tag::before{
+  content:'';
+  position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--rose),var(--gold),var(--rose));
+  background-size:200%;
+  animation:shimmerTag 2s linear infinite;
+}
+@keyframes shimmerTag{0%{background-position:-200% 0;}100%{background-position:200% 0;}}
+.booking-tag::after{
+  content:'';
+  position:absolute;
+  right:-30px;bottom:-30px;
+  width:120px;height:120px;border-radius:50%;
+  background:radial-gradient(circle,rgba(201,168,108,.12),transparent 70%);
+  pointer-events:none;
+}
+.booking-tag-label{
+  font-size:.45rem;font-weight:700;letter-spacing:4px;
+  text-transform:uppercase;color:var(--gold);
+  margin-bottom:14px;
+  display:flex;align-items:center;gap:8px;
+}
+.booking-tag-label::after{content:'';flex:1;height:1px;background:rgba(201,168,108,.2);}
+.booking-tag-time{
+  font-family:'Cormorant Garamond',serif;
+  font-size:3.8rem;font-weight:300;
+  color:#fff;line-height:1;
+  letter-spacing:3px;
+  margin-bottom:6px;
+}
+.booking-tag-date{
+  font-size:.75rem;font-weight:500;
+  color:rgba(255,255,255,.6);
+  margin-bottom:16px;
+  text-transform:capitalize;
+}
+.booking-tag-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding-top:14px;
+  border-top:1px solid rgba(255,255,255,.08);
+}
+.booking-tag-client{font-size:.7rem;color:rgba(255,255,255,.45);letter-spacing:1px;}
+.booking-tag-code{
+  background:rgba(201,168,108,.15);
+  border:1px solid rgba(201,168,108,.25);
+  color:var(--gold);
+  font-size:.55rem;font-weight:700;letter-spacing:3px;
+  padding:5px 10px;border-radius:7px;
+  text-transform:uppercase;
+}
+
+/* PIX informativo — bloco discreto abaixo da etiqueta */
+.pix-info-block{
+  width:100%;
+  background:rgba(201,168,108,.07);
+  border:1px dashed rgba(201,168,108,.3);
+  border-radius:14px;
+  padding:18px;
+  margin-bottom:16px;
+  text-align:left;
+}
+.pix-info-header{
+  display:flex;align-items:center;gap:10px;
+  margin-bottom:12px;
+}
+.pix-info-icon{
+  width:34px;height:34px;border-radius:9px;
+  background:rgba(201,168,108,.15);
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;flex-shrink:0;
+}
+.pix-info-title{
+  font-size:.68rem;font-weight:700;color:var(--ink);letter-spacing:.5px;
+}
+.pix-info-desc{
+  font-size:.62rem;color:var(--ink-lt);margin-top:1px;line-height:1.4;
+}
+.pix-info-key-row{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:10px;
+  background:var(--white);border-radius:9px;
+  padding:11px 14px;
+  border:1px solid var(--border);
+}
+.pix-info-key{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.1rem;font-weight:400;color:var(--ink);
+}
+.pix-info-holder{font-size:.58rem;color:var(--ink-lt);}
+.pix-copy-btn{
+  background:linear-gradient(135deg,var(--gold),#A07840);
+  color:#fff;border:none;border-radius:8px;
+  padding:8px 13px;font-size:.6rem;font-weight:700;
+  font-family:'Outfit',sans-serif;cursor:pointer;
+  letter-spacing:.5px;text-transform:uppercase;
+  white-space:nowrap;flex-shrink:0;
+  transition:all .2s;
+}
+.pix-copy-btn:hover{transform:translateY(-1px);}
+.pix-value-note{
+  margin-top:10px;
+  font-size:.62rem;color:var(--ink-mid);
+  display:flex;align-items:center;gap:6px;
+}
+.pix-value-note strong{color:var(--ink);font-size:.75rem;}
+.pix-value-note::before{content:'💰';font-size:12px;}
+
+/* ── DAY / GRID ─────────────────────────────────────────── */
 .day-wrap{
   position:relative;margin:0 -4px;
   display:flex;align-items:center;margin-bottom:24px;
@@ -827,20 +1064,6 @@ body.admin-on #userNav{display:none;}
   padding:4px 10px;border-radius:7px;
   font-size:.6rem;font-weight:700;letter-spacing:3px;margin-top:6px;
 }
-.pix-box{
-  background:var(--cream);border-radius:18px;padding:22px;
-  text-align:center;margin-bottom:18px;
-  border:1.5px dashed var(--gold);
-}
-.pix-label{
-  font-size:.5rem;letter-spacing:4px;font-weight:700;
-  color:var(--gold);text-transform:uppercase;margin-bottom:10px;
-}
-.pix-key{
-  font-family:'Cormorant Garamond',serif;
-  font-size:1.8rem;font-weight:400;color:var(--ink);margin-bottom:6px;
-}
-.pix-holder{font-size:.78rem;color:var(--ink-mid);}
 .wa-link{
   display:block;background:#25D366;color:#fff;text-decoration:none;
   padding:16px;border-radius:12px;font-weight:700;
@@ -1233,63 +1456,54 @@ body.admin-on #logPanel{display:block;}
   .topbar{padding:20px 0 18px;margin-bottom:24px;}
   .topbar-name{font-size:1.4rem;}
   .topbar-tag{display:none;}
-
-  .hero{
-    grid-template-columns:1fr;
-    min-height:auto;
-  }
+  .hero{grid-template-columns:1fr;min-height:auto;}
   .hero-visual{height:300px;position:relative;}
   .hero-visual video,.hero-visual img{position:absolute;inset:0;}
   .hero-visual-ph{min-height:300px;height:300px;}
-  .hero-visual::after{
-    background:linear-gradient(to bottom,transparent 50%,rgba(30,20,20,.5) 100%);
-  }
-  .hero-info{
-    padding:28px 24px 32px;
-    background:var(--ink);
-  }
+  .hero-visual::after{background:linear-gradient(to bottom,transparent 50%,rgba(30,20,20,.5) 100%);}
+  .hero-info{padding:28px 24px 32px;background:var(--ink);}
   .hero-title{font-size:2.4rem;}
   .hero-desc{font-size:.84rem;}
-
   .main-nav{grid-template-columns:1fr 1fr;gap:10px;}
   .main-nav-btn{padding:16px 14px;gap:12px;}
   .nav-ico{width:38px;height:38px;font-size:17px;}
   .nav-copy strong{font-size:.68rem;}
   .nav-copy small{font-size:.64rem;}
-
   .admin-stats{grid-template-columns:repeat(3,1fr);}
   .admin-stats .stat-item:nth-child(4),
   .admin-stats .stat-item:nth-child(5){display:none;}
-
   .grid-head{flex-direction:column;align-items:stretch;}
   .grid-head-right{justify-content:flex-end;}
   .export-btn{width:100%;justify-content:flex-start;}
-
   .sig-section{padding:28px 20px;}
-
-  .nav-float{
-    width:calc(100% - 28px);
-    bottom:16px;
-  }
+  .nav-float{width:calc(100% - 28px);bottom:16px;}
   #userNav,#adminNav{width:100%;justify-content:space-between;}
-
   .proc-gallery-slide img{height:220px;}
   .f-cols{grid-template-columns:1fr;}
   .tag-inline{grid-template-columns:1fr;}
   .tag-remove{width:100%;}
+  .my-booking-banner-body{grid-template-columns:auto 1fr;}
+  .my-booking-banner-arrow{display:none;}
+  .booking-tag-time{font-size:3rem;}
+  /* Intro mobile */
+  .ib-ring-wrap{width:88px;height:88px;margin-bottom:24px;}
+  .ib-mono svg{width:40px;height:40px;}
+  .ib-line-wrap{width:220px;}
+  .ib-sub{font-size:.48rem;letter-spacing:4px;margin-bottom:28px;}
+  .ib-corner{width:44px;height:44px;top:20px;left:20px;}
+  .ib-corner.tr{top:20px;right:20px;left:auto;}
+  .ib-corner.bl{bottom:20px;left:20px;top:auto;}
+  .ib-corner.br{bottom:20px;right:20px;top:auto;left:auto;}
+  .ib-title-word{margin-right:10px;}
 }
-
 @media (min-width:761px) and (max-width:960px){
   .hero{min-height:460px;}
   .hero-title{font-size:2.8rem;}
   .hero-info{padding:36px 32px;}
 }
-
 @media (min-width:961px){
   .hero{min-height:540px;}
-  .hero-visual::after{
-    background:linear-gradient(to right,transparent 55%,rgba(30,20,20,.45) 100%);
-  }
+  .hero-visual::after{background:linear-gradient(to right,transparent 55%,rgba(30,20,20,.45) 100%);}
   .nav-float{
     top:20px;bottom:auto;
     left:auto;right:max(20px,calc((100vw - 1200px)/2 + 16px));
@@ -1304,73 +1518,45 @@ body.admin-on #logPanel{display:block;}
 
 <!-- INTRO -->
 <div id="intro">
-  <!-- fundo com halos -->
   <div class="ib-wash">
-    <div class="ib-c1"></div>
-    <div class="ib-c2"></div>
-    <div class="ib-c3"></div>
+    <div class="ib-c1"></div><div class="ib-c2"></div><div class="ib-c3"></div>
   </div>
-  <!-- cantos decorativos -->
-  <div class="ib-corner tl"></div>
-  <div class="ib-corner tr"></div>
-  <div class="ib-corner bl"></div>
-  <div class="ib-corner br"></div>
-  <!-- partículas JS -->
+  <div class="ib-corner tl"></div><div class="ib-corner tr"></div>
+  <div class="ib-corner bl"></div><div class="ib-corner br"></div>
   <div id="introPetals"></div>
-
-  <!-- conteúdo central -->
   <div class="ib-center">
-
-    <!-- anel girando com monograma -->
     <div class="ib-ring-wrap">
       <div class="ib-ring-outer"><div class="ib-ring-dot"></div></div>
       <div class="ib-ring-inner"><div class="ib-ring-dot2"></div></div>
       <div class="ib-mono">
         <svg viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <!-- estrela central -->
           <path d="M26 8L28.8 17.8L39 18.8L31.4 25.2L33.8 35L26 30.2L18.2 35L20.6 25.2L13 18.8L23.2 17.8L26 8Z" fill="url(#intrGold)" opacity=".85"/>
-          <!-- brilho central -->
           <circle cx="26" cy="22" r="3" fill="#FFF8EB" opacity=".9"/>
-          <!-- pontos orbitais -->
           <circle cx="26" cy="4" r="1.5" fill="#C9A86C" opacity=".6"/>
           <circle cx="48" cy="26" r="1.2" fill="#C4848A" opacity=".5"/>
           <circle cx="4" cy="26" r="1.2" fill="#C4848A" opacity=".5"/>
           <circle cx="26" cy="48" r="1.5" fill="#C9A86C" opacity=".6"/>
           <defs>
             <linearGradient id="intrGold" x1="26" y1="8" x2="26" y2="35" gradientUnits="userSpaceOnUse">
-              <stop stop-color="#FFF4CF"/>
-              <stop offset=".5" stop-color="#D9BC7B"/>
-              <stop offset="1" stop-color="#B9894E"/>
+              <stop stop-color="#FFF4CF"/><stop offset=".5" stop-color="#D9BC7B"/><stop offset="1" stop-color="#B9894E"/>
             </linearGradient>
           </defs>
         </svg>
       </div>
     </div>
-
-    <!-- linhas expansivas -->
     <div class="ib-line-wrap">
-      <div class="ib-line-l"></div>
-      <div class="ib-line-gem"></div>
-      <div class="ib-line-r"></div>
+      <div class="ib-line-l"></div><div class="ib-line-gem"></div><div class="ib-line-r"></div>
     </div>
-
-    <!-- título com letras animadas individualmente -->
     <div class="ib-title" id="ibTitle">
       <div class="ib-title-word" id="ibWord1"></div>
       <div class="ib-title-word ib-title-accent" id="ibWord2"></div>
     </div>
-
-    <!-- subtítulo -->
     <div class="ib-sub">Studio de Cílios · Manaus</div>
-
-    <!-- barra de tempo -->
     <div class="ib-timer"><div class="ib-timer-bar"></div></div>
-
   </div>
 </div>
 
 <div class="page">
-
   <!-- TOPBAR -->
   <header class="topbar">
     <div class="topbar-brand">
@@ -1433,6 +1619,10 @@ body.admin-on #logPanel{display:block;}
       <div class="sec-hdr-label">✦ Escolha sua data ✦</div>
       <div class="sec-hdr-line"></div>
     </div>
+
+    <!-- Banner do agendamento ativo da cliente (só visível quando tem reserva) -->
+    <div id="myBookingBanner" style="display:none;"></div>
+
     <div class="day-wrap">
       <button class="day-arrow left" onclick="scrollDays(-1)">‹</button>
       <div class="day-scroll" id="dayScroller"></div>
@@ -1504,7 +1694,6 @@ body.admin-on #logPanel{display:block;}
     <div class="sig-badge" id="expBadge">✦ 15 anos de experiência ✦</div>
     <a id="sigWa" href="#" class="sig-wa" target="_blank">💬 Falar com a Camila</a>
   </div>
-
 </div><!-- /page -->
 
 <!-- FLOAT NAV -->
@@ -1537,10 +1726,7 @@ body.admin-on #logPanel{display:block;}
   <div class="modal-box">
     <div class="modal-title">Nova Categoria</div>
     <div class="modal-sub">Crie uma nova categoria de serviços</div>
-    <div class="f-row">
-      <label class="f-lbl">Nome da categoria</label>
-      <input class="f-input" id="novaAbaNome" placeholder="Ex: Extensão, Henna...">
-    </div>
+    <div class="f-row"><label class="f-lbl">Nome da categoria</label><input class="f-input" id="novaAbaNome" placeholder="Ex: Extensão, Henna..."></div>
     <div class="f-row">
       <label class="f-lbl">Emoji (ícone)</label>
       <div id="emojiPickerModal" class="emoji-picker"></div>
@@ -1558,10 +1744,7 @@ body.admin-on #logPanel{display:block;}
     <div class="modal-title">Editar Categoria</div>
     <div class="modal-sub">Altere o nome da categoria</div>
     <input type="hidden" id="editAbaId">
-    <div class="f-row">
-      <label class="f-lbl">Nome</label>
-      <input class="f-input" id="editAbaNome">
-    </div>
+    <div class="f-row"><label class="f-lbl">Nome</label><input class="f-input" id="editAbaNome"></div>
     <div style="display:flex;gap:7px;margin-top:4px;">
       <button class="btn-sm-primary" onclick="confirmarEditarAba()">Salvar</button>
       <button class="btn-sm-secondary" onclick="fecharModal('modalEditarAba')">Cancelar</button>
@@ -1631,7 +1814,7 @@ function cacheRead(key,fb){try{const r=localStorage.getItem(key);return r?JSON.p
 function cacheWrite(key,val){try{localStorage.setItem(key,JSON.stringify(val));}catch{}}
 function cloudinaryUrl(url,t){if(!url||!t||!/res\.cloudinary\.com/i.test(url)||!/\/upload\//.test(url))return url||'';if(url.includes(`/${t}/`))return url;return url.replace('/upload/',`/upload/${t}/`);}
 function mediaImageUrl(url,v='card'){if(!url)return'';const T={card:'f_auto,q_auto:best,dpr_auto,w_720,h_540,c_fill,g_auto,fl_progressive',detail:'f_auto,q_auto:best,dpr_auto,w_1800,h_1400,c_limit,fl_progressive',hero:'f_auto,q_auto:best,dpr_auto,w_2200,h_1800,c_fill,g_auto,fl_progressive'};return cloudinaryUrl(url,T[v]||T.card);}
-function parseFotos(raw){if(!raw)return[];if(Array.isArray(raw))return raw.filter(Boolean);const t=String(raw).trim();if(!t)return[];if(t.startsWith('[')){try{const a=JSON.parse(t);return Array.isArray(a)?a.filter(Boolean):[];}catch{return t?[t]:[]; }}return[t];}
+function parseFotos(raw){if(!raw)return[];if(Array.isArray(raw))return raw.filter(Boolean);const t=String(raw).trim();if(!t)return[];if(t.startsWith('[')){try{const a=JSON.parse(t);return Array.isArray(a)?a.filter(Boolean):[];}catch{return t?[t]:[];}}return[t];}
 function serializeFotos(list){const urls=list.map(f=>typeof f==='string'?f:f?.url).filter(Boolean);return urls.length===0?'':urls.length===1?urls[0]:JSON.stringify(urls);}
 function normalizeProcTag(tag){if(!tag)return null;if(typeof tag==='string'||typeof tag==='number'){const valor=String(tag).trim();return valor?{id:makeId('tag'),label:'Observação',tipo:'texto',valor}:null;}const tipo=['texto','marcador','real'].includes(tag.tipo)?tag.tipo:'texto';const label=String(tag.label||'').trim();const valor=String(tag.valor||'').trim();if(!label&&!valor)return null;return{id:String(tag.id||makeId('tag')).trim(),label,tipo,valor};}
 function parseProcTags(raw){if(!raw)return[];if(Array.isArray(raw))return raw.map(normalizeProcTag).filter(Boolean);const txt=String(raw).trim();if(!txt)return[];if(txt.startsWith('[')){try{return JSON.parse(txt).map(normalizeProcTag).filter(Boolean);}catch{}}return[{id:makeId('tag'),label:'Observação',tipo:'texto',valor:txt}];}
@@ -1668,64 +1851,116 @@ function cloudUpload(file,type,onProg=null){return new Promise((res,rej)=>{const
 setTimeout(()=>document.getElementById('intro').classList.add('out'), 5400);
 
 (function(){
-  // Letras individuais animadas
-  const w1 = document.getElementById('ibWord1');
-  const w2 = document.getElementById('ibWord2');
-  const word1 = 'LOOK';
-  const word2 = 'DESIGNER';
-  const baseDelay = 1.3;
-  const step = 0.07;
-
-  word1.split('').forEach((ch, i) => {
-    const s = document.createElement('span');
-    s.className = 'ib-char';
-    s.textContent = ch;
-    s.style.animationDelay = (baseDelay + i * step) + 's';
-    w1.appendChild(s);
-  });
-
-  // espaço visual entre as palavras
-  const sp = document.createElement('span');
-  sp.style.cssText = 'display:inline-block;width:20px;';
-  w2.before(sp);
-
-  word2.split('').forEach((ch, i) => {
-    const s = document.createElement('span');
-    s.className = 'ib-char';
-    s.textContent = ch;
-    s.style.animationDelay = (baseDelay + (word1.length + i) * step + .08) + 's';
-    w2.appendChild(s);
-  });
-
-  // Partículas flutuantes
-  const c = document.getElementById('introPetals');
-  if(!c) return;
-  const colors = ['#F2D9D9','#E8C8C8','#F5E6DA','#E8D5B0','#F0DDD5','#EDD5C8','#F7EEEA'];
-  for(let i = 0; i < 28; i++){
-    const p = document.createElement('div');
-    p.className = 'ib-particle';
-    const size = 3 + Math.random() * 5;
-    const left = 8 + Math.random() * 84;
-    const top  = 10 + Math.random() * 80;
-    const dur  = 3 + Math.random() * 5;
-    const delay = .5 + Math.random() * 5;
-    const color = colors[Math.floor(Math.random() * colors.length)];
-    p.style.cssText = `
-      left:${left}%;top:${top}%;
-      width:${size}px;height:${size}px;
-      background:${color};
-      animation-duration:${dur}s;
-      animation-delay:${delay}s;
-    `;
-    c.appendChild(p);
-  }
+  const w1=document.getElementById('ibWord1'),w2=document.getElementById('ibWord2');
+  const word1='LOOK',word2='DESIGNER',baseDelay=1.3,step=0.07;
+  word1.split('').forEach((ch,i)=>{const s=document.createElement('span');s.className='ib-char';s.textContent=ch;s.style.animationDelay=(baseDelay+i*step)+'s';w1.appendChild(s);});
+  const sp=document.createElement('span');sp.style.cssText='display:inline-block;width:20px;';w2.before(sp);
+  word2.split('').forEach((ch,i)=>{const s=document.createElement('span');s.className='ib-char';s.textContent=ch;s.style.animationDelay=(baseDelay+(word1.length+i)*step+.08)+'s';w2.appendChild(s);});
+  const c=document.getElementById('introPetals');if(!c)return;
+  const colors=['#F2D9D9','#E8C8C8','#F5E6DA','#E8D5B0','#F0DDD5','#EDD5C8','#F7EEEA'];
+  for(let i=0;i<28;i++){const p=document.createElement('div');p.className='ib-particle';const size=3+Math.random()*5,left=8+Math.random()*84,top=10+Math.random()*80,dur=3+Math.random()*5,delay=.5+Math.random()*5,color=colors[Math.floor(Math.random()*colors.length)];p.style.cssText=`left:${left}%;top:${top}%;width:${size}px;height:${size}px;background:${color};animation-duration:${dur}s;animation-delay:${delay}s;`;c.appendChild(p);}
 })();
 
 // ════════════════════════════════════════════════════
 //  SYNC / INIT
 // ════════════════════════════════════════════════════
-async function syncData(){const btn=document.getElementById('syncBtn');if(btn){btn.textContent='⏱ Sync...';btn.style.opacity='.7';}try{const cb='_ld_'+Date.now();await new Promise((res,rej)=>{const s=document.createElement('script');window[cb]=r=>{delete window[cb];s.remove();if(r.status==='OK')res(r);else rej();};s.src=`${CFG.API_URL}?pass=${encodeURIComponent(adminPass)}&_t=${Date.now()}&callback=${cb}`;s.onerror=rej;document.body.appendChild(s);setTimeout(rej,10000);}).then(r=>{db=r.agenda||[];systemLogs=r.logs||[];srvCfg=r.config||srvCfg;isAdmin=!!r.isAdmin;if(!isAdmin){const saved=localStorage.getItem('last_booking_v3');if(saved){const bk=JSON.parse(saved);const still=db.find(x=>x.codigo===bk.token&&(x.status==='Ocupado'||x.status==='Aguardando Pagamento'));if(!still)clearClientBlock();}}updateAppMode();renderDays();if(currentDay)renderGrid(currentDay);updateAdminStats();});}catch(e){}finally{if(btn){btn.textContent='↻ Atualizar';btn.style.opacity='1';}}}
-async function initApp(){const ca=cacheRead(CACHE.abas,null);const cp=cacheRead(CACHE.procs,null);if(Array.isArray(ca)&&ca.length)ABAS=ca;if(Array.isArray(cp)&&cp.length)PROCS=cp;applyCachedMedia();await Promise.all([syncData(),loadAbas(),loadProcs(),loadMediaConfig()]);renderServicesTabs();setPublicMainTab(publicMainTab);}
+async function syncData(){
+  const btn=document.getElementById('syncBtn');
+  if(btn){btn.textContent='⏱ Sync...';btn.style.opacity='.7';}
+  try{
+    const cb='_ld_'+Date.now();
+    await new Promise((res,rej)=>{
+      const s=document.createElement('script');
+      window[cb]=r=>{delete window[cb];s.remove();if(r.status==='OK')res(r);else rej();};
+      s.src=`${CFG.API_URL}?pass=${encodeURIComponent(adminPass)}&_t=${Date.now()}&callback=${cb}`;
+      s.onerror=rej;document.body.appendChild(s);setTimeout(rej,10000);
+    }).then(r=>{
+      db=r.agenda||[];systemLogs=r.logs||[];srvCfg=r.config||srvCfg;isAdmin=!!r.isAdmin;
+      if(!isAdmin){
+        const saved=localStorage.getItem('last_booking_v3');
+        if(saved){
+          const bk=JSON.parse(saved);
+          const still=db.find(x=>x.codigo===bk.token&&x.status==='Ocupado');
+          if(!still)clearClientBlock();
+        }
+      }
+      updateAppMode();renderDays();
+      if(currentDay)renderGrid(currentDay);
+      updateAdminStats();
+      renderMyBookingBanner(); // atualiza o banner da cliente
+    });
+  }catch(e){}
+  finally{if(btn){btn.textContent='↻ Atualizar';btn.style.opacity='1';}}
+}
+async function initApp(){
+  const ca=cacheRead(CACHE.abas,null),cp=cacheRead(CACHE.procs,null);
+  if(Array.isArray(ca)&&ca.length)ABAS=ca;
+  if(Array.isArray(cp)&&cp.length)PROCS=cp;
+  applyCachedMedia();
+  await Promise.all([syncData(),loadAbas(),loadProcs(),loadMediaConfig()]);
+  renderServicesTabs();setPublicMainTab(publicMainTab);
+}
+
+// ════════════════════════════════════════════════════
+//  MY BOOKING BANNER
+//  Mostra o agendamento ativo da cliente no topo
+//  da seção de agendamento para consulta rápida
+// ════════════════════════════════════════════════════
+function getActiveClientBooking(){
+  if(isAdmin&&!isUserView)return null;
+  const saved=localStorage.getItem('last_booking_v3');
+  if(!saved)return null;
+  const bk=JSON.parse(saved);
+  const rec=db.find(r=>r.codigo===bk.token&&r.status==='Ocupado');
+  if(!rec)return null;
+  return{...bk,...rec};
+}
+
+function renderMyBookingBanner(){
+  const wrap=document.getElementById('myBookingBanner');
+  if(!wrap)return;
+  const booking=getActiveClientBooking();
+  if(!booking||isAdmin&&!isUserView){
+    wrap.style.display='none';
+    wrap.innerHTML='';
+    return;
+  }
+  const dateLabel=formatManausLabel(booking.data||booking.iso,{weekday:'long',day:'2-digit',month:'long'}).replace(/^\w/,c=>c.toUpperCase());
+  const clock=booking.horario||booking.clock||'';
+  const clientName=booking.cliente||booking.name||'';
+  wrap.style.display='block';
+  wrap.innerHTML=`
+    <div class="my-booking-banner" onclick="openMyBookingDetail()">
+      <div class="my-booking-banner-top">
+        <div class="my-booking-banner-badge">Seu agendamento</div>
+        <div class="my-booking-banner-status">Confirmado</div>
+      </div>
+      <div class="my-booking-banner-body">
+        <div class="my-booking-banner-time">${clock}</div>
+        <div class="my-booking-banner-divider"></div>
+        <div class="my-booking-banner-details">
+          <div class="my-booking-banner-date">${dateLabel}</div>
+          <div class="my-booking-banner-name">${clientName}</div>
+        </div>
+        <div class="my-booking-banner-arrow">›</div>
+      </div>
+      <div class="my-booking-banner-footer">
+        Toque para ver detalhes e informações de pagamento
+      </div>
+    </div>`;
+}
+
+function openMyBookingDetail(){
+  const booking=getActiveClientBooking();
+  if(!booking)return;
+  const iso=booking.data||booking.iso;
+  const clock=booking.horario||booking.clock||'';
+  const name=booking.cliente||booking.name||'';
+  const phone=booking.telefone||booking.phone||'';
+  const token=booking.codigo||booking.token||'';
+  const df=formatManausLabel(iso,{weekday:'long',day:'2-digit',month:'long'}).replace(/^\w/,c=>c.toUpperCase());
+  showConfirmationSheet(name,phone,iso,clock,df,token,false);
+}
 
 // ════════════════════════════════════════════════════
 //  CMS LOAD
@@ -1779,7 +2014,7 @@ function verProcDetalhe(idx){const p=PROCS[idx];const emoji=ABAS.find(a=>a.nome=
 function ativarGaleriaProc(){const track=document.getElementById('procGalTrack');if(!track)return;const dots=Array.from(document.querySelectorAll('.proc-gallery-dot'));let isD=false,sX=0,sS=0;const syncDots=()=>{if(!dots.length)return;const idx=Math.min(dots.length-1,Math.round(track.scrollLeft/Math.max(track.clientWidth,1)));dots.forEach((d,i)=>d.classList.toggle('active',i===idx));};track.addEventListener('scroll',syncDots,{passive:true});track.addEventListener('mousedown',e=>{isD=true;sX=e.pageX;sS=track.scrollLeft;});window.addEventListener('mouseup',()=>{isD=false;});track.addEventListener('mousemove',e=>{if(!isD)return;e.preventDefault();track.scrollLeft=sS-(e.pageX-sX);});}
 
 // ════════════════════════════════════════════════════
-//  ADMIN CMS
+//  ADMIN CMS — Serviços
 // ════════════════════════════════════════════════════
 function openServicosAdmin(){openSheet('Serviços do Studio','Gerencie as categorias e procedimentos.');renderServicosSheet();}
 function renderServicosSheet(){const body=document.getElementById('sheetBody');let html=`<div class="abas-grid">`;ABAS.forEach(a=>{const cnt=PROCS.filter(p=>p.aba===a.nome).length;html+=`<div class="aba-card"><div class="aba-card-top"><div class="aba-card-emoji">${a.emoji}</div><div class="aba-card-nome">${a.nome}</div></div><div class="aba-card-body"><div class="aba-card-cnt">${cnt} procedimento${cnt!==1?'s':''}</div><div class="aba-card-actions"><button class="aba-btn-enter" onclick="entrarAbaAdmin('${a.id}')">Gerenciar →</button><button class="aba-btn-sm" onclick="editarAbaAdmin('${a.id}')">✎</button><button class="aba-btn-sm" onclick="removerAbaAdmin('${a.id}')">🗑</button></div></div></div>`;});html+=`<div class="aba-add" onclick="abrirModalNovaAba()"><div class="aba-add-ico">+</div><div class="aba-add-txt">Nova Categoria</div></div></div>`;body.innerHTML=html;document.getElementById('sheetActions').innerHTML=`<button class="btn btn-secondary" onclick="closeSheet()">Fechar</button>`;}
@@ -1836,26 +2071,250 @@ function getPastBookings(){const curIso=getManausIsoDate(new Date());const curMi
 function renderDays(){const c=document.getElementById('dayScroller');c.innerHTML='';const base=parseIsoDateLocal(getManausIsoDate(new Date()));for(let i=0;i<14;i++){const d=new Date(base);d.setDate(base.getDate()+i);const iso=formatLocalIsoDate(d);const el=document.createElement('div');el.className='day-pill'+(iso===currentDay?' active':'');el.onclick=()=>selectDay(iso);const dw=new Intl.DateTimeFormat('pt-BR',{timeZone:APP_TIME_ZONE,weekday:'short'}).format(d).replace('.','').toUpperCase();const dm=new Intl.DateTimeFormat('pt-BR',{timeZone:APP_TIME_ZONE,month:'short'}).format(d).replace('.','').toUpperCase();el.innerHTML=`<div class="dp-w">${dw}</div><div class="dp-n">${d.getDate()}</div><div class="dp-m">${dm}</div>`;c.appendChild(el);}}
 function selectDay(iso){currentDay=iso;clearSelection();renderDays();document.getElementById('gridDate').textContent=formatManausLabel(iso,{weekday:'long',day:'2-digit',month:'long'}).replace(/^\w/,c=>c.toUpperCase());document.getElementById('gridSection').classList.add('vis');renderGrid(iso);updateDayExportButton();}
 function closeGrid(){currentDay='';clearSelection();document.getElementById('gridSection').classList.remove('vis');renderDays();updateDayExportButton();}
-function renderGrid(iso){const container=document.getElementById('slotsContainer');container.innerHTML='';const logContainer=document.getElementById('logEntries');logContainer.innerHTML='';const now=new Date();const todayIso=formatLocalIsoDate(now);const curMins=now.getHours()*60+now.getMinutes();const lastBooking=JSON.parse(localStorage.getItem('last_booking_v3')||'null');const hasActiveBooking=!isAdmin&&lastBooking&&(()=>{const rec=db.find(r=>r.codigo===lastBooking.token&&(r.status==='Ocupado'||r.status==='Aguardando Pagamento'));return!!rec;})();const[sH,sM]=srvCfg.start.split(':').map(Number);const[eH,eM]=srvCfg.end.split(':').map(Number);let cur=sH*60+sM,end=eH*60+eM;let idx=0;const logs=[];while(cur<end){const hh=String(Math.floor(cur/60)).padStart(2,'0'),mm=String(cur%60).padStart(2,'0'),clock=`${hh}:${mm}`;const isPast=(iso<todayIso)||(iso===todayIso&&cur<curMins);const reg=db.find(r=>String(r.data).substring(0,10)===iso&&String(r.horario).substring(0,5)===clock);let st=reg?reg.status:'Livre',durMin=reg?parseInt(reg.duration||srvCfg.duration):srvCfg.duration;if(isPast&&!isAdmin){cur+=Math.max(15,durMin||30);continue;}const reservedUntil=reg?reg.reservedUntil:null,logMsg=reg?reg.log:null;let isExpired=false;if(st==='Aguardando Pagamento'&&reservedUntil){if(new Date()>new Date(reservedUntil))isExpired=true;}if(st==='Aguardando Pagamento'&&isExpired&&!isAdmin)st='Livre';const isMyBooking=lastBooking&&lastBooking.iso===iso&&lastBooking.clock===clock;if(!isAdmin){if(hasActiveBooking){if(!isMyBooking){cur+=Math.max(15,durMin||30);continue;}}else{if(st!=='Livre'){cur+=Math.max(15,durMin||30);continue;}}}if(st==='Livre'){const nextOcc=db.filter(r=>String(r.data).substring(0,10)===iso&&r.status!=='Livre').map(r=>{const[h,m]=r.horario.split(':').map(Number);return h*60+m;}).filter(m=>m>cur).sort((a,b)=>a-b)[0];if(nextOcc){const gap=nextOcc-cur;if(gap<durMin)durMin=gap;}}const pipColor={'Livre':'var(--st-livre)','Aguardando Pagamento':'var(--st-aguard)','Ocupado':'var(--st-ocupado)','Bloqueado':'var(--st-block)'}[st]||'var(--st-block)';let countdownHtml='';if(st==='Aguardando Pagamento'&&reservedUntil&&!isExpired){const leftMs=new Date(reservedUntil)-new Date();const leftMin=Math.ceil(leftMs/60000);countdownHtml=`<div class="countdown-pill">⏳ ${leftMin} min restantes</div>`;}let expiredHtml='';if(isAdmin&&isExpired&&logMsg){expiredHtml=`<div class="log-expired">⚠ Expirado</div>`;logs.push({time:clock,msg:logMsg,client:reg.cliente,phone:reg.telefone,token:reg.codigo});}const durLabel=durMin>=60?`${Math.floor(durMin/60)}h${durMin%60>0?' '+durMin%60+'min':''}`:durMin+' min';const stLabels={'Livre':'DISPONÍVEL','Aguardando Pagamento':isExpired?(isAdmin?'EXPIRADO':'DISPONÍVEL'):'AGUARDANDO','Ocupado':'OCUPADO','Bloqueado':'BLOQUEADO'};const stLabel=stLabels[st]||st;let clientName='Horário disponível';if(st==='Ocupado'||st==='Aguardando Pagamento')clientName=(isMyBooking&&!isAdmin)?'Sua reserva':(reg.cliente||'—');if(st==='Bloqueado')clientName='Indisponível';if(isExpired&&!isAdmin)clientName='Horário disponível';let extra='';if(isAdmin&&reg&&reg.telefone){const clean=reg.telefone.replace(/\D/g,'');const msg=encodeURIComponent(`Olá, ${reg.cliente}! ✨ Sou a Camila do Studio Look Designer. Vi seu interesse no horário das ${clock} do dia ${iso.split('-').reverse().join('/')}. Posso te ajudar? 💗`);extra=`<div class="slot-dur" style="margin-top:5px;"><a href="https://wa.me/${clean.startsWith('55')?clean:'55'+clean}?text=${msg}" target="_blank" style="text-decoration:none;color:var(--rose);font-weight:700;background:rgba(196,132,138,.08);padding:3px 9px;border-radius:7px;display:inline-block;font-size:.58rem;">💬 Contato Rápido</a></div>`;}const card=document.createElement('div');card.dataset.time=clock;card.dataset.status=st;card.style.animationDelay=`${idx*.04}s`;card.className='slot-card'+(isPast&&!isAdmin?' past':'');card.onclick=e=>handleSlotClick(e,card,iso,clock,st,reservedUntil,reg);card.innerHTML=`<div class="slot-check" data-chk="true">✓</div><div class="slot-pip" style="background:${pipColor}"></div><div class="slot-time">${clock}</div><div class="slot-info"><div class="slot-status" style="color:${pipColor}">${stLabel}</div><div class="slot-client">${clientName}</div><div class="slot-dur" style="margin-top:1px;font-size:.58rem;opacity:.55;">${st!=='Livre'&&reg&&reg.telefone?'📞 '+reg.telefone:''} ${st!=='Livre'&&reg&&reg.codigo?' · 🎫 '+reg.codigo:''}</div><div class="slot-dur">${durLabel}</div>${extra}${countdownHtml}${expiredHtml}</div>`;container.appendChild(card);cur+=Math.max(30,durMin);idx++;}if(isAdmin&&logs.length){logs.forEach(l=>{const e=document.createElement('div');e.className='log-entry';e.innerHTML=`<strong>⏱ ${l.time} — Reserva Não Confirmada</strong>${l.msg}<div class="log-meta">Token: ${l.token} · ${l.phone}</div>`;logContainer.appendChild(e);});}updateDayExportButton();}
-function handleSlotClick(event,card,iso,clock,st,rUntil,reg){if(isAdmin){const isCheck=event.target.getAttribute('data-chk')==='true'||event.target.closest('[data-chk="true"]');if(isCheck){const key=`${iso}|${clock}`;if(selectedSlots.has(key)){selectedSlots.delete(key);card.classList.remove('selected');}else{selectedSlots.add(key);card.classList.add('selected');}updateMultiBar();return;}showAdminSlotSheet(iso,clock,st,reg);return;}if(st!=='Livre'){const lb=JSON.parse(localStorage.getItem('last_booking_v3')||'null');const isMy=lb&&lb.iso===iso&&lb.clock===clock&&st==='Ocupado';if(isMy){const df=formatManausLabel(iso,{weekday:'long',day:'2-digit',month:'long'});showPixSheet(lb.name||reg?.cliente||'',reg?.telefone||lb.phone||'',iso,clock,df,reg?.codigo||lb.token);}return;}showBookingSheet(iso,clock);}
+function renderGrid(iso){
+  const container=document.getElementById('slotsContainer');
+  container.innerHTML='';
+  const logContainer=document.getElementById('logEntries');
+  logContainer.innerHTML='';
+  const now=new Date(),todayIso=formatLocalIsoDate(now),curMins=now.getHours()*60+now.getMinutes();
+  const lastBooking=JSON.parse(localStorage.getItem('last_booking_v3')||'null');
+  const hasActiveBooking=!isAdmin&&lastBooking&&(()=>{const rec=db.find(r=>r.codigo===lastBooking.token&&r.status==='Ocupado');return!!rec;})();
+  const[sH,sM]=srvCfg.start.split(':').map(Number);
+  const[eH,eM]=srvCfg.end.split(':').map(Number);
+  let cur=sH*60+sM,end=eH*60+eM;
+  let idx=0;
+  const logs=[];
+  while(cur<end){
+    const hh=String(Math.floor(cur/60)).padStart(2,'0'),mm=String(cur%60).padStart(2,'0'),clock=`${hh}:${mm}`;
+    const isPast=(iso<todayIso)||(iso===todayIso&&cur<curMins);
+    const reg=db.find(r=>String(r.data).substring(0,10)===iso&&String(r.horario).substring(0,5)===clock);
+    let st=reg?reg.status:'Livre',durMin=reg?parseInt(reg.duration||srvCfg.duration):srvCfg.duration;
+    if(isPast&&!isAdmin){cur+=Math.max(15,durMin||30);continue;}
+    const reservedUntil=reg?reg.reservedUntil:null,logMsg=reg?reg.log:null;
+    const isMyBooking=lastBooking&&lastBooking.iso===iso&&lastBooking.clock===clock;
+    if(!isAdmin){
+      if(hasActiveBooking){if(!isMyBooking){cur+=Math.max(15,durMin||30);continue;}}
+      else{if(st!=='Livre'){cur+=Math.max(15,durMin||30);continue;}}
+    }
+    if(st==='Livre'){const nextOcc=db.filter(r=>String(r.data).substring(0,10)===iso&&r.status!=='Livre').map(r=>{const[h,m]=r.horario.split(':').map(Number);return h*60+m;}).filter(m=>m>cur).sort((a,b)=>a-b)[0];if(nextOcc){const gap=nextOcc-cur;if(gap<durMin)durMin=gap;}}
+    const pipColor={'Livre':'var(--st-livre)','Aguardando Pagamento':'var(--st-aguard)','Ocupado':'var(--st-ocupado)','Bloqueado':'var(--st-block)'}[st]||'var(--st-block)';
+    let expiredHtml='';
+    if(isAdmin&&logMsg)logs.push({time:clock,msg:logMsg,client:reg.cliente,phone:reg.telefone,token:reg.codigo});
+    const durLabel=durMin>=60?`${Math.floor(durMin/60)}h${durMin%60>0?' '+durMin%60+'min':''}`:durMin+' min';
+    const stLabels={'Livre':'DISPONÍVEL','Aguardando Pagamento':'AGUARDANDO','Ocupado':'OCUPADO','Bloqueado':'BLOQUEADO'};
+    const stLabel=stLabels[st]||st;
+    let clientName='Horário disponível';
+    if(st==='Ocupado'||st==='Aguardando Pagamento')clientName=(isMyBooking&&!isAdmin)?'Seu agendamento':(reg.cliente||'—');
+    if(st==='Bloqueado')clientName='Indisponível';
+    let extra='';
+    if(isAdmin&&reg&&reg.telefone){const clean=reg.telefone.replace(/\D/g,'');const msg=encodeURIComponent(`Olá, ${reg.cliente}! ✨ Sou a Camila do Studio Look Designer. Vi seu interesse no horário das ${clock} do dia ${iso.split('-').reverse().join('/')}. Posso te ajudar? 💗`);extra=`<div class="slot-dur" style="margin-top:5px;"><a href="https://wa.me/${clean.startsWith('55')?clean:'55'+clean}?text=${msg}" target="_blank" style="text-decoration:none;color:var(--rose);font-weight:700;background:rgba(196,132,138,.08);padding:3px 9px;border-radius:7px;display:inline-block;font-size:.58rem;">💬 Contato Rápido</a></div>`;}
+    const card=document.createElement('div');
+    card.dataset.time=clock;card.dataset.status=st;card.style.animationDelay=`${idx*.04}s`;
+    card.className='slot-card'+(isPast&&!isAdmin?' past':'');
+    card.onclick=e=>handleSlotClick(e,card,iso,clock,st,reservedUntil,reg);
+    card.innerHTML=`<div class="slot-check" data-chk="true">✓</div><div class="slot-pip" style="background:${pipColor}"></div><div class="slot-time">${clock}</div><div class="slot-info"><div class="slot-status" style="color:${pipColor}">${stLabel}</div><div class="slot-client">${clientName}</div><div class="slot-dur" style="margin-top:1px;font-size:.58rem;opacity:.55;">${st!=='Livre'&&reg&&reg.telefone?'📞 '+reg.telefone:''} ${st!=='Livre'&&reg&&reg.codigo?' · 🎫 '+reg.codigo:''}</div><div class="slot-dur">${durLabel}</div>${extra}${expiredHtml}</div>`;
+    container.appendChild(card);
+    cur+=Math.max(30,durMin);idx++;
+  }
+  if(isAdmin&&logs.length){logs.forEach(l=>{const e=document.createElement('div');e.className='log-entry';e.innerHTML=`<strong>⏱ ${l.time} — Reserva Registrada</strong>${l.msg}<div class="log-meta">Token: ${l.token} · ${l.phone}</div>`;logContainer.appendChild(e);});}
+  updateDayExportButton();
+}
+function handleSlotClick(event,card,iso,clock,st,rUntil,reg){
+  if(isAdmin){
+    const isCheck=event.target.getAttribute('data-chk')==='true'||event.target.closest('[data-chk="true"]');
+    if(isCheck){const key=`${iso}|${clock}`;if(selectedSlots.has(key)){selectedSlots.delete(key);card.classList.remove('selected');}else{selectedSlots.add(key);card.classList.add('selected');}updateMultiBar();return;}
+    showAdminSlotSheet(iso,clock,st,reg);return;
+  }
+  if(st!=='Livre'){
+    // Toca na própria reserva → abre detalhe com PIX informativo
+    const lb=JSON.parse(localStorage.getItem('last_booking_v3')||'null');
+    const isMy=lb&&lb.iso===iso&&lb.clock===clock;
+    if(isMy){
+      const df=formatManausLabel(iso,{weekday:'long',day:'2-digit',month:'long'}).replace(/^\w/,c=>c.toUpperCase());
+      showConfirmationSheet(lb.name||reg?.cliente||'',reg?.telefone||lb.phone||'',iso,clock,df,reg?.codigo||lb.token,false);
+    }
+    return;
+  }
+  showBookingSheet(iso,clock);
+}
 function updateMultiBar(){const n=selectedSlots.size;const bar=document.getElementById('multiBar');if(isAdmin){bar.classList.add('vis');document.getElementById('selCount').textContent=n>0?`${n} horário(s) selecionado(s)`:'Seleção Ativa';}else{bar.classList.remove('vis');}}
 function selectAll(){document.querySelectorAll('.slot-card:not(.past)').forEach(c=>{const key=`${currentDay}|${c.dataset.time}`;selectedSlots.add(key);c.classList.add('selected');});updateMultiBar();}
 function clearSelection(){selectedSlots.clear();document.querySelectorAll('.slot-card.selected').forEach(c=>c.classList.remove('selected'));updateMultiBar();}
 async function blockSelected(){if(!selectedSlots.size)return;if(!confirm(`Bloquear ${selectedSlots.size} horário(s)?`))return;const updates=[...selectedSlots].map(k=>{const[d,t]=k.split('|');return{data:d,horario:t,status:'Bloqueado',cliente:'INDISPONÍVEL',password:adminPass};});clearSelection();await postUpdates(updates);}
 async function freeSelected(){if(!selectedSlots.size)return;if(!confirm(`Liberar ${selectedSlots.size} horário(s)?`))return;const updates=[...selectedSlots].map(k=>{const[d,t]=k.split('|');return{data:d,horario:t,status:'Livre',cliente:'',password:adminPass};});clearSelection();await postUpdates(updates);}
 
-// BOOKING
-function showBookingSheet(iso,clock){const df=formatManausLabel(iso,{weekday:'long',day:'2-digit',month:'long'});openSheet('Agendar seu horário',`Preencha seus dados para reservar o horário das ${clock}.`);document.getElementById('sheetBody').innerHTML=`<div class="info-box">Ao confirmar, o horário será agendado imediatamente no sistema.</div><label class="f-label">Seu nome</label><input id="bName" class="f-inp" placeholder="Nome completo"><label class="f-label">WhatsApp</label><input id="bPhone" class="f-inp" placeholder="(92) 9 0000-0000" type="tel" oninput="handlePhoneInput(this)">`;document.getElementById('sheetActions').innerHTML=`<button class="btn btn-primary" onclick="confirmBooking('${iso}','${clock}','${df}')">Agendar horário</button><button class="btn btn-secondary" onclick="closeSheet()">Voltar</button>`;}
-async function confirmBooking(iso,clock,df){const name=document.getElementById('bName').value.trim();const phone=document.getElementById('bPhone').value.trim();if(!name||!phone){alert('Preencha todos os campos.');return;}if(!isAdmin&&isClientBlocked()){showBlockedScreen();return;}const normalizedPhone=normalizePhone(phone);await syncData();const token=Math.random().toString(36).substring(2,7).toUpperCase();const bTime=new Date().toISOString();const ok=await postUpdates([{data:iso,horario:clock,status:'Ocupado',cliente:name,telefone:phone,codigo:token,bookingTime:bTime,duration:srvCfg.duration,password:adminPass}]);if(!ok){alert('Não foi possível registrar sua reserva. Tente novamente.');return;}const persisted=db.find(r=>String(r.data).substring(0,10)===iso&&String(r.horario).substring(0,5)===clock&&r.status==='Ocupado'&&String(r.codigo||'')===token);if(!persisted){clearClientBlock();alert('Reserva não confirmada. Toque em Atualizar e tente novamente.');return;}localStorage.setItem('last_booking_v3',JSON.stringify({token,iso,clock,phone:normalizedPhone,name}));localStorage.setItem('last_booking_timestamp',Date.now().toString());showPixSheet(name,phone,iso,clock,df,token);}
-function showPixSheet(name,phone,iso,clock,df,token){const pixMsg=srvCfg.pix_value&&parseFloat(srvCfg.pix_value)>0?`💰 *Valor da Reserva:* R$ ${srvCfg.pix_value}\n`:'';const waText=encodeURIComponent(`Olá, Camila!\n\nAcabei de agendar meu horário pelo site.\n\n📌 *Dados do agendamento:*\n• Nome: ${name}\n• Data: ${df}\n• Horário: ${clock}\n• Código: *${token}*\n\n${pixMsg}💰 *PIX enviado para:*\n• Titular: ${CFG.PIX_HOLDER}\n• Chave PIX: ${CFG.PIX_KEY} (${CFG.PIX_BANK})\n\nMeu horário já ficou agendado no sistema.`);openSheet('Agendamento confirmado!','Seu horário está agendado. Envie o comprovante pelo WhatsApp.');document.getElementById('sheetBody').innerHTML=`<div class="pix-box"><div class="pix-label">Chave PIX (celular)</div><div class="pix-key">${CFG.PIX_KEY}</div><div class="pix-holder">${CFG.PIX_BANK} · ${CFG.PIX_HOLDER}</div><div style="margin-top:10px;padding:10px;background:rgba(201,168,108,.1);border-radius:9px;"><div style="font-size:.52rem;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;">Valor para Reserva</div><div style="font-weight:700;color:var(--ink);font-size:1.35rem;">R$ ${srvCfg.pix_value||'0.00'}</div></div><button class="btn btn-secondary" style="margin-top:12px;padding:11px;" onclick="navigator.clipboard.writeText('${CFG.PIX_KEY}').then(()=>alert('Chave copiada!'))">📋 Copiar Chave PIX</button></div><div class="info-box" style="border-color:var(--rose);background:rgba(196,132,138,.04);"><strong>Horário garantido:</strong> seu agendamento já foi lançado na agenda.</div><div class="booking-sum"><p><strong>${name}</strong> · ${df} às ${clock}</p><p>WhatsApp: ${phone}</p><div class="token">${token}</div></div><a href="https://wa.me/${CFG.WA}?text=${waText}" target="_blank" class="wa-link">Enviar comprovante no WhatsApp</a>`;document.getElementById('sheetActions').innerHTML=`<button class="btn btn-secondary" onclick="closeSheet()">Fechar</button>`;}
-function showBlockedScreen(){const ts=Number(localStorage.getItem('last_booking_timestamp')||'0');const rem=Math.max(0,(ts+12*60*60*1000)-Date.now());const rH=Math.floor(rem/3600000),rM=Math.floor((rem%3600000)/60000);openSheet('Agendamento indisponível','Cada cliente pode agendar apenas uma vez a cada 12 horas.');document.getElementById('sheetBody').innerHTML=`<div class="info-box" style="border-color:var(--rose);background:rgba(196,132,138,.04);">Você já realizou um agendamento recentemente.<br><br>Aguarde <strong>${rH}h ${rM}min</strong> para marcar um novo horário.</div><a href="https://wa.me/${CFG.WA}?text=${encodeURIComponent('Olá, Camila! Fiz um agendamento recentemente e preciso de ajuda.')}" target="_blank" class="wa-link">💬 Falar com a Camila</a>`;document.getElementById('sheetActions').innerHTML=`<button class="btn btn-secondary" onclick="closeSheet()">Fechar</button>`;}
+// ════════════════════════════════════════════════════
+//  BOOKING — FLUXO PRINCIPAL
+//  1. showBookingSheet  → formulário de dados
+//  2. confirmBooking    → ocupa a vaga IMEDIATAMENTE
+//  3. showConfirmationSheet → confirmação + PIX informativo
+// ════════════════════════════════════════════════════
+function showBookingSheet(iso,clock){
+  const df=formatManausLabel(iso,{weekday:'long',day:'2-digit',month:'long'}).replace(/^\w/,c=>c.toUpperCase());
+  openSheet('Agendar seu horário',`${df} às ${clock}`);
+  document.getElementById('sheetBody').innerHTML=`
+    <div class="info-box" style="background:rgba(107,175,120,.07);border-color:var(--green);">
+      ✅ <strong>Agendamento imediato</strong> — seu horário fica reservado assim que você confirmar.
+    </div>
+    <label class="f-label">Seu nome</label>
+    <input id="bName" class="f-inp" placeholder="Nome completo">
+    <label class="f-label">WhatsApp</label>
+    <input id="bPhone" class="f-inp" placeholder="(92) 9 0000-0000" type="tel" oninput="handlePhoneInput(this)">`;
+  document.getElementById('sheetActions').innerHTML=`
+    <button class="btn btn-primary" onclick="confirmBooking('${iso}','${clock}','${df}')">Confirmar agendamento</button>
+    <button class="btn btn-secondary" onclick="closeSheet()">Voltar</button>`;
+}
+
+async function confirmBooking(iso,clock,df){
+  const name=document.getElementById('bName').value.trim();
+  const phone=document.getElementById('bPhone').value.trim();
+  if(!name||!phone){alert('Preencha todos os campos.');return;}
+  if(!isAdmin&&isClientBlocked()){showBlockedScreen();return;}
+
+  // Mostra loading no botão
+  const btn=document.querySelector('#sheetActions .btn-primary');
+  if(btn){btn.innerHTML='<span class="spinner"></span> Confirmando...';btn.disabled=true;}
+
+  const normalizedPhone=normalizePhone(phone);
+  await syncData();
+  const token=Math.random().toString(36).substring(2,7).toUpperCase();
+  const bTime=new Date().toISOString();
+
+  const ok=await postUpdates([{
+    data:iso,horario:clock,status:'Ocupado',
+    cliente:name,telefone:phone,
+    codigo:token,bookingTime:bTime,
+    duration:srvCfg.duration,password:adminPass
+  }]);
+
+  if(!ok){
+    alert('Não foi possível registrar. Tente novamente.');
+    if(btn){btn.innerHTML='Confirmar agendamento';btn.disabled=false;}
+    return;
+  }
+
+  // Verifica se realmente gravou
+  const persisted=db.find(r=>
+    String(r.data).substring(0,10)===iso&&
+    String(r.horario).substring(0,5)===clock&&
+    r.status==='Ocupado'&&
+    String(r.codigo||'')===token
+  );
+  if(!persisted){
+    clearClientBlock();
+    alert('Reserva não confirmada. Toque em Atualizar e tente novamente.');
+    return;
+  }
+
+  // Salva no localStorage (controla o bloqueio de 12h e o banner)
+  localStorage.setItem('last_booking_v3',JSON.stringify({token,iso,clock,phone:normalizedPhone,name}));
+  localStorage.setItem('last_booking_timestamp',Date.now().toString());
+
+  // Mostra a tela de confirmação com PIX como informativo
+  showConfirmationSheet(name,phone,iso,clock,df,token,true);
+  renderMyBookingBanner(); // atualiza o banner já
+}
+
+// ════════════════════════════════════════════════════
+//  TELA DE CONFIRMAÇÃO
+//  isNewBooking=true → exibida logo após agendar
+//  isNewBooking=false → exibida ao tocar no banner de retorno
+// ════════════════════════════════════════════════════
+function showConfirmationSheet(name,phone,iso,clock,df,token,isNewBooking){
+  const pixValue=srvCfg.pix_value&&parseFloat(srvCfg.pix_value)>0?srvCfg.pix_value:null;
+  const waText=encodeURIComponent(
+    `Olá, Camila! 💗\n\nMeu horário está confirmado no sistema.\n\n`+
+    `📌 *Detalhes:*\n• Nome: ${name}\n• Data: ${df}\n• Horário: ${clock}\n• Código: *${token}*\n\n`+
+    (pixValue?`💰 Vou enviar o PIX de R$ ${pixValue} agora.\n\n`:'')
+  );
+
+  const titleText=isNewBooking?'Horário confirmado! ✨':'Meu agendamento';
+  const subText=isNewBooking
+    ?'Sua vaga está reservada. Guarde o código abaixo.'
+    :'Consulte aqui os detalhes do seu horário.';
+
+  openSheet(titleText,subText);
+
+  document.getElementById('sheetBody').innerHTML=`
+    <div class="confirm-success-wrap">
+      ${isNewBooking?`
+      <div class="confirm-check-ring">
+        <svg viewBox="0 0 80 80" fill="none">
+          <circle cx="40" cy="40" r="38" stroke="url(#cg1)" stroke-width="2"/>
+          <path d="M24 41L35 52L56 30" stroke="#6BAF78" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <defs>
+            <linearGradient id="cg1" x1="0" y1="0" x2="80" y2="80" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#6BAF78"/><stop offset="1" stop-color="#4CAF50"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>`:''}
+    </div>
+
+    <!-- Etiqueta / bilhete do agendamento -->
+    <div class="booking-tag">
+      <div class="booking-tag-label">✦ Confirmado</div>
+      <div class="booking-tag-time">${clock}</div>
+      <div class="booking-tag-date">${df}</div>
+      <div class="booking-tag-row">
+        <div class="booking-tag-client">${name}</div>
+        <div class="booking-tag-code">${token}</div>
+      </div>
+    </div>
+
+    <!-- PIX como informativo, não como critério -->
+    <div class="pix-info-block">
+      <div class="pix-info-header">
+        <div class="pix-info-icon">💸</div>
+        <div>
+          <div class="pix-info-title">Pagamento via PIX</div>
+          <div class="pix-info-desc">
+            Para garantir seu lugar e evitar conflitos com outras clientes,
+            envie o valor de reserva pelo PIX.
+          </div>
+        </div>
+      </div>
+      <div class="pix-info-key-row">
+        <div>
+          <div class="pix-info-key">${CFG.PIX_KEY}</div>
+          <div class="pix-info-holder">${CFG.PIX_BANK} · ${CFG.PIX_HOLDER}</div>
+        </div>
+        <button class="pix-copy-btn" onclick="navigator.clipboard.writeText('${CFG.PIX_KEY}').then(()=>toast('Chave copiada!','ok'))">
+          Copiar
+        </button>
+      </div>
+      ${pixValue?`<div class="pix-value-note"><strong>R$ ${pixValue}</strong> — valor de reserva (sinal)</div>`:''}
+    </div>
+
+    <a href="https://wa.me/${CFG.WA}?text=${waText}" target="_blank" class="wa-link">
+      💬 Avisar pelo WhatsApp
+    </a>`;
+
+  document.getElementById('sheetActions').innerHTML=`
+    <button class="btn btn-secondary" onclick="closeSheet()">Fechar</button>`;
+}
+
+function showBlockedScreen(){
+  const ts=Number(localStorage.getItem('last_booking_timestamp')||'0');
+  const rem=Math.max(0,(ts+12*60*60*1000)-Date.now());
+  const rH=Math.floor(rem/3600000),rM=Math.floor((rem%3600000)/60000);
+  openSheet('Agendamento indisponível','Cada cliente pode ter apenas um horário ativo por vez.');
+  document.getElementById('sheetBody').innerHTML=`
+    <div class="info-box" style="border-color:var(--rose);background:rgba(196,132,138,.04);">
+      Você já possui um horário agendado.<br><br>
+      Para marcar outro, aguarde <strong>${rH}h ${rM}min</strong> ou
+      peça à Camila que libere sua vaga atual.
+    </div>
+    <a href="https://wa.me/${CFG.WA}?text=${encodeURIComponent('Olá, Camila! Preciso de ajuda com meu agendamento.')}" target="_blank" class="wa-link">
+      💬 Falar com a Camila
+    </a>`;
+  document.getElementById('sheetActions').innerHTML=`<button class="btn btn-secondary" onclick="closeSheet()">Fechar</button>`;
+}
 
 // ADMIN SLOT
-function showAdminSlotSheet(iso,clock,st,reg){const durOpts=[30,45,60,75,90,120].map(d=>`<div class="dur-opt${(reg&&parseInt(reg.duration||srvCfg.duration)===d)||(!reg&&srvCfg.duration===d)?' sel':''}" onclick="selectDur(this,${d})">${d>=60?Math.floor(d/60)+'h'+(d%60>0?d%60:''):d+'min'}</div>`).join('');openSheet(`Gestão · ${clock}`,`Status atual: ${st}`);document.getElementById('sheetBody').innerHTML=`<div class="admin-act-grid">${st==='Aguardando Pagamento'?`<button class="btn" style="background:#25D366;color:#fff;margin-bottom:7px;" onclick="adminConfirm('${iso}','${clock}')">✅ Confirmar Agendamento</button><button class="btn btn-secondary" style="margin-bottom:12px;" onclick="adminAction('${iso}','${clock}','free')">❌ Revogar / Liberar Vaga</button>`:''} ${st!=='Bloqueado'&&st!=='Aguardando Pagamento'?`<button class="btn btn-danger" onclick="adminAction('${iso}','${clock}','block')">🔒 Bloquear este horário</button>`:''}${st==='Bloqueado'||st==='Ocupado'?`<button class="btn btn-gold" onclick="adminAction('${iso}','${clock}','free')">🔓 Liberar horário</button>`:''}</div><label class="f-label">${st==='Aguardando Pagamento'||st==='Ocupado'?'Dados do Cliente':'Agendar manualmente'}</label><input id="aName" class="f-inp" placeholder="Nome do cliente" value="${reg?reg.cliente:''}"><input id="aPhone" class="f-inp" placeholder="(92) 9 0000-0000" type="tel" value="${reg&&reg.telefone?reg.telefone:''}" oninput="handlePhoneInput(this)"><label class="f-label">Duração do procedimento</label><div class="dur-grid" id="durGrid">${durOpts}</div>`;document.getElementById('sheetActions').innerHTML=`<button class="btn btn-primary" onclick="adminManual('${iso}','${clock}')">✓ Salvar agendamento</button><button class="btn btn-secondary" onclick="closeSheet()">Voltar</button>`;}
+function showAdminSlotSheet(iso,clock,st,reg){const durOpts=[30,45,60,75,90,120].map(d=>`<div class="dur-opt${(reg&&parseInt(reg.duration||srvCfg.duration)===d)||(!reg&&srvCfg.duration===d)?' sel':''}" onclick="selectDur(this,${d})">${d>=60?Math.floor(d/60)+'h'+(d%60>0?d%60:''):d+'min'}</div>`).join('');openSheet(`Gestão · ${clock}`,`Status atual: ${st}`);document.getElementById('sheetBody').innerHTML=`<div class="admin-act-grid">${st!=='Bloqueado'&&st!=='Aguardando Pagamento'?`<button class="btn btn-danger" onclick="adminAction('${iso}','${clock}','block')">🔒 Bloquear este horário</button>`:''}${st==='Bloqueado'||st==='Ocupado'||st==='Aguardando Pagamento'?`<button class="btn btn-gold" onclick="adminAction('${iso}','${clock}','free')">🔓 Liberar horário</button>`:''}</div><label class="f-label">${st==='Ocupado'?'Dados do Cliente':'Agendar manualmente'}</label><input id="aName" class="f-inp" placeholder="Nome do cliente" value="${reg?reg.cliente:''}"><input id="aPhone" class="f-inp" placeholder="(92) 9 0000-0000" type="tel" value="${reg&&reg.telefone?reg.telefone:''}" oninput="handlePhoneInput(this)"><label class="f-label">Duração do procedimento</label><div class="dur-grid" id="durGrid">${durOpts}</div>`;document.getElementById('sheetActions').innerHTML=`<button class="btn btn-primary" onclick="adminManual('${iso}','${clock}')">✓ Salvar agendamento</button><button class="btn btn-secondary" onclick="closeSheet()">Voltar</button>`;}
 function selectDur(el,val){document.querySelectorAll('.dur-opt').forEach(e=>e.classList.remove('sel'));el.classList.add('sel');selectedDur=val;}
-async function adminConfirm(iso,clock){const name=document.getElementById('aName').value.trim();const phone=document.getElementById('aPhone').value.trim();const dur=selectedDur||srvCfg.duration;closeSheet();await postUpdates([{data:iso,horario:clock,status:'Ocupado',cliente:name,telefone:phone,duration:dur,password:adminPass}]);setTimeout(()=>showAdminSuccess(name,phone,iso,clock),400);}
-function showAdminSuccess(name,phone,iso,clock){const clean=phone.replace(/\D/g,'');const df=iso.split('-').reverse().join('/');const msg=encodeURIComponent(`Olá, ${name}! ✨ Aqui é a Camila da Look Designer. Confirmei seu agendamento para ${df} às ${clock}. Te aguardando! 💗`);openSheet('Vaga Confirmada! ✅','Agendamento salvo com sucesso.');document.getElementById('sheetBody').innerHTML=`<div class="info-box" style="border-color:var(--gold);text-align:center;"><p style="font-size:.95rem;margin-bottom:7px;"><strong>${name}</strong></p><p>${df} às ${clock}</p></div><a href="https://wa.me/${clean.startsWith('55')?clean:'55'+clean}?text=${msg}" target="_blank" class="wa-link" style="background:#25D366;margin-top:14px;">💬 Enviar Mensagem de Boas-vindas</a>`;document.getElementById('sheetActions').innerHTML=`<button class="btn btn-secondary" onclick="closeSheet()">Fechar</button>`;}
-async function adminAction(iso,clock,action){closeSheet();if(action==='block')await postUpdates([{data:iso,horario:clock,status:'Bloqueado',cliente:'INDISPONÍVEL',password:adminPass}]);else await postUpdates([{data:iso,horario:clock,status:'Livre',cliente:'',password:adminPass}]);}
+async function adminAction(iso,clock,action){closeSheet();if(action==='block')await postUpdates([{data:iso,horario:clock,status:'Bloqueado',cliente:'INDISPONÍVEL',password:adminPass}]);else await postUpdates([{data:iso,horario:clock,status:'Livre',cliente:'',password:adminPass}]);renderMyBookingBanner();}
 async function adminManual(iso,clock){const name=document.getElementById('aName').value.trim();const phone=document.getElementById('aPhone').value.trim();if(!name||!phone){alert('Preencha nome e WhatsApp.');return;}const dur=selectedDur||srvCfg.duration;closeSheet();await postUpdates([{data:iso,horario:clock,status:'Ocupado',cliente:name,telefone:phone,duration:dur,password:adminPass}]);}
 
 // CONFIG
@@ -1869,7 +2328,7 @@ function openHistoricoSheet(){const past=getPastBookings().slice(0,80);const htm
 // AUTH
 function promptAdmin(){const p=prompt('Senha do painel administrativo:');if(p){adminPass=p;localStorage.setItem('look_admin_pass',p);syncData();}}
 function logoutAdmin(){if(!confirm('Sair e remover senha salva?'))return;adminPass='';isAdmin=false;localStorage.removeItem('look_admin_pass');clearSelection();updateAppMode();if(currentDay)renderGrid(currentDay);}
-function toggleUserView(){isUserView=!isUserView;updateAppMode();if(currentDay)renderGrid(currentDay);}
+function toggleUserView(){isUserView=!isUserView;updateAppMode();if(currentDay)renderGrid(currentDay);renderMyBookingBanner();}
 function updateAppMode(){const body=document.body;const aN=document.getElementById('adminNav');const uN=document.getElementById('userNav');if(isAdmin&&!isUserView){body.classList.add('admin-on');document.getElementById('backToAdminBtn').style.display='none';document.querySelector('.nav-admin-btn').style.display='none';if(aN)aN.style.display='flex';if(uN)uN.style.display='none';setupAdminStats();}else{if(isAdmin)document.getElementById('backToAdminBtn').style.display='block';if(isAdmin)document.querySelector('.nav-admin-btn').style.display='none';body.classList.remove('admin-on');if(aN)aN.style.display='none';if(uN)uN.style.display='flex';}}
 function setupAdminStats(){const wO=document.getElementById('wrapOcupado'),wA=document.getElementById('wrapAguard'),wN=document.getElementById('wrapNext');if(wO)wO.onclick=openAgendadosSheet;if(wA)wA.onclick=openHistoricoSheet;if(wN)wN.onclick=openProximoSheet;}
 function updateAdminStats(){if(!isAdmin||isUserView)return;const target=currentDay||getManausIsoDate(new Date());const recs=db.filter(r=>String(r.data).substring(0,10)===target);const[sH,sM]=srvCfg.start.split(':').map(Number);const[eH,eM]=srvCfg.end.split(':').map(Number);const totalSlots=Math.max(0,Math.ceil(((eH*60+eM)-(sH*60+sM))/30));const ocupado=recs.filter(r=>r.status==='Ocupado').length;const bloqueado=recs.filter(r=>r.status==='Bloqueado').length;const livre=Math.max(0,totalSlots-ocupado-bloqueado);const hist=getPastBookings().length;const next=getNextOccupiedBooking();const el=(id,v)=>{const n=document.getElementById(id);if(n)n.textContent=v;};el('statLivre',livre);el('statOcupado',ocupado);el('statAguard',hist);el('statPix','R$ '+(srvCfg.pix_value||'0.00'));el('statNext',next?next.horario:'—');}
@@ -1898,11 +2357,19 @@ function removeTag(k){try{if(window.OneSignal?.User?.removeTag)window.OneSignal.
 function setupAdminNotifications(){if(isAdmin&&!isUserView)addTag('user_type','admin');else removeTag('user_type');}
 function initWebNotifications(){if(notifInit)return;try{window.OneSignalDeferred=window.OneSignalDeferred||[];window.OneSignalDeferred.push(async function(OneSignal){try{await OneSignal.init({appId:ONESIGNAL_APP_ID,allowLocalhostAsSecureOrigin:true,notifyButton:{enable:false}});notifInit=true;setupAdminNotifications();}catch{}});}catch{}}
 
-// BOOT
+// ════════════════════════════════════════════════════
+//  BOOT
+// ════════════════════════════════════════════════════
 window.onload=()=>{
-  calcExperience();initSigWa();
+  calcExperience();
+  initSigWa();
   if(adminPass){isAdmin=true;updateAppMode();}
-  initApp().then(()=>{renderDays();updateAdminStats();setupAdminStats();});
+  initApp().then(()=>{
+    renderDays();
+    updateAdminStats();
+    setupAdminStats();
+    renderMyBookingBanner(); // banner de consulta da cliente
+  });
   try{initWebNotifications();}catch{}
   setInterval(()=>{if(currentDay)renderGrid(currentDay);},60000);
 };
