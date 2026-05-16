@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>LOOK DESIGNER | Studio de Cílios</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async=""></script>
@@ -42,10 +42,15 @@ body{
   display:flex;align-items:center;justify-content:center;
   overflow:hidden;
   transition:opacity 1.6s cubic-bezier(.4,0,.2,1),visibility 1.6s;
-  /* Evita qualquer overflow que cause zoom no mobile */
+  min-height:100vh;
+  min-height:100dvh;
+  min-height:-webkit-fill-available;
   max-width:100vw;
   max-height:100vh;
-  touch-action:none;
+  max-height:100dvh;
+  padding:max(12px,env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) max(12px,env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px));
+  box-sizing:border-box;
+  touch-action:pan-y;
 }
 #intro.out{opacity:0;visibility:hidden;pointer-events:none;}
 .ib-wash{position:absolute;inset:0;pointer-events:none;}
@@ -60,7 +65,7 @@ body{
 .ib-corner.tr{top:28px;right:28px;border-top:1px solid rgba(196,132,138,.32);border-right:1px solid rgba(196,132,138,.32);animation:ibFadeIn .8s 1.5s ease forwards;}
 .ib-corner.bl{bottom:28px;left:28px;border-bottom:1px solid rgba(196,132,138,.32);border-left:1px solid rgba(196,132,138,.32);animation:ibFadeIn .8s 1.6s ease forwards;}
 .ib-corner.br{bottom:28px;right:28px;border-bottom:1px solid rgba(196,132,138,.32);border-right:1px solid rgba(196,132,138,.32);animation:ibFadeIn .8s 1.7s ease forwards;}
-.ib-center{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:0;text-align:center;}
+.ib-center{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:0;text-align:center;width:100%;max-width:100%;box-sizing:border-box;padding:0 12px;}
 .ib-ring-wrap{position:relative;width:120px;height:120px;margin-bottom:36px;opacity:0;animation:ibFadeIn .6s .4s ease forwards;}
 .ib-ring-outer{position:absolute;inset:0;border-radius:50%;border:1px solid rgba(196,132,138,.2);animation:ibRotate 12s linear infinite;}
 .ib-ring-inner{position:absolute;inset:12px;border-radius:50%;border:1px solid rgba(201,168,108,.22);animation:ibRotate 8s linear infinite reverse;}
@@ -70,12 +75,12 @@ body{
 .ib-mono{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;}
 .ib-mono svg{width:52px;height:52px;animation:ibScalePulse 3s 1.2s ease-in-out infinite;}
 @keyframes ibScalePulse{0%,100%{transform:scale(1);}50%{transform:scale(1.04);}}
-.ib-line-wrap{display:flex;align-items:center;gap:12px;margin-bottom:20px;width:280px;}
+.ib-line-wrap{display:flex;align-items:center;gap:12px;margin-bottom:20px;width:min(280px,88vw);max-width:100%;}
 .ib-line-l,.ib-line-r{height:.5px;flex:1;background:linear-gradient(90deg,transparent,rgba(196,132,138,.4));transform:scaleX(0);transform-origin:right;animation:ibLineIn .9s 1s cubic-bezier(.16,1,.3,1) forwards;}
 .ib-line-r{background:linear-gradient(90deg,rgba(196,132,138,.4),transparent);transform-origin:left;}
 .ib-line-gem{width:6px;height:6px;border-radius:1px;background:#C9A86C;transform:rotate(45deg);opacity:0;animation:ibFadeIn .4s 1.5s ease forwards;flex-shrink:0;}
 @keyframes ibLineIn{to{transform:scaleX(1);}}
-.ib-title{font-family:'Cormorant Garamond',serif;font-size:clamp(2rem,8vw,5rem);font-weight:300;letter-spacing:clamp(6px,3vw,18px);text-transform:uppercase;line-height:1;color:#2A2020;display:flex;gap:0;align-items:baseline;overflow:visible;}
+.ib-title{font-family:'Cormorant Garamond',serif;font-size:clamp(2rem,8vw,5rem);font-weight:300;letter-spacing:clamp(6px,3vw,18px);text-transform:uppercase;line-height:1;color:#2A2020;display:flex;gap:0;align-items:baseline;overflow:visible;justify-content:center;flex-wrap:wrap;max-width:100%;}
 .ib-title-word{display:flex;overflow:hidden;margin-right:20px;}
 .ib-title-word:last-child{margin-right:0;}
 .ib-char{display:inline-block;opacity:0;transform:translateY(100%);animation:ibCharIn .7s cubic-bezier(.16,1,.3,1) forwards;}
@@ -1029,12 +1034,14 @@ body.admin-on::after{
 
 /* ── FLOAT NAV ───────────────────────────────────────────── */
 .nav-float{
-  position:fixed;bottom:28px;left:50%;transform:translateX(-50%);
-  background:rgba(255,255,255,.88);backdrop-filter:blur(18px);
+  position:fixed;bottom:max(16px,env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);
+  background:rgba(255,255,255,.92);backdrop-filter:blur(18px);
   border-radius:24px;padding:8px;
-  display:flex;gap:4px;align-items:center;
-  box-shadow:var(--sh-lg);z-index:6000;
+  display:flex;gap:4px;align-items:center;flex-wrap:wrap;justify-content:center;
+  box-shadow:var(--sh-lg);z-index:6500;
   border:1px solid rgba(196,132,138,.14);
+  max-width:calc(100vw - 24px);
+  box-sizing:border-box;
   opacity:0;animation:fadeUp .8s 4.5s var(--ease) forwards;
 }
 .nav-btn{
@@ -1537,7 +1544,7 @@ body.admin-on #logPanel{display:block;}
 
 /* ── RESPONSIVE ──────────────────────────────────────────── */
 @media (max-width:760px){
-  .page{padding:0 16px 140px;}
+  .page{padding:0 16px max(140px,calc(120px + env(safe-area-inset-bottom,0px)));}
   .topbar{padding:20px 0 18px;margin-bottom:24px;}
   .topbar-name{font-size:1.4rem;}
   .topbar-tag{display:none;}
@@ -1565,8 +1572,31 @@ body.admin-on #logPanel{display:block;}
   .grid-head-right{justify-content:flex-end;}
   .export-btn{width:100%;justify-content:flex-start;}
   .sig-section{padding:28px 20px;}
-  .nav-float{width:calc(100% - 28px);bottom:16px;}
-  #userNav,#adminNav{width:100%;justify-content:space-between;}
+  .nav-float{
+    width:calc(100% - 20px);
+    bottom:max(12px,env(safe-area-inset-bottom,12px));
+    left:50%;
+    transform:translateX(-50%);
+    padding:6px 6px max(6px,env(safe-area-inset-bottom,6px));
+    gap:6px;
+  }
+  #userNav,#adminNav{
+    width:100%;
+    justify-content:center;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:6px;
+    row-gap:8px;
+    min-width:0;
+  }
+  .nav-btn,.nav-admin-btn{
+    flex:1 1 auto;
+    min-width:min(104px,28vw);
+    max-width:100%;
+    padding:9px 10px;
+    font-size:.54rem;
+    letter-spacing:1px;
+  }
   .proc-gallery-slide img{height:220px;}
   .f-cols{grid-template-columns:1fr;}
   .tag-inline{grid-template-columns:1fr;}
@@ -1575,15 +1605,23 @@ body.admin-on #logPanel{display:block;}
   .my-booking-banner-arrow{display:none;}
   .booking-tag-time{font-size:3rem;}
   /* Intro mobile */
+  .ib-title{
+    flex-direction:column;
+    align-items:center;
+    gap:0.12em;
+    letter-spacing:clamp(3px,1.8vw,10px);
+    font-size:clamp(1.65rem,11vw,2.75rem);
+  }
+  .ib-title-word{margin-right:0;justify-content:center;}
   .ib-ring-wrap{width:88px;height:88px;margin-bottom:24px;}
   .ib-mono svg{width:40px;height:40px;}
-  .ib-line-wrap{width:220px;}
-  .ib-sub{font-size:.48rem;letter-spacing:4px;margin-bottom:28px;}
+  .ib-line-wrap{width:min(240px,86vw);margin-left:auto;margin-right:auto;}
+  .ib-sub{font-size:.48rem;letter-spacing:3px;margin-bottom:28px;padding:0 12px;line-height:1.4;}
+  .ib-sub::before,.ib-sub::after{margin:0 6px;}
   .ib-corner{width:44px;height:44px;top:20px;left:20px;}
   .ib-corner.tr{top:20px;right:20px;left:auto;}
   .ib-corner.bl{bottom:20px;left:20px;top:auto;}
   .ib-corner.br{bottom:20px;right:20px;top:auto;left:auto;}
-  .ib-title-word{margin-right:10px;}
 }
 @media (min-width:761px) and (max-width:960px){
   .hero{min-height:460px;}
@@ -1594,12 +1632,14 @@ body.admin-on #logPanel{display:block;}
   .hero{min-height:540px;}
   .hero-visual::after{background:linear-gradient(to right,transparent 55%,rgba(30,20,20,.45) 100%);}
   .nav-float{
-    top:20px;bottom:auto;
+    top:max(20px,env(safe-area-inset-top,20px));
+    bottom:auto;
     left:auto;right:max(20px,calc((100vw - 1200px)/2 + 16px));
-    transform:none;width:auto;
+    transform:none;width:auto;flex-wrap:nowrap;
+    max-width:none;
   }
   #userNav,#adminNav{width:auto;}
-  .nav-btn,.nav-admin-btn{flex:none;}
+  .nav-btn,.nav-admin-btn{flex:none;min-width:0;}
 }
 </style>
 </head>
