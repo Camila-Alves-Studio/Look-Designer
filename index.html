@@ -1065,9 +1065,13 @@ body.admin-on::after{
   cursor:pointer;padding:10px 16px;border-radius:16px;
   transition:all .25s;min-height:42px;
 }
-#adminNav{display:none;gap:4px;}
+#userNav{
+  display:flex;flex-wrap:nowrap;gap:4px;align-items:center;
+  width:100%;min-width:0;box-sizing:border-box;
+}
+#adminNav{display:none;gap:4px;align-items:center;flex-wrap:nowrap;width:100%;min-width:0;box-sizing:border-box;}
 body.admin-on #adminNav{display:flex;}
-body.admin-on #userNav{display:none;}
+body.admin-on #userNav{display:none !important;}
 
 /* ── OVERLAY / SHEET ─────────────────────────────────────── */
 .overlay{
@@ -1573,29 +1577,43 @@ body.admin-on #logPanel{display:block;}
   .export-btn{width:100%;justify-content:flex-start;}
   .sig-section{padding:28px 20px;}
   .nav-float{
-    width:calc(100% - 20px);
+    left:max(10px,env(safe-area-inset-left,10px));
+    right:max(10px,env(safe-area-inset-right,10px));
+    width:auto;
+    max-width:none;
     bottom:max(12px,env(safe-area-inset-bottom,12px));
-    left:50%;
-    transform:translateX(-50%);
-    padding:6px 6px max(6px,env(safe-area-inset-bottom,6px));
-    gap:6px;
+    transform:none;
+    padding:8px 8px max(8px,env(safe-area-inset-bottom,8px));
+    gap:0;
+    justify-content:stretch;
   }
-  #userNav,#adminNav{
-    width:100%;
-    justify-content:center;
-    flex-wrap:wrap;
-    align-items:center;
+  /* JS não deve usar style.display no #userNav — grid aqui não pode ser sobrescrito por inline flex */
+  #userNav{
+    display:grid !important;
+    grid-template-columns:repeat(auto-fit,minmax(0,1fr));
+    gap:8px;
+    align-items:stretch;
+    flex-wrap:unset;
+  }
+  body.admin-on #adminNav{
+    display:grid !important;
+    grid-template-columns:repeat(3,minmax(0,1fr));
     gap:6px;
-    row-gap:8px;
-    min-width:0;
+    flex-wrap:unset;
   }
   .nav-btn,.nav-admin-btn{
-    flex:1 1 auto;
-    min-width:min(104px,28vw);
-    max-width:100%;
-    padding:9px 10px;
-    font-size:.54rem;
-    letter-spacing:1px;
+    width:100%;
+    min-width:0;
+    max-width:none;
+    flex:none;
+    padding:10px 8px;
+    font-size:.52rem;
+    letter-spacing:.5px;
+    white-space:normal;
+    text-align:center;
+    line-height:1.15;
+    min-height:44px;
+    box-sizing:border-box;
   }
   .proc-gallery-slide img{height:220px;}
   .f-cols{grid-template-columns:1fr;}
@@ -1861,12 +1879,12 @@ body.admin-on #logPanel{display:block;}
 
 <!-- FLOAT NAV -->
 <nav class="nav-float">
-  <div id="userNav" style="display:flex;gap:4px;align-items:center;">
+  <div id="userNav">
     <button class="nav-btn" onclick="scrollToTop()">Início</button>
     <button class="nav-admin-btn" onclick="promptAdmin()">🔐 Admin</button>
     <button id="backToAdminBtn" class="nav-btn" onclick="toggleUserView()" style="display:none;color:var(--rose);">🛠 Admin</button>
   </div>
-  <div id="adminNav" style="gap:4px;align-items:center;">
+  <div id="adminNav">
     <button id="syncBtn" class="nav-btn primary" onclick="syncData()">↻ Atualizar</button>
     <button class="nav-btn" onclick="toggleUserView()" style="border:1px solid var(--gold);color:var(--gold);">👁 Cliente</button>
     <button class="nav-btn" onclick="logoutAdmin()" style="color:var(--rose);">Sair</button>
@@ -2639,7 +2657,7 @@ function openHistoricoSheet(){const past=getPastBookings().slice(0,80);const htm
 function promptAdmin(){const p=prompt('Senha do painel administrativo:');if(p){adminPass=p;localStorage.setItem('look_admin_pass',p);syncData();}}
 function logoutAdmin(){if(!confirm('Sair e remover senha salva?'))return;adminPass='';isAdmin=false;localStorage.removeItem('look_admin_pass');clearSelection();updateAppMode();if(currentDay)renderGrid(currentDay);}
 function toggleUserView(){isUserView=!isUserView;updateAppMode();if(currentDay)renderGrid(currentDay);renderMyBookingBanner();}
-function updateAppMode(){const body=document.body;const aN=document.getElementById('adminNav');const uN=document.getElementById('userNav');const navAdminBtn=document.querySelector('.nav-admin-btn');const backBtn=document.getElementById('backToAdminBtn');if(isAdmin&&!isUserView){body.classList.add('admin-on');if(backBtn)backBtn.style.display='none';if(navAdminBtn)navAdminBtn.style.display='none';if(aN)aN.style.display='flex';if(uN)uN.style.display='none';setupAdminStats();}else{body.classList.remove('admin-on');if(aN)aN.style.display='none';if(uN)uN.style.display='flex';if(isAdmin&&backBtn){backBtn.style.display='block';if(navAdminBtn)navAdminBtn.style.display='none';}else{if(backBtn)backBtn.style.display='none';if(navAdminBtn)navAdminBtn.style.display='';}}updateDayExportButton();try{setupAdminNotifications();}catch{}}
+function updateAppMode(){const body=document.body;const aN=document.getElementById('adminNav');const uN=document.getElementById('userNav');const navAdminBtn=document.querySelector('.nav-admin-btn');const backBtn=document.getElementById('backToAdminBtn');if(isAdmin&&!isUserView){body.classList.add('admin-on');if(backBtn)backBtn.style.display='none';if(navAdminBtn)navAdminBtn.style.display='none';setupAdminStats();}else{body.classList.remove('admin-on');if(isAdmin&&backBtn){backBtn.style.display='block';if(navAdminBtn)navAdminBtn.style.display='none';}else{if(backBtn)backBtn.style.display='none';if(navAdminBtn)navAdminBtn.style.display='';}}if(uN)uN.style.removeProperty('display');if(aN)aN.style.removeProperty('display');updateDayExportButton();try{setupAdminNotifications();}catch{}}
 function setupAdminStats(){const wO=document.getElementById('wrapOcupado'),wA=document.getElementById('wrapAguard'),wN=document.getElementById('wrapNext');if(wO)wO.onclick=openAgendadosSheet;if(wA)wA.onclick=openHistoricoSheet;if(wN)wN.onclick=openProximoSheet;}
 function updateAdminStats(){if(!isAdmin||isUserView)return;const target=currentDay||getManausIsoDate(new Date());const recs=db.filter(r=>String(r.data).substring(0,10)===target);const[sH,sM]=srvCfg.start.split(':').map(Number);const[eH,eM]=srvCfg.end.split(':').map(Number);const totalSlots=Math.max(0,Math.ceil(((eH*60+eM)-(sH*60+sM))/30));const ocupado=recs.filter(r=>r.status==='Ocupado').length;const bloqueado=recs.filter(r=>r.status==='Bloqueado').length;const livre=Math.max(0,totalSlots-ocupado-bloqueado);const hist=getPastBookings().length;const next=getNextOccupiedBooking();const el=(id,v)=>{const n=document.getElementById(id);if(n)n.textContent=v;};el('statLivre',livre);el('statOcupado',ocupado);el('statAguard',hist);el('statPix','R$ '+(srvCfg.pix_value||'0.00'));el('statNext',next?next.horario:'—');}
 
