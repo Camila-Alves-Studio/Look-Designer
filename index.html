@@ -438,6 +438,68 @@ body{
 }
 .btn-back-proc:hover{background:var(--blush);}
 
+/* ── PORTFOLIO / LOCATION ───────────────────────────── */
+.portfolio-shell{
+  display:grid;grid-template-columns:minmax(0,1.5fr) minmax(280px,.9fr);
+  gap:20px;align-items:start;
+}
+.portfolio-board,.location-card-public{
+  background:var(--white);border:1px solid var(--border);
+  border-radius:18px;box-shadow:var(--sh);
+}
+.portfolio-board{padding:24px;}
+.portfolio-head{
+  display:flex;align-items:flex-end;justify-content:space-between;
+  gap:14px;margin-bottom:18px;
+}
+.portfolio-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.9rem;font-weight:400;color:var(--ink);line-height:1.05;
+}
+.portfolio-sub{font-size:.76rem;color:var(--ink-lt);max-width:44ch;}
+.portfolio-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;}
+.portfolio-card{
+  border:none;padding:0;background:linear-gradient(180deg,#fff 0%,#f8f1eb 100%);
+  border-radius:14px;overflow:hidden;text-align:left;cursor:pointer;
+  box-shadow:0 10px 28px rgba(30,20,20,.07);
+  transition:transform .24s var(--ease),box-shadow .24s var(--ease);
+}
+.portfolio-card:hover{transform:translateY(-3px);box-shadow:var(--sh-md);}
+.portfolio-shot{height:190px;background:var(--blush);overflow:hidden;}
+.portfolio-shot img{width:100%;height:100%;object-fit:cover;display:block;cursor:zoom-in;}
+.portfolio-copy{padding:14px 15px 16px;}
+.portfolio-kicker{
+  font-size:.52rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+  color:var(--gold);margin-bottom:5px;
+}
+.portfolio-name{font-size:.92rem;font-weight:600;color:var(--ink);margin-bottom:4px;}
+.portfolio-meta{font-size:.72rem;color:var(--ink-lt);}
+.portfolio-empty{
+  grid-column:1/-1;padding:28px;border-radius:14px;background:var(--cream);
+  border:1px dashed var(--border);text-align:center;color:var(--ink-lt);font-size:.85rem;
+}
+.location-card-public{padding:22px;position:sticky;top:92px;}
+.location-kicker{
+  font-size:.58rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;
+  color:var(--gold);margin-bottom:8px;
+}
+.location-title{
+  font-family:'Cormorant Garamond',serif;font-size:1.55rem;
+  color:var(--ink);line-height:1.05;margin-bottom:10px;
+}
+.location-text{font-size:.8rem;color:var(--ink-mid);line-height:1.7;margin-bottom:14px;}
+.location-map{
+  width:100%;height:220px;border:0;border-radius:14px;background:var(--cream);
+  margin-bottom:14px;
+}
+.location-actions{display:flex;flex-wrap:wrap;gap:10px;}
+.location-btn{
+  border:1px solid var(--border);background:var(--white);color:var(--deep-rose);
+  border-radius:10px;padding:11px 14px;font-family:'Outfit',sans-serif;
+  font-size:.72rem;font-weight:700;text-decoration:none;cursor:pointer;
+}
+.location-btn.primary{background:var(--ink);color:#fff;border-color:var(--ink);}
+
 /* ── BOOKING ─────────────────────────────────────────────── */
 #bookingSection{display:none;}
 
@@ -1472,6 +1534,10 @@ body.admin-on #logPanel{display:block;}
   .admin-stats{grid-template-columns:repeat(3,1fr);}
   .admin-stats .stat-item:nth-child(4),
   .admin-stats .stat-item:nth-child(5){display:none;}
+  .portfolio-shell{grid-template-columns:1fr;}
+  .portfolio-grid{grid-template-columns:1fr;}
+  .portfolio-shot{height:200px;}
+  .location-card-public{position:static;}
   .grid-head{flex-direction:column;align-items:stretch;}
   .grid-head-right{justify-content:flex-end;}
   .export-btn{width:100%;justify-content:flex-start;}
@@ -1612,6 +1678,38 @@ body.admin-on #logPanel{display:block;}
     </div>
   </section>
 
+  <!-- PORTFOLIO -->
+  <section id="portfolioSection" style="display:none;">
+    <div class="sec-hdr">
+      <div class="sec-hdr-line"></div>
+      <div class="sec-hdr-label">✦ Portfólio e Localização ✦</div>
+      <div class="sec-hdr-line"></div>
+    </div>
+    <div class="portfolio-shell">
+      <div class="portfolio-board">
+        <div class="portfolio-head">
+          <div>
+            <div class="portfolio-title">Resultados que valorizam o olhar</div>
+            <div class="portfolio-sub">Uma seleção visual dos procedimentos cadastrados no studio. Toque em qualquer card para abrir os detalhes do serviço correspondente.</div>
+          </div>
+        </div>
+        <div class="portfolio-grid" id="portfolioGrid">
+          <div class="portfolio-empty">Carregando portfólio...</div>
+        </div>
+      </div>
+      <aside class="location-card-public">
+        <div class="location-kicker">Como chegar</div>
+        <div class="location-title" id="locationCardTitle">Look Designer · Manaus</div>
+        <div class="location-text">Agenda e catálogo no mesmo sistema, com acesso rápido à rota do studio para facilitar a confirmação com a cliente.</div>
+        <iframe class="location-map" id="locationEmbed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
+        <div class="location-actions">
+          <a class="location-btn primary" id="locationOpenBtn" href="https://maps.app.goo.gl/VR7GobrFJEyGLrrw8" target="_blank" rel="noopener noreferrer">Abrir no Maps</a>
+          <button class="location-btn" type="button" onclick="focusBooking()">Agendar agora</button>
+        </div>
+      </aside>
+    </div>
+  </section>
+
   <!-- BOOKING -->
   <section id="bookingSection">
     <div class="sec-hdr">
@@ -1675,6 +1773,8 @@ body.admin-on #logPanel{display:block;}
       <div class="admin-card" onclick="openServicosAdmin()"><span class="ac-ico">💅</span><div class="ac-lbl">Serviços</div><div class="ac-desc">Abas e procedimentos do studio</div></div>
       <div class="admin-card" onclick="openMidiaAdmin()"><span class="ac-ico">🖼️</span><div class="ac-lbl">Tela Principal</div><div class="ac-desc">Foto ou vídeo de apresentação</div></div>
       <div class="admin-card" onclick="openBlockPanel()"><span class="ac-ico">🔒</span><div class="ac-lbl">Bloqueios</div><div class="ac-desc">Folgas e horários indisponíveis</div></div>
+      <div class="admin-card" onclick="openLocationAdmin()"><span class="ac-ico">📍</span><div class="ac-lbl">Localização</div><div class="ac-desc">Link do Maps e referência do studio</div></div>
+      <div class="admin-card" onclick="openTextosAdmin()"><span class="ac-ico">TXT</span><div class="ac-lbl">Textos e Logo</div><div class="ac-desc">Textos da tela principal e portfólio</div></div>
     </div>
     <div style="text-align:center;margin-top:4px;">
       <button class="nav-btn" onclick="logoutAdmin()" style="color:var(--rose);font-size:.62rem;">Sair do painel</button>
@@ -1781,7 +1881,37 @@ const CFG = {
 };
 const APP_TIME_ZONE = 'America/Manaus';
 const EMOJIS = ['👁','✨','💆','💅','🌸','🌺','💄','💋','🪷','🌷','⭐','✦','🦋','🌟','💎','🪞','🧖','🧴','🪄','🎀','🌙','☀️','🌈','🍃','🌿','🪻','💐','🌻','🫧','🧸'];
-const CACHE = { abas: 'look_abas_v1', procs: 'look_procs_v1' };
+const CACHE = { abas: 'look_abas_v1', procs: 'look_procs_v1', location: 'look_location_v1' };
+const DEFAULT_LOCATION = {
+  url: 'https://maps.app.goo.gl/VR7GobrFJEyGLrrw8',
+  titulo: 'Look Designer · Manaus'
+};
+const SITE_TEXTS_KEY='look_site_texts_v1';
+const DEFAULT_SITE_TEXTS={
+  topbarTag:'Studio de Cílios',
+  heroTitle:'Studio de Cílios em Manaus',
+  heroDesc:'Transformação do olhar com técnica, cuidado e os melhores materiais. Agende seu horário diretamente pelo site.',
+  heroPrimary:'Agendar horário',
+  heroSecondary:'Ver serviços',
+  navCatalog:'Catálogo',
+  navCatalogSub:'serviço(s) no studio',
+  navPortfolio:'Portfólio',
+  navPortfolioSub:'Fotos, resultados e localização',
+  navBooking:'Agendamento',
+  navBookingSub:'Escolha data e horário',
+  servicesLabel:'Nossos Serviços',
+  portfolioLabel:'Portfólio e Localização',
+  portfolioTitle:'Resultados que valorizam o olhar',
+  portfolioSub:'Uma seleção visual dos procedimentos cadastrados no studio. Toque em qualquer card para abrir os detalhes do serviço correspondente.',
+  locationKicker:'Como chegar',
+  locationText:'Agenda e catálogo no mesmo sistema, com acesso rápido à rota do studio para facilitar a confirmação com a cliente.',
+  mapsButton:'Abrir no Maps',
+  bookingButton:'Agendar agora',
+  bookingLabel:'Escolha sua data',
+  sigName:'Camila Alves',
+  sigRole:'Gerente · Studio de Cílios',
+  sigButton:'Falar com a Camila'
+};
 
 // ════════════════════════════════════════════════════
 //  ESTADO
@@ -1793,6 +1923,7 @@ let isAdmin=false,isUserView=false;
 let currentDay="",selectedSlots=new Set();
 let publicMainTab='catalogo',abaPublicaAtiva='';
 let ABAS=[],PROCS=[];
+let LOCATION_CFG={...DEFAULT_LOCATION};
 let abaAtiva=null,procFotos=[],imgPend=[],imgAtivaIdx=0;
 let procTagsDraft=[];
 let confirmCb=null,selectedDur=0;
@@ -1830,6 +1961,24 @@ function toast(msg,type='ok',dur=3000){const w=document.getElementById('toastWra
 function focusPublicSection(tab){setPublicMainTab(tab);const id=tab==='agendamento'?'bookingSection':'servicesSection';setTimeout(()=>{document.getElementById(id)?.scrollIntoView({behavior:'smooth',block:'start'});},120);}
 function focusCatalog(){focusPublicSection('catalogo');}
 function focusBooking(){focusPublicSection('agendamento');}
+function htmlEsc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+function readLocationCache(){const cached=cacheRead(CACHE.location,null)||{};return{url:(cached.url||DEFAULT_LOCATION.url).trim()||DEFAULT_LOCATION.url,titulo:(cached.titulo||DEFAULT_LOCATION.titulo).trim()||DEFAULT_LOCATION.titulo};}
+function writeLocationCache(cfg){cacheWrite(CACHE.location,{url:(cfg?.url||'').trim(),titulo:(cfg?.titulo||'').trim()});}
+function buildLocationEmbedUrl(url){const u=(url||DEFAULT_LOCATION.url).trim();if(/\/embed\?/.test(u))return u;if(/google\.[^/]+\/maps/.test(u))return u.replace('/maps/','/maps/embed/');return `https://www.google.com/maps?q=${encodeURIComponent(u)}&output=embed`;}
+function getSiteTexts(){let saved={};try{saved=JSON.parse(localStorage.getItem(SITE_TEXTS_KEY)||'{}')||{};}catch{}return{...DEFAULT_SITE_TEXTS,...saved};}
+function setText(sel,val){const el=document.querySelector(sel);if(el&&val!==undefined)el.textContent=val;}
+function applySiteTexts(){
+  const T=getSiteTexts();
+  document.title='LOOK DESIGNER | '+T.topbarTag;
+  setText('.topbar-tag',T.topbarTag);
+  const heroTitle=document.querySelector('.hero-title');if(heroTitle)heroTitle.innerHTML=htmlEsc(T.heroTitle).replace(/Cílios|Cilios/i,m=>`<em>${m}</em>`);
+  setText('.hero-desc',T.heroDesc);
+  const heroBtns=document.querySelectorAll('.hero-btn');if(heroBtns[0])heroBtns[0].textContent=T.heroPrimary;if(heroBtns[1])heroBtns[1].textContent=T.heroSecondary;
+  const labels=document.querySelectorAll('.sec-hdr-label');if(labels[0])labels[0].textContent='✦ '+T.servicesLabel+' ✦';if(labels[1])labels[1].textContent='✦ '+T.portfolioLabel+' ✦';if(labels[2])labels[2].textContent='✦ '+T.bookingLabel+' ✦';
+  setText('.portfolio-title',T.portfolioTitle);setText('.portfolio-sub',T.portfolioSub);setText('.location-kicker',T.locationKicker);setText('.location-text',T.locationText);
+  const locBtns=document.querySelectorAll('.location-btn');if(locBtns[0])locBtns[0].textContent=T.mapsButton;if(locBtns[1])locBtns[1].textContent=T.bookingButton;
+  setText('.sig-name',T.sigName);setText('.sig-role',T.sigRole);const sig=document.getElementById('sigWa');if(sig)sig.textContent='💬 '+T.sigButton;
+}
 
 // EXPORT IMAGE
 function getAvailableSlotsForDay(iso){const now=new Date(),todayIso=formatLocalIsoDate(now),curMins=now.getHours()*60+now.getMinutes();const[sH,sM]=srvCfg.start.split(':').map(Number),[eH,eM]=srvCfg.end.split(':').map(Number);let cur=sH*60+sM,end=eH*60+eM;const slots=[];while(cur<end){const hh=String(Math.floor(cur/60)).padStart(2,'0'),mm=String(cur%60).padStart(2,'0'),clock=`${hh}:${mm}`;const isPast=(iso<todayIso)||(iso===todayIso&&cur<curMins);const reg=db.find(r=>String(r.data).substring(0,10)===iso&&String(r.horario).substring(0,5)===clock);let st=reg?reg.status:'Livre',durMin=reg?parseInt(reg.duration||srvCfg.duration):srvCfg.duration;const reservedUntil=reg?reg.reservedUntil:null;let isExpired=false;if(st==='Aguardando Pagamento'&&reservedUntil&&new Date()>new Date(reservedUntil))isExpired=true;if(st==='Aguardando Pagamento'&&isExpired)st='Livre';if(st==='Livre'){const nextOcc=db.filter(r=>String(r.data).substring(0,10)===iso&&r.status!=='Livre').map(r=>{const[h,m]=String(r.horario).substring(0,5).split(':').map(Number);return h*60+m;}).filter(m=>m>cur).sort((a,b)=>a-b)[0];if(nextOcc){const gap=nextOcc-cur;if(gap<durMin)durMin=gap;}if(!isPast)slots.push(clock);}cur+=Math.max(30,durMin||30);}return slots;}
@@ -1872,7 +2021,10 @@ async function syncData(){
     await new Promise((res,rej)=>{
       const s=document.createElement('script');
       window[cb]=r=>{delete window[cb];s.remove();if(r.status==='OK')res(r);else rej();};
-      s.src=`${CFG.API_URL}?pass=${encodeURIComponent(adminPass)}&_t=${Date.now()}&callback=${cb}`;
+      let savedToken='';
+      try{savedToken=JSON.parse(localStorage.getItem('last_booking_v3')||'null')?.token||'';}catch{}
+      const tokenParam=savedToken?`&client_token=${encodeURIComponent(savedToken)}`:'';
+      s.src=`${CFG.API_URL}?pass=${encodeURIComponent(adminPass)}${tokenParam}&_t=${Date.now()}&callback=${cb}`;
       s.onerror=rej;document.body.appendChild(s);setTimeout(rej,10000);
     }).then(r=>{
       db=r.agenda||[];systemLogs=r.logs||[];srvCfg=r.config||srvCfg;isAdmin=!!r.isAdmin;
@@ -1880,7 +2032,7 @@ async function syncData(){
         const saved=localStorage.getItem('last_booking_v3');
         if(saved){
           const bk=JSON.parse(saved);
-          const still=db.find(x=>x.codigo===bk.token&&x.status==='Ocupado');
+          const still=db.find(x=>String(x.codigo||'')===String(bk.token||'')&&x.status==='Ocupado');
           if(!still)clearClientBlock();
         }
       }
@@ -1896,9 +2048,11 @@ async function initApp(){
   const ca=cacheRead(CACHE.abas,null),cp=cacheRead(CACHE.procs,null);
   if(Array.isArray(ca)&&ca.length)ABAS=ca;
   if(Array.isArray(cp)&&cp.length)PROCS=cp;
+  LOCATION_CFG=readLocationCache();
+  applySiteTexts();
   applyCachedMedia();
-  await Promise.all([syncData(),loadAbas(),loadProcs(),loadMediaConfig()]);
-  renderServicesTabs();setPublicMainTab(publicMainTab);
+  await Promise.all([syncData(),loadAbas(),loadProcs(),loadMediaConfig(),loadLocationConfig(),loadSiteTexts()]);
+  renderServicesTabs();renderPortfolioSection();setPublicMainTab(publicMainTab);applySiteTexts();
 }
 
 // ════════════════════════════════════════════════════
@@ -1968,6 +2122,8 @@ function openMyBookingDetail(){
 async function loadAbas(){try{const d=await gasCall({aba:'ABAS'});ABAS=(d||[]).map((r,i)=>({id:r.col1||String(i+1),nome:r.col2||r.col1||'',emoji:r.col3||'✦'})).filter(a=>a.nome&&a.nome!=='Nome'&&a.emoji!=='Emoji'&&a.id!=='ID');}catch{if(!ABAS.length)ABAS=[];}cacheWrite(CACHE.abas,ABAS);}
 async function loadProcs(){try{const d=await gasCall({aba:'PROCEDIMENTOS'});PROCS=(d||[]).map(r=>{const fotos=parseFotos(r.col8||'');return{id:r.col14||r.rowId||makeId('proc'),aba:r.col1||'',nome:r.col2||'',descricao:r.col3||'',valor:r.col4||'',duracao:r.col5||'',fixacao:r.col6||'',tags:parseProcTags(r.col7||''),imagem:fotos[0]||'',fotos,imgPosY:parseInt(r.col9||'50'),imgAltura:parseInt(r.col10||'145'),temManut:r.col11==='true',manutPrazo:r.col12||'',manutValor:r.col13||''};}).filter(p=>p.nome&&p.nome!=='Nome'&&p.aba!=='Aba');}catch{if(!PROCS.length)PROCS=[];}cacheWrite(CACHE.procs,PROCS);}
 async function loadMediaConfig(){try{const dm=await gasCall({aba:'MIDIA_CONFIG'});const tipo=dm?.[0]?.col1||localStorage.getItem('look_midia_tipo')||'video';if(tipo==='foto'){const[df,dc]=await Promise.all([gasCall({aba:'FOTO'}),gasCall({aba:'FOTO_CONFIG'})]);const url=df?.[0]?.col1||localStorage.getItem('look_foto_url')||'';const posY=parseInt(dc?.[0]?.col1??localStorage.getItem('look_foto_posY')??50);const alt=parseInt(dc?.[0]?.col2??localStorage.getItem('look_foto_alt')??420);if(url){saveCachedMedia('foto',url,posY,alt);applyMedia('foto',url,posY,alt);}}else{const dv=await gasCall({aba:'VIDEO'});const url=dv?.[0]?.col1||localStorage.getItem('look_video_url')||'';if(url){saveCachedMedia('video',url);applyMedia('video',url);}}}catch{applyCachedMedia();}}
+async function loadLocationConfig(){const fallback=readLocationCache();try{const d=await gasCall({aba:'LOCALIZACAO'});const row=(d&&d[0])||{};LOCATION_CFG={url:(row.col1||fallback.url||DEFAULT_LOCATION.url).trim()||DEFAULT_LOCATION.url,titulo:(row.col2||fallback.titulo||DEFAULT_LOCATION.titulo).trim()||DEFAULT_LOCATION.titulo};}catch{LOCATION_CFG=fallback;}writeLocationCache(LOCATION_CFG);}
+async function loadSiteTexts(){try{const d=await gasCall({aba:'SITE_TEXTOS'});const raw=d?.[0]?.col1||'';if(raw)localStorage.setItem(SITE_TEXTS_KEY,raw);}catch{}applySiteTexts();}
 function applyCachedMedia(){const tipo=localStorage.getItem('look_midia_tipo')||'video';if(tipo==='foto'){const url=localStorage.getItem('look_foto_url')||'';if(url)applyMedia('foto',url,parseInt(localStorage.getItem('look_foto_posY')||'50'),parseInt(localStorage.getItem('look_foto_alt')||'420'));}else{const url=localStorage.getItem('look_video_url')||'';if(url)applyMedia('video',url);}}
 function saveCachedMedia(tipo,url,posY,alt){try{localStorage.setItem('look_midia_tipo',tipo);if(tipo==='foto'){localStorage.setItem('look_foto_url',url);localStorage.setItem('look_foto_posY',posY||50);localStorage.setItem('look_foto_alt',alt||420);}else{localStorage.setItem('look_video_url',url);}}catch{}}
 function applyMedia(tipo,url,posY,alt){
@@ -2001,17 +2157,58 @@ async function deleteProc(id){await gasPost('deleteProc',{id});await loadProcs()
 async function renameProcAba(old,neu){await gasPost('renameProcAba',{oldName:old,newName:neu});}
 async function deleteAbaProcs(nome){await gasPost('deleteAbaProcs',{abaNome:nome});}
 async function persistMedia(tipo,url,posY,alt){if(tipo==='foto'){await gasPost('setFoto',{url});await gasPost('setMidiaConfig',{tipoMidia:'foto'});await gasPost('setFotoConfig',{posY,altura:alt});saveCachedMedia('foto',url,posY,alt);}else{await gasPost('setVideo',{url});await gasPost('setMidiaConfig',{tipoMidia:'video'});saveCachedMedia('video',url);}}
+async function saveLocationConfig(url,titulo){LOCATION_CFG={url:(url||DEFAULT_LOCATION.url).trim()||DEFAULT_LOCATION.url,titulo:(titulo||DEFAULT_LOCATION.titulo).trim()||DEFAULT_LOCATION.titulo};writeLocationCache(LOCATION_CFG);renderPortfolioSection();await gasPost('setLocalizacao',LOCATION_CFG);}
+function saveSiteTexts(obj){localStorage.setItem(SITE_TEXTS_KEY,JSON.stringify(obj));applySiteTexts();gasPost('setSiteTextos',{dados:JSON.stringify(obj)}).catch(()=>toast('Textos salvos neste aparelho. Publique o Apps Script para sincronizar.','warn'));}
 
 // ════════════════════════════════════════════════════
 //  SERVICES PUBLIC
 // ════════════════════════════════════════════════════
-function renderPublicMainNav(){const wrap=document.getElementById('publicMainNav');if(!wrap)return;const note=document.getElementById('publicMainNote');const hasCatalogo=ABAS.length>0;wrap.innerHTML=`<button class="main-nav-btn" data-tab="catalogo" onclick="setPublicMainTab('catalogo')"${hasCatalogo?'':' disabled'}><span class="nav-ico">✦</span><span class="nav-copy"><strong>Catálogo</strong><small>${hasCatalogo?`${PROCS.length} serviço${PROCS.length!==1?'s':''} no studio`:'Em atualização'}</small></span></button><button class="main-nav-btn" data-tab="agendamento" onclick="setPublicMainTab('agendamento')"><span class="nav-ico">🗓</span><span class="nav-copy"><strong>Agendamento</strong><small>Escolha data e horário</small></span></button>`;if(note)note.textContent=hasCatalogo?'':'Catálogo em atualização. O agendamento continua disponível.';}
-function refreshPublicMainSections(){const catalog=document.getElementById('servicesSection');const booking=document.getElementById('bookingSection');if(catalog)catalog.style.display=(publicMainTab==='catalogo'&&ABAS.length)?'block':'none';if(booking)booking.style.display=publicMainTab==='agendamento'?'block':'none';}
-function setPublicMainTab(tab){const hasCatalogo=ABAS.length>0;publicMainTab=tab==='agendamento'?'agendamento':'catalogo';if(publicMainTab==='catalogo'&&!hasCatalogo)publicMainTab='agendamento';document.querySelectorAll('.main-nav-btn').forEach(btn=>btn.classList.toggle('active',btn.getAttribute('data-tab')===publicMainTab));refreshPublicMainSections();if(publicMainTab==='catalogo'&&ABAS.length){const alvo=ABAS.some(a=>a.nome===abaPublicaAtiva)?abaPublicaAtiva:ABAS[0].nome;if(alvo)showServico(alvo);}}
-function renderServicesTabs(){const wrap=document.getElementById('servicesTabs');const panel=document.getElementById('srvPanel');renderPublicMainNav();if(!ABAS.length){if(publicMainTab==='catalogo')publicMainTab='agendamento';wrap.innerHTML='';panel.innerHTML=`<div class="srv-empty"><div class="srv-empty-ico">✦</div><p>Cadastre categorias para montar seu catálogo.</p></div>`;refreshPublicMainSections();return;}wrap.innerHTML=ABAS.map(a=>{const cnt=PROCS.filter(p=>p.aba===a.nome).length;return `<div class="srv-tab" data-aba="${a.nome}" onclick="showServico('${a.nome}')"><div class="srv-tab-ico">${a.emoji}</div><div class="srv-tab-name">${a.nome}</div><div class="srv-tab-cnt">${cnt} serviço${cnt!==1?'s':''}</div></div>`;}).join('');if(!ABAS.some(a=>a.nome===abaPublicaAtiva))abaPublicaAtiva=ABAS[0].nome;refreshPublicMainSections();if(publicMainTab==='catalogo'&&abaPublicaAtiva)showServico(abaPublicaAtiva);}
+function renderPublicMainNav(){const wrap=document.getElementById('publicMainNav');if(!wrap)return;const T=getSiteTexts();const note=document.getElementById('publicMainNote');const hasCatalogo=ABAS.length>0;const hasPortfolio=PROCS.some(p=>parseFotos(p.fotos||p.imagem).length);wrap.innerHTML=`<button class="main-nav-btn" data-tab="catalogo" onclick="setPublicMainTab('catalogo')"${hasCatalogo?'':' disabled'}><span class="nav-ico">✦</span><span class="nav-copy"><strong>${htmlEsc(T.navCatalog)}</strong><small>${hasCatalogo?`${PROCS.length} ${htmlEsc(T.navCatalogSub)}`:'Em atualização'}</small></span></button><button class="main-nav-btn" data-tab="portfolio" onclick="setPublicMainTab('portfolio')"${hasPortfolio?'':' disabled'}><span class="nav-ico">🖼</span><span class="nav-copy"><strong>${htmlEsc(T.navPortfolio)}</strong><small>${hasPortfolio?htmlEsc(T.navPortfolioSub):'Sem imagens ainda'}</small></span></button><button class="main-nav-btn" data-tab="agendamento" onclick="setPublicMainTab('agendamento')"><span class="nav-ico">📅</span><span class="nav-copy"><strong>${htmlEsc(T.navBooking)}</strong><small>${htmlEsc(T.navBookingSub)}</small></span></button>`;if(note)note.textContent=hasCatalogo?'':'Catálogo em atualização. O agendamento continua disponível.';}
+function refreshPublicMainSections(){const catalog=document.getElementById('servicesSection');const portfolio=document.getElementById('portfolioSection');const booking=document.getElementById('bookingSection');if(catalog)catalog.style.display=(publicMainTab==='catalogo'&&ABAS.length)?'block':'none';if(portfolio)portfolio.style.display=(publicMainTab==='portfolio')?'block':'none';if(booking)booking.style.display=publicMainTab==='agendamento'?'block':'none';}
+function setPublicMainTab(tab){const hasCatalogo=ABAS.length>0;const hasPortfolio=PROCS.some(p=>parseFotos(p.fotos||p.imagem).length);publicMainTab=['catalogo','portfolio','agendamento'].includes(tab)?tab:'catalogo';if(publicMainTab==='catalogo'&&!hasCatalogo)publicMainTab=hasPortfolio?'portfolio':'agendamento';if(publicMainTab==='portfolio'&&!hasPortfolio)publicMainTab=hasCatalogo?'catalogo':'agendamento';document.querySelectorAll('.main-nav-btn').forEach(btn=>btn.classList.toggle('active',btn.getAttribute('data-tab')===publicMainTab));refreshPublicMainSections();if(publicMainTab==='catalogo'&&ABAS.length){const alvo=ABAS.some(a=>a.nome===abaPublicaAtiva)?abaPublicaAtiva:ABAS[0].nome;if(alvo)showServico(alvo);}if(publicMainTab==='portfolio')renderPortfolioSection();applySiteTexts();}
+function renderServicesTabs(){const wrap=document.getElementById('servicesTabs');const panel=document.getElementById('srvPanel');renderPublicMainNav();renderPortfolioSection();if(!ABAS.length){if(publicMainTab==='catalogo')publicMainTab=PROCS.some(p=>parseFotos(p.fotos||p.imagem).length)?'portfolio':'agendamento';wrap.innerHTML='';panel.innerHTML=`<div class="srv-empty"><div class="srv-empty-ico">✦</div><p>Cadastre categorias para montar seu catálogo.</p></div>`;refreshPublicMainSections();return;}wrap.innerHTML=ABAS.map(a=>{const cnt=PROCS.filter(p=>p.aba===a.nome).length;return `<div class="srv-tab" data-aba="${htmlEsc(a.nome)}" onclick="showServico('${String(a.nome).replace(/'/g,"\\'")}')"><div class="srv-tab-ico">${a.emoji}</div><div class="srv-tab-name">${htmlEsc(a.nome)}</div><div class="srv-tab-cnt">${cnt} serviço${cnt!==1?'s':''}</div></div>`;}).join('');if(!ABAS.some(a=>a.nome===abaPublicaAtiva))abaPublicaAtiva=ABAS[0].nome;refreshPublicMainSections();if(publicMainTab==='catalogo'&&abaPublicaAtiva)showServico(abaPublicaAtiva);applySiteTexts();}
 function showServico(nome){abaPublicaAtiva=nome;document.querySelectorAll('.srv-tab').forEach(t=>t.classList.toggle('active',t.getAttribute('data-aba')===nome));const panel=document.getElementById('srvPanel');const procs=PROCS.filter(p=>p.aba===nome);const emoji=ABAS.find(a=>a.nome===nome)?.emoji||'✦';if(!procs.length){panel.innerHTML=`<div class="srv-panel-head">${emoji} ${nome}</div><div class="srv-rule"></div><div class="srv-empty"><div class="srv-empty-ico">${emoji}</div><p>Nenhum serviço cadastrado ainda.</p></div>`;return;}panel.innerHTML=`<div class="srv-panel-head">${emoji} ${nome}</div><div class="srv-rule"></div><div class="proc-list">`+procs.map(p=>{const idx=PROCS.indexOf(p);const posY=p.imgPosY??50;const thumb=p.imagem?`<div class="proc-thumb"><img src="${mediaImageUrl(p.imagem,'card')}" alt="${p.nome}" style="object-position:center ${posY}%"></div>`:`<div class="proc-thumb">${emoji}</div>`;return `<div class="proc-card" onclick="verProcDetalhe(${idx})">${thumb}<div class="proc-info"><div class="proc-name">${p.nome}</div><div class="proc-meta">${p.valor?formatarValor(p.valor)+' · ':''}${p.duracao||''}</div></div><span class="proc-arrow">›</span></div>`;}).join('')+'</div>';}
 function verProcDetalhe(idx){const p=PROCS[idx];const emoji=ABAS.find(a=>a.nome===p.aba)?.emoji||'✦';const posY=p.imgPosY??50;const alt=p.imgAltura??145;const fotos=(p.fotos&&p.fotos.length?p.fotos:parseFotos(p.imagem)).filter(Boolean);const galeriaHtml=fotos.length?`<div class="proc-gallery"><div class="proc-gallery-track" id="procGalTrack">${fotos.map((u,i)=>`<div class="proc-gallery-slide"><img src="${mediaImageUrl(u,'detail')}" alt="${p.nome} ${i+1}" style="height:${Math.max(alt,200)}px;object-fit:cover;object-position:center ${posY}%;"></div>`).join('')}</div>${fotos.length>1?`<div class="proc-gallery-dots">${fotos.map((_,i)=>`<span class="proc-gallery-dot${i===0?' active':''}"></span>`).join('')}</div>`:''}</div>`:`<div class="proc-gallery"><div class="proc-gallery-slide"><div class="proc-gallery-ph" style="height:120px;">${emoji}</div></div></div>`;const precoHtml=(p.valor||p.temManut)?`<div class="proc-price-grid">${p.valor?`<div class="proc-price-box primary"><div class="proc-price-label">Valor da sessão</div><div class="proc-price-val">${formatarValor(p.valor)}</div></div>`:''}${p.temManut?`<div class="proc-price-box secondary"><div class="proc-price-label">Manutenção</div><div class="proc-price-val">${p.manutValor?formatarValor(p.manutValor):'Consultar'}</div>${p.manutPrazo?`<div style="font-size:.58rem;color:var(--ink-lt);margin-top:2px;">🔄 ${p.manutPrazo}</div>`:''}</div>`:''}</div>`:'';const tags=(p.tags||parseProcTags(p.indicado||'')).map(normalizeProcTag).filter(Boolean);const badgeTags=tags.filter(t=>t.tipo==='marcador');const infoTags=tags.filter(t=>t.tipo!=='marcador').map(t=>({icon:t.tipo==='real'?'💰':'✦',label:getProcTagLabel(t),val:getProcTagValue(t)}));const infos=[p.duracao?{icon:'⏱',label:'Duração',val:p.duracao}:null,p.fixacao?{icon:'📅',label:'Duração do efeito',val:p.fixacao}:null,...infoTags].filter(Boolean);const infosHtml=infos.length?`<div class="proc-info-table">${infos.map(info=>`<div class="proc-info-row"><span class="proc-info-ico">${info.icon}</span><span class="proc-info-lbl">${info.label}</span><span class="proc-info-val">${info.val}</span></div>`).join('')}</div>`:'';const badgesHtml=badgeTags.length?`<div class="proc-badges">${badgeTags.map(tag=>`<div class="proc-badge">${tag.label?tag.label+': ':''}${tag.valor}</div>`).join('')}</div>`:'';const panel=document.getElementById('srvPanel');panel.innerHTML=`${galeriaHtml}<div class="proc-detail-name">${p.nome}</div><div class="proc-detail-cat"><div style="width:22px;height:1px;background:var(--rose);"></div><span>${p.aba}</span></div><p class="proc-detail-text">${p.descricao}</p>${badgesHtml}${precoHtml}${infosHtml}<button class="btn-back-proc" onclick="showServico('${p.aba}')">← Voltar</button>`;ativarGaleriaProc();setTimeout(()=>panel.scrollIntoView({behavior:'smooth',block:'start'}),50);}
 function ativarGaleriaProc(){const track=document.getElementById('procGalTrack');if(!track)return;const dots=Array.from(document.querySelectorAll('.proc-gallery-dot'));let isD=false,sX=0,sS=0;const syncDots=()=>{if(!dots.length)return;const idx=Math.min(dots.length-1,Math.round(track.scrollLeft/Math.max(track.clientWidth,1)));dots.forEach((d,i)=>d.classList.toggle('active',i===idx));};track.addEventListener('scroll',syncDots,{passive:true});track.addEventListener('mousedown',e=>{isD=true;sX=e.pageX;sS=track.scrollLeft;});window.addEventListener('mouseup',()=>{isD=false;});track.addEventListener('mousemove',e=>{if(!isD)return;e.preventDefault();track.scrollLeft=sS-(e.pageX-sX);});}
+
+function renderPortfolioSection(){
+  const grid=document.getElementById('portfolioGrid');if(!grid)return;
+  const title=document.getElementById('locationCardTitle');
+  const iframe=document.getElementById('locationEmbed');
+  const openBtn=document.getElementById('locationOpenBtn');
+  if(title)title.textContent=(LOCATION_CFG.titulo||DEFAULT_LOCATION.titulo).trim()||DEFAULT_LOCATION.titulo;
+  if(iframe)iframe.src=buildLocationEmbedUrl(LOCATION_CFG.url||DEFAULT_LOCATION.url);
+  if(openBtn)openBtn.href=(LOCATION_CFG.url||DEFAULT_LOCATION.url).trim()||DEFAULT_LOCATION.url;
+  const cards=[];const seen=new Set();
+  PROCS.forEach((proc,idx)=>{
+    const fotos=(proc.fotos&&proc.fotos.length?proc.fotos:parseFotos(proc.imagem)).filter(Boolean);
+    fotos.forEach(foto=>{if(seen.has(foto))return;seen.add(foto);cards.push({foto,idx,proc,posY:proc.imgPosY??50});});
+  });
+  if(!cards.length){grid.innerHTML=`<div class="portfolio-empty">Cadastre fotos nos procedimentos para ativar o portfólio visual do Look Designer.</div>`;applySiteTexts();return;}
+  grid.innerHTML=cards.slice(0,12).map(item=>`<button class="portfolio-card" type="button" onclick="verProcDetalhe(${item.idx});setPublicMainTab('catalogo')"><div class="portfolio-shot"><img src="${mediaImageUrl(item.foto,'detail')}" alt="${htmlEsc(item.proc.nome)}" style="object-position:center ${item.posY}%"></div><div class="portfolio-copy"><div class="portfolio-kicker">${htmlEsc(item.proc.aba||'Look Designer')}</div><div class="portfolio-name">${htmlEsc(item.proc.nome)}</div><div class="portfolio-meta">${item.proc.valor?formatarValor(item.proc.valor)+' · ':''}${htmlEsc(item.proc.duracao||'Toque para ver detalhes')}</div></div></button>`).join('');
+  applySiteTexts();
+}
+
+function openLocationAdmin(){
+  openSheet('Localização do Studio','Atualize o link do Maps e a referência exibida no portfólio.');
+  const cfg=LOCATION_CFG||readLocationCache();
+  document.getElementById('sheetBody').innerHTML=`<div class="f-row"><label class="f-lbl">Título de referência</label><input class="f-input" id="locTitleInput" placeholder="Ex: Look Designer · Manaus" value="${htmlEsc(cfg.titulo||DEFAULT_LOCATION.titulo)}"></div><div class="f-row"><label class="f-lbl">Link do Google Maps</label><input class="f-input" id="locUrlInput" placeholder="Cole aqui o link do Maps" value="${htmlEsc(cfg.url||DEFAULT_LOCATION.url)}"></div><div class="info-box" style="margin-top:8px;"><strong>Prévia pública</strong><br>Essa localização aparece na aba Portfólio para a cliente abrir a rota direto pelo celular.</div>`;
+  document.getElementById('sheetActions').innerHTML=`<button class="btn btn-primary" onclick="salvarLocalizacaoAdmin()">Salvar localização</button><button class="btn btn-secondary" onclick="closeSheet()">Cancelar</button>`;
+}
+async function salvarLocalizacaoAdmin(){const title=document.getElementById('locTitleInput')?.value.trim()||DEFAULT_LOCATION.titulo;const url=document.getElementById('locUrlInput')?.value.trim()||DEFAULT_LOCATION.url;await saveLocationConfig(url,title);toast('Localização atualizada!','ok');closeSheet();}
+
+function openTextosAdmin(){
+  const T=getSiteTexts();
+  const f=(k,l)=>`<div class="f-row"><label class="f-lbl">${l}</label><input class="f-input" id="txt_${k}" value="${htmlEsc(T[k]||'')}"></div>`;
+  const a=(k,l)=>`<div class="f-row"><label class="f-lbl">${l}</label><textarea class="f-input" id="txt_${k}" rows="3">${htmlEsc(T[k]||'')}</textarea></div>`;
+  openSheet('Textos e Logo','Edite a tela principal, navegação e portfólio.');
+  document.getElementById('sheetBody').innerHTML=`
+    <div class="f-divider">Topo e apresentação</div>${f('topbarTag','Tag do topo')}${f('heroTitle','Título principal')}${a('heroDesc','Descrição principal')}${f('heroPrimary','Botão principal')}${f('heroSecondary','Botão secundário')}
+    <div class="f-divider">Navegação e seções</div>${f('navCatalog','Aba catálogo')}${f('navCatalogSub','Subtexto catálogo')}${f('navPortfolio','Aba portfólio')}${f('navPortfolioSub','Subtexto portfólio')}${f('navBooking','Aba agendamento')}${f('navBookingSub','Subtexto agendamento')}${f('servicesLabel','Título seção serviços')}${f('bookingLabel','Título seção agenda')}
+    <div class="f-divider">Portfólio e assinatura</div>${f('portfolioLabel','Título seção portfólio')}${f('portfolioTitle','Título do quadro')}${a('portfolioSub','Subtítulo do quadro')}${f('locationKicker','Chamada da localização')}${a('locationText','Texto da localização')}${f('mapsButton','Botão do mapa')}${f('bookingButton','Botão agendar')}${f('sigName','Nome da assinatura')}${f('sigRole','Cargo da assinatura')}${f('sigButton','Botão WhatsApp')}`;
+  document.getElementById('sheetActions').innerHTML='<button class="btn btn-primary" onclick="salvarTextosAdmin()">Salvar textos</button><button class="btn btn-secondary" onclick="closeSheet()">Cancelar</button>';
+}
+function salvarTextosAdmin(){const keys=Object.keys(DEFAULT_SITE_TEXTS);const T=getSiteTexts();keys.forEach(k=>{const el=document.getElementById('txt_'+k);if(el)T[k]=el.value.trim();});saveSiteTexts(T);renderPublicMainNav();renderPortfolioSection();toast('Textos atualizados!','ok');closeSheet();}
 
 // ════════════════════════════════════════════════════
 //  ADMIN CMS — Serviços
@@ -2078,7 +2275,7 @@ function renderGrid(iso){
   logContainer.innerHTML='';
   const now=new Date(),todayIso=formatLocalIsoDate(now),curMins=now.getHours()*60+now.getMinutes();
   const lastBooking=JSON.parse(localStorage.getItem('last_booking_v3')||'null');
-  const hasActiveBooking=!isAdmin&&lastBooking&&(()=>{const rec=db.find(r=>r.codigo===lastBooking.token&&r.status==='Ocupado');return!!rec;})();
+  const hasActiveBooking=!isAdmin&&lastBooking&&(()=>{const rec=db.find(r=>String(r.codigo||'')===String(lastBooking.token||'')&&r.status==='Ocupado');return!!rec;})();
   const[sH,sM]=srvCfg.start.split(':').map(Number);
   const[eH,eM]=srvCfg.end.split(':').map(Number);
   let cur=sH*60+sM,end=eH*60+eM;
@@ -2091,7 +2288,7 @@ function renderGrid(iso){
     let st=reg?reg.status:'Livre',durMin=reg?parseInt(reg.duration||srvCfg.duration):srvCfg.duration;
     if(isPast&&!isAdmin){cur+=Math.max(15,durMin||30);continue;}
     const reservedUntil=reg?reg.reservedUntil:null,logMsg=reg?reg.log:null;
-    const isMyBooking=lastBooking&&lastBooking.iso===iso&&lastBooking.clock===clock;
+    const isMyBooking=!!(lastBooking&&reg&&(String(reg.codigo||'')===String(lastBooking.token||'')||(lastBooking.iso===iso&&lastBooking.clock===clock)));
     if(!isAdmin){
       if(hasActiveBooking){if(!isMyBooking){cur+=Math.max(15,durMin||30);continue;}}
       else{if(st!=='Livre'){cur+=Math.max(15,durMin||30);continue;}}
@@ -2176,43 +2373,47 @@ async function confirmBooking(iso,clock,df){
   if(btn){btn.innerHTML='<span class="spinner"></span> Confirmando...';btn.disabled=true;}
 
   const normalizedPhone=normalizePhone(phone);
-  await syncData();
   const token=Math.random().toString(36).substring(2,7).toUpperCase();
   const bTime=new Date().toISOString();
 
-  const ok=await postUpdates([{
-    data:iso,horario:clock,status:'Ocupado',
-    cliente:name,telefone:phone,
-    codigo:token,bookingTime:bTime,
-    duration:srvCfg.duration,password:adminPass
-  }]);
-
-  if(!ok){
+  let res;
+  try{
+    res=await gasCall({
+      action:'book_slot',
+      nome:name,
+      telefone:phone,
+      data:iso,
+      horario:clock,
+      codigo:token,
+      bookingTime:bTime,
+      duration:srvCfg.duration
+    });
+  }catch(e){
     alert('Não foi possível registrar. Tente novamente.');
     if(btn){btn.innerHTML='Confirmar agendamento';btn.disabled=false;}
     return;
   }
 
-  // Verifica se realmente gravou
-  const persisted=db.find(r=>
-    String(r.data).substring(0,10)===iso&&
-    String(r.horario).substring(0,5)===clock&&
-    r.status==='Ocupado'&&
-    String(r.codigo||'')===token
-  );
-  if(!persisted){
-    clearClientBlock();
-    alert('Reserva não confirmada. Toque em Atualizar e tente novamente.');
+  if(!res||res.status!=='OK'||!res.booking){
+    alert(res?.message||'Esse horário não está mais disponível. Escolha outro horário livre.');
+    await syncData();
+    if(btn){btn.innerHTML='Confirmar agendamento';btn.disabled=false;}
     return;
   }
 
+  const savedToken=res.booking.codigo||token;
+  db=db.filter(r=>!(String(r.data).substring(0,10)===iso&&String(r.horario).substring(0,5)===clock));
+  db.push({...res.booking,data:iso,horario:clock,status:'Ocupado',cliente:name,telefone:phone,codigo:savedToken,duration:srvCfg.duration});
+
   // Salva no localStorage (controla o bloqueio de 12h e o banner)
-  localStorage.setItem('last_booking_v3',JSON.stringify({token,iso,clock,phone:normalizedPhone,name}));
+  localStorage.setItem('last_booking_v3',JSON.stringify({token:savedToken,iso,clock,phone:normalizedPhone,name}));
   localStorage.setItem('last_booking_timestamp',Date.now().toString());
 
   // Mostra a tela de confirmação com PIX como informativo
-  showConfirmationSheet(name,phone,iso,clock,df,token,true);
+  showConfirmationSheet(name,phone,iso,clock,df,savedToken,true);
   renderMyBookingBanner(); // atualiza o banner já
+  if(currentDay)renderGrid(currentDay);
+  syncData();
 }
 
 // ════════════════════════════════════════════════════
