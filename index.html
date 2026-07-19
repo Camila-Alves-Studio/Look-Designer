@@ -12,7 +12,7 @@
 :root {
   --rose:#C4848A; --deep-rose:#8B4F55; --blush:#F2D9D9;
   --gold:#C9A86C; --gold-lt:#E8D5B0;
-  --ink:#1E1414; --ink-mid:#5C4A4A; --ink-lt:#9A8A8A;
+  --ink:#1B1210; --ink-mid:#5C4A4A; --ink-lt:#9A8A8A;
   --cream:#FAF6F1; --cream-2:#F2EAE2;
   --white:rgba(255,255,255,1);
   --border:rgba(196,132,138,.16);
@@ -22,6 +22,19 @@
   --ease:cubic-bezier(.22,1,.36,1);
   --st-livre:#6BAF78; --st-aguard:#C9A86C; --st-ocupado:#C4848A; --st-block:#ADA5A5;
   --green-soft:#E8F5E9; --green:#4CAF50; --green-deep:#2E7D32;
+
+  /* — refinamentos: paleta aprofundada e sombras com temperatura de cor — */
+  --ink-2:#2E1A1E; --ink-3:#3A2010;
+  --gold-deep:#A07840; --gold-bright:#EACB93;
+  --rose-bright:#D69AA0;
+  --border-strong:rgba(196,132,138,.3);
+  --sh-rose:0 14px 36px rgba(139,79,85,.16);
+  --sh-gold:0 10px 28px rgba(160,120,64,.18);
+  --sh-inset:inset 0 1px 0 rgba(255,255,255,.5);
+  --r-sm:10px; --r-md:16px; --r-lg:22px; --r-xl:28px;
+  --gradient-ink:linear-gradient(150deg,var(--ink) 0%,var(--ink-2) 58%,var(--ink-3) 100%);
+  --gradient-rose:linear-gradient(135deg,var(--rose) 0%,var(--deep-rose) 100%);
+  --gradient-gold:linear-gradient(135deg,var(--gold-bright) 0%,var(--gold) 45%,var(--gold-deep) 100%);
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 html{scroll-behavior:smooth;overflow-x:hidden;}
@@ -103,11 +116,15 @@ body{
 /* ── TOPBAR ─────────────────────────────────────────────── */
 .topbar{
   display:flex;align-items:center;justify-content:space-between;
-  padding:28px 0 24px;
+  padding:26px 0 22px;
   border-bottom:1px solid var(--border);
   margin-bottom:40px;
 }
-.topbar-brand{display:flex;align-items:baseline;gap:10px;}
+.topbar-brand{display:flex;align-items:center;gap:12px;}
+.topbar-mark{
+  width:30px;height:20px;flex-shrink:0;
+  opacity:0;animation:fadeUp .7s 3.4s var(--ease) forwards;
+}
 .topbar-name{
   font-family:'Cormorant Garamond',serif;
   font-size:1.7rem;font-weight:400;letter-spacing:3px;
@@ -131,9 +148,9 @@ body{
   grid-template-columns:1fr 1fr;
   gap:0;
   margin-bottom:48px;
-  border-radius:20px;
+  border-radius:var(--r-xl);
   overflow:hidden;
-  background:var(--ink);
+  background:var(--gradient-ink);
   box-shadow:var(--sh-lg);
   min-height:520px;
 }
@@ -158,7 +175,7 @@ body{
 }
 .hero-visual::after{
   content:'';position:absolute;inset:0;
-  background:linear-gradient(to right,transparent 60%,rgba(30,20,20,.35) 100%);
+  background:linear-gradient(to right,transparent 60%,rgba(27,18,16,.4) 100%);
   pointer-events:none;
 }
 .sound-btn{
@@ -180,24 +197,25 @@ body{
 .hero-info{
   padding:48px 44px;
   display:flex;flex-direction:column;justify-content:center;gap:0;
-  background:var(--ink);
+  background:transparent;
+  position:relative;
 }
 .hero-eyebrow{
   font-size:.58rem;letter-spacing:5px;font-weight:600;
-  color:var(--gold);text-transform:uppercase;
+  color:var(--gold-bright);text-transform:uppercase;
   margin-bottom:18px;
   display:flex;align-items:center;gap:10px;
 }
 .hero-eyebrow::before{
-  content:'';width:28px;height:1px;background:var(--gold);opacity:.5;
+  content:'';width:28px;height:1px;background:var(--gold-bright);opacity:.6;
 }
 .hero-title{
   font-family:'Cormorant Garamond',serif;
-  font-size:3.4rem;font-weight:300;line-height:.95;
-  letter-spacing:1px;color:#fff;
+  font-size:3.5rem;font-weight:300;line-height:.95;
+  letter-spacing:.5px;color:#fff;
   margin-bottom:20px;
 }
-.hero-title em{color:var(--gold);font-style:italic;}
+.hero-title em{color:var(--gold-bright);font-style:italic;}
 .hero-desc{
   font-size:.88rem;line-height:1.75;
   color:rgba(255,255,255,.55);
@@ -215,16 +233,16 @@ body{
   color:rgba(255,255,255,.7);
   font-size:.68rem;font-weight:500;letter-spacing:.5px;
 }
-.hero-pill::before{content:'✦';margin-right:6px;color:var(--gold);font-size:.55rem;}
+.hero-pill::before{content:'';display:inline-block;width:6px;height:1.5px;border-radius:2px;margin-right:7px;background:var(--gold-bright);vertical-align:middle;}
 .hero-actions{display:flex;gap:12px;flex-wrap:wrap;}
 .hero-btn{
-  padding:13px 22px;border-radius:10px;border:none;cursor:pointer;
+  padding:13px 22px;border-radius:var(--r-sm);border:none;cursor:pointer;
   font-family:'Outfit',sans-serif;font-size:.75rem;font-weight:600;
   letter-spacing:1px;text-transform:uppercase;
   transition:all .25s var(--ease);
 }
 .hero-btn.primary{
-  background:linear-gradient(135deg,var(--rose),var(--deep-rose));
+  background:var(--gradient-rose);
   color:#fff;
   box-shadow:0 8px 24px rgba(139,79,85,.35);
 }
@@ -242,21 +260,21 @@ body{
   margin-bottom:40px;
 }
 .main-nav-btn{
-  padding:20px 24px;border-radius:16px;border:1.5px solid var(--border);
+  padding:20px 24px;border-radius:var(--r-md);border:1.5px solid var(--border);
   background:var(--white);cursor:pointer;
   display:flex;align-items:center;gap:16px;
   text-align:left;transition:all .3s var(--ease);
   box-shadow:var(--sh);
 }
-.main-nav-btn:hover{border-color:var(--rose);transform:translateY(-2px);box-shadow:var(--sh-md);}
+.main-nav-btn:hover{border-color:var(--rose);transform:translateY(-2px);box-shadow:var(--sh-md),var(--sh-rose);}
 .main-nav-btn.active{
-  background:linear-gradient(135deg,var(--ink) 0%,#4A2A2E 60%,#3A2820 100%);
+  background:var(--gradient-ink);
   border-color:transparent;
-  box-shadow:0 16px 36px rgba(30,20,20,.2);
+  box-shadow:0 16px 36px rgba(27,18,16,.24);
 }
 .main-nav-btn:disabled{opacity:.45;pointer-events:none;}
 .nav-ico{
-  width:46px;height:46px;border-radius:12px;flex-shrink:0;
+  width:46px;height:46px;border-radius:var(--r-sm);flex-shrink:0;
   background:linear-gradient(135deg,var(--blush),var(--cream-2));
   display:flex;align-items:center;justify-content:center;
   font-size:20px;
@@ -275,12 +293,12 @@ body{
 /* ── SECTION HEADER ─────────────────────────────────────── */
 .sec-hdr{
   display:flex;align-items:center;gap:14px;
-  margin-bottom:24px;
+  margin-bottom:26px;
 }
-.sec-hdr-line{flex:1;height:1px;background:var(--border);}
+.sec-hdr-line{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--border-strong) 50%,transparent);}
 .sec-hdr-label{
-  font-size:.55rem;letter-spacing:5px;font-weight:700;
-  color:var(--gold);text-transform:uppercase;white-space:nowrap;
+  font-size:.56rem;letter-spacing:5px;font-weight:700;
+  color:var(--gold-deep);text-transform:uppercase;white-space:nowrap;
 }
 
 /* ── SERVICES ───────────────────────────────────────────── */
@@ -298,9 +316,9 @@ body{
 }
 .srv-tab:hover{transform:translateY(-3px);box-shadow:var(--sh-md);}
 .srv-tab.active{
-  background:linear-gradient(135deg,var(--rose),var(--deep-rose));
+  background:var(--gradient-rose);
   border-color:transparent;transform:translateY(-4px);
-  box-shadow:0 14px 32px rgba(196,132,138,.3);
+  box-shadow:0 14px 32px rgba(139,79,85,.32);
 }
 .srv-tab-ico{font-size:22px;line-height:1;}
 .srv-tab-name{
@@ -312,7 +330,7 @@ body{
 .srv-tab.active .srv-tab-cnt{color:rgba(255,255,255,.65);}
 
 .srv-panel{
-  background:var(--white);border-radius:18px;padding:28px;
+  background:var(--white);border-radius:var(--r-lg);padding:28px;
   box-shadow:var(--sh);border:1px solid var(--border);
   min-height:100px;
 }
@@ -321,7 +339,7 @@ body{
   font-size:1.5rem;font-weight:400;letter-spacing:1px;
   color:var(--ink);margin-bottom:6px;
 }
-.srv-rule{width:28px;height:1.5px;background:linear-gradient(90deg,var(--rose),var(--gold));border-radius:2px;margin-bottom:20px;}
+.srv-rule{width:28px;height:1.5px;background:var(--gradient-gold);border-radius:2px;margin-bottom:20px;}
 .srv-empty{
   display:flex;flex-direction:column;align-items:center;
   justify-content:center;gap:10px;padding:40px;
@@ -402,7 +420,7 @@ body{
 .proc-price-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;}
 .proc-price-box{border-radius:12px;padding:14px 16px;}
 .proc-price-box.primary{
-  background:linear-gradient(135deg,var(--rose),var(--deep-rose));color:#fff;
+  background:var(--gradient-rose);color:#fff;
 }
 .proc-price-box.secondary{background:var(--blush);border:1px solid var(--border);}
 .proc-price-label{
@@ -787,7 +805,7 @@ body{
 }
 .day-scroll::-webkit-scrollbar{display:none;}
 .day-pill{
-  min-width:66px;height:88px;border-radius:16px;
+  min-width:66px;height:88px;border-radius:var(--r-md);
   background:var(--white);border:1.5px solid var(--border);
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
   cursor:pointer;flex-shrink:0;scroll-snap-align:start;
@@ -796,12 +814,12 @@ body{
 }
 .day-pill::before{
   content:'';position:absolute;inset:0;
-  background:linear-gradient(135deg,var(--rose),var(--deep-rose));
+  background:var(--gradient-rose);
   opacity:0;transition:opacity .4s var(--ease);
 }
 .day-pill.active{
   transform:translateY(-6px) scale(1.06);
-  box-shadow:0 14px 32px rgba(196,132,138,.3);
+  box-shadow:0 14px 32px rgba(139,79,85,.32);
   border-color:var(--rose);
 }
 .day-pill.active::before{opacity:1;}
@@ -832,10 +850,10 @@ body{
 .grid-head-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
 .export-btn{
   display:flex;align-items:center;gap:10px;
-  padding:11px 16px 11px 12px;border-radius:14px;border:none;
-  background:linear-gradient(135deg,#B85C66,#8B4F55 55%,#C9A86C);
+  padding:11px 16px 11px 12px;border-radius:var(--r-md);border:none;
+  background:linear-gradient(135deg,#B85C66,#8B4F55 55%,var(--gold-deep));
   color:#fff;cursor:pointer;font-family:'Outfit',sans-serif;
-  box-shadow:0 10px 28px rgba(139,79,85,.2);
+  box-shadow:var(--sh-rose);
   transition:all .25s var(--ease);
   position:relative;overflow:hidden;
 }
@@ -847,7 +865,7 @@ body{
 .export-btn:hover{transform:translateY(-2px);box-shadow:0 16px 36px rgba(139,79,85,.28);}
 .export-btn:disabled{opacity:.5;pointer-events:none;}
 .export-ico{
-  width:36px;height:36px;border-radius:10px;
+  width:36px;height:36px;border-radius:var(--r-sm);
   background:rgba(255,255,255,.15);
   display:flex;align-items:center;justify-content:center;
   font-size:1rem;flex-shrink:0;position:relative;z-index:1;
@@ -856,7 +874,7 @@ body{
 .export-copy strong{font-size:.68rem;letter-spacing:1.5px;text-transform:uppercase;line-height:1.1;}
 .export-copy small{font-size:.62rem;color:rgba(255,255,255,.78);}
 .export-badge{
-  min-width:36px;height:36px;padding:0 8px;border-radius:10px;
+  min-width:36px;height:36px;padding:0 8px;border-radius:var(--r-sm);
   background:rgba(255,255,255,.9);color:var(--deep-rose);
   display:flex;align-items:center;justify-content:center;
   font-size:.82rem;font-weight:700;position:relative;z-index:1;
@@ -868,8 +886,8 @@ body{
 }
 #multiBar{
   display:none;align-items:center;justify-content:space-between;
-  background:var(--ink);color:#fff;
-  border-radius:14px;padding:10px 16px;margin-bottom:18px;
+  background:var(--gradient-ink);color:#fff;
+  border-radius:var(--r-md);padding:10px 16px;margin-bottom:18px;
   font-size:.65rem;font-weight:500;
   position:sticky;top:10px;z-index:100;
   box-shadow:0 8px 24px rgba(0,0,0,.2);
@@ -885,7 +903,7 @@ body{
 
 .slots{display:flex;flex-direction:column;gap:10px;}
 .slot-card{
-  background:var(--white);border-radius:16px;
+  background:var(--white);border-radius:var(--r-md);
   padding:18px 20px;display:flex;align-items:center;gap:16px;
   cursor:pointer;border:1.5px solid transparent;
   box-shadow:var(--sh);
@@ -896,7 +914,7 @@ body{
 @keyframes slotIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
 .slot-card:hover{transform:translateY(-2px);box-shadow:var(--sh-md);}
 .slot-card.past{opacity:.28;pointer-events:none;}
-.slot-card.selected{border-color:var(--rose);background:rgba(196,132,138,.04);}
+.slot-card.selected{border-color:var(--rose);background:rgba(196,132,138,.05);}
 .slot-check{
   display:none;width:22px;height:22px;border-radius:50%;
   border:2px solid var(--rose);align-items:center;justify-content:center;
@@ -939,7 +957,7 @@ body.admin-on .slot-check{display:flex;opacity:.35;}
 /* ── ADMIN PANEL ─────────────────────────────────────────── */
 #adminPanel{display:none;margin:40px 0 0;}
 body.admin-on #adminPanel{display:block;}
-body.admin-on{background:#fff0f1;}
+body.admin-on{background:#fdf3f0;}
 body.admin-on::after{
   content:"✦ PAINEL ADMINISTRATIVO ATIVO ✦";
   position:fixed;top:0;left:0;right:0;
@@ -955,18 +973,19 @@ body.admin-on::after{
   text-align:center;margin-bottom:20px;
 }
 .admin-stats{
-  background:var(--ink);border-radius:18px;padding:22px;
+  background:var(--gradient-ink);border-radius:var(--r-lg);padding:22px;
   display:grid;grid-template-columns:repeat(5,1fr);gap:8px;
   margin-bottom:16px;
+  box-shadow:0 16px 40px rgba(27,18,16,.22);
 }
 .stat-item{text-align:center;}
 .stat-num{
   font-family:'Cormorant Garamond',serif;
-  font-size:1.9rem;color:var(--gold);display:block;line-height:1;
+  font-size:1.9rem;color:var(--gold-bright);display:block;line-height:1;
 }
 .stat-lbl{
   font-size:.48rem;letter-spacing:2px;
-  color:rgba(255,255,255,.35);text-transform:uppercase;
+  color:rgba(255,255,255,.4);text-transform:uppercase;
   margin-top:4px;display:block;
 }
 .admin-cards{
@@ -974,12 +993,12 @@ body.admin-on::after{
   margin-bottom:16px;
 }
 .admin-card{
-  background:var(--white);border-radius:16px;padding:20px 16px;
+  background:var(--white);border-radius:var(--r-md);padding:20px 16px;
   text-align:center;cursor:pointer;
   box-shadow:var(--sh);border:1.5px solid transparent;
   transition:all .3s var(--ease);
 }
-.admin-card:hover{border-color:var(--rose);transform:translateY(-3px);box-shadow:var(--sh-lg);}
+.admin-card:hover{border-color:var(--rose);transform:translateY(-3px);box-shadow:var(--sh-lg),var(--sh-rose);}
 .admin-card .ac-ico{font-size:1.6rem;margin-bottom:8px;display:block;}
 .admin-card .ac-lbl{
   font-size:.58rem;font-weight:700;letter-spacing:2px;
@@ -989,23 +1008,28 @@ body.admin-on::after{
 
 /* ── SIGNATURE ───────────────────────────────────────────── */
 .sig-section{
-  margin:48px 0 24px;padding:36px 32px;
-  background:var(--white);border-radius:20px;
-  box-shadow:var(--sh-md);border:1px solid var(--border);
+  margin:48px 0 24px;padding:40px 32px;
+  background:var(--white);border-radius:var(--r-xl);
+  box-shadow:var(--sh-md),var(--sh-rose);border:1px solid var(--border);
   position:relative;overflow:hidden;
   display:flex;flex-direction:column;align-items:center;
   text-align:center;
 }
 .sig-section::before{
   content:'';position:absolute;top:0;left:0;right:0;height:3px;
-  background:linear-gradient(90deg,var(--rose),var(--gold),var(--rose));
+  background:var(--gradient-gold);
+}
+.sig-section::after{
+  content:'';position:absolute;top:-40%;right:-10%;width:60%;height:180%;
+  background:radial-gradient(ellipse,rgba(196,132,138,.05),transparent 70%);
+  pointer-events:none;
 }
 .sig-star{
-  width:54px;height:54px;border-radius:50%;
+  width:74px;height:54px;border-radius:18px;
   background:linear-gradient(135deg,var(--blush),var(--cream-2));
   display:flex;align-items:center;justify-content:center;
-  margin-bottom:12px;
-  box-shadow:0 8px 24px rgba(196,132,138,.15);
+  margin-bottom:14px;
+  box-shadow:var(--sh-rose),var(--sh-inset);
 }
 .sig-name{
   font-family:'Cormorant Garamond',serif;
@@ -1014,18 +1038,18 @@ body.admin-on::after{
 }
 .sig-role{
   font-size:.55rem;letter-spacing:4px;font-weight:700;
-  color:var(--gold);text-transform:uppercase;margin-bottom:12px;
+  color:var(--gold-deep);text-transform:uppercase;margin-bottom:12px;
 }
 .sig-badge{
   display:inline-block;
-  background:linear-gradient(135deg,var(--rose),var(--deep-rose));
+  background:var(--gradient-rose);
   color:#fff;padding:6px 18px;border-radius:20px;
   font-size:.68rem;font-weight:700;margin-bottom:20px;
 }
 .sig-wa{
   display:inline-flex;align-items:center;gap:10px;
   background:#25D366;color:#fff;text-decoration:none;
-  padding:14px 28px;border-radius:12px;
+  padding:14px 28px;border-radius:var(--r-sm);
   font-weight:700;font-size:.82rem;
   box-shadow:0 8px 22px rgba(37,211,102,.3);
   transition:all .25s var(--ease);
@@ -1035,11 +1059,11 @@ body.admin-on::after{
 /* ── FLOAT NAV ───────────────────────────────────────────── */
 .nav-float{
   position:fixed;bottom:max(16px,env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);
-  background:rgba(255,255,255,.92);backdrop-filter:blur(18px);
+  background:rgba(255,255,255,.9);backdrop-filter:blur(20px) saturate(1.4);
   border-radius:24px;padding:8px;
   display:flex;gap:4px;align-items:center;flex-wrap:wrap;justify-content:center;
-  box-shadow:var(--sh-lg);z-index:6500;
-  border:1px solid rgba(196,132,138,.14);
+  box-shadow:var(--sh-lg),var(--sh-rose);z-index:6500;
+  border:1px solid var(--border-strong);
   max-width:calc(100vw - 24px);
   box-sizing:border-box;
   opacity:0;animation:fadeUp .8s 4.5s var(--ease) forwards;
@@ -1055,7 +1079,7 @@ body.admin-on::after{
 }
 .nav-btn:hover{background:var(--cream-2);}
 .nav-btn.primary{
-  background:linear-gradient(135deg,var(--rose),var(--deep-rose));
+  background:var(--gradient-rose);
   color:#fff;
 }
 .nav-admin-btn{
@@ -1076,7 +1100,7 @@ body.admin-on #userNav{display:none !important;}
 /* ── OVERLAY / SHEET ─────────────────────────────────────── */
 .overlay{
   position:fixed;inset:0;
-  background:rgba(30,20,20,.45);
+  background:rgba(27,18,16,.48);
   backdrop-filter:blur(14px);
   z-index:8000;display:none;
   align-items:flex-end;justify-content:center;
@@ -1089,6 +1113,11 @@ body.admin-on #userNav{display:none !important;}
   padding:32px 28px 44px;
   animation:sheetUp .5s var(--ease);
   max-height:90vh;overflow-y:auto;
+  position:relative;
+}
+.sheet::before{
+  content:'';position:absolute;top:0;left:14%;right:14%;height:3px;
+  border-radius:0 0 3px 3px;background:var(--gradient-gold);opacity:.7;
 }
 @keyframes sheetUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
 .sheet-handle{
@@ -1102,11 +1131,11 @@ body.admin-on #userNav{display:none !important;}
 .sheet-sub{font-size:.8rem;color:var(--ink-mid);margin-bottom:24px;line-height:1.6;}
 .f-label{
   font-size:.55rem;letter-spacing:2px;font-weight:700;
-  color:var(--gold);text-transform:uppercase;
+  color:var(--gold-deep);text-transform:uppercase;
   margin-bottom:8px;display:block;
 }
 .f-inp{
-  width:100%;padding:15px 18px;border-radius:12px;
+  width:100%;padding:15px 18px;border-radius:var(--r-sm);
   border:1.5px solid var(--cream-2);background:var(--cream);
   font-family:'Outfit',sans-serif;font-size:.9rem;
   margin-bottom:14px;outline:none;color:var(--ink);
@@ -1115,20 +1144,52 @@ body.admin-on #userNav{display:none !important;}
 .f-inp:focus{border-color:var(--rose);background:var(--white);}
 .dur-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px;}
 .dur-opt{
-  padding:11px;border-radius:10px;
+  padding:11px;border-radius:var(--r-sm);
   border:1.5px solid var(--cream-2);text-align:center;
   cursor:pointer;font-size:.75rem;font-weight:500;
   transition:all .25s;background:var(--cream);
 }
 .dur-opt.sel{border-color:var(--rose);background:rgba(196,132,138,.08);color:var(--rose);font-weight:700;}
+.dur-opt.disabled{opacity:.4;cursor:not-allowed;position:relative;}
+.dur-opt.disabled::after{content:'';position:absolute;inset:0;border-radius:inherit;background:repeating-linear-gradient(135deg,transparent,transparent 4px,rgba(139,79,85,.14) 4px,rgba(139,79,85,.14) 8px);}
+.gap-notice{
+  background:rgba(201,168,108,.08);border:1px solid rgba(201,168,108,.25);
+  border-radius:var(--r-sm);padding:11px 14px;margin-bottom:14px;
+  font-size:.74rem;line-height:1.55;color:var(--ink-mid);
+}
+.gap-notice strong{color:var(--ink);}
+.gap-notice.warn{background:rgba(196,132,138,.08);border-color:rgba(196,132,138,.32);}
+.dur-custom-row{margin-top:2px;margin-bottom:18px;}
+.dur-custom-msg{margin-top:8px;font-size:.7rem;line-height:1.5;min-height:1px;}
+.dur-warn{color:#B23B3B;font-weight:600;}
+.dur-ok{color:var(--green-deep);font-weight:600;}
+.slot-capacity{
+  font-size:.6rem;color:var(--ink-lt);margin-top:4px;
+  padding-top:4px;border-top:1px dashed var(--border);
+}
+.slot-capacity strong{color:var(--ink-mid);}
+.slot-capacity.roomy strong{color:var(--green-deep);}
+.wa-contact-row{display:flex;gap:5px;margin-top:6px;flex-wrap:wrap;}
+.wa-contact-btn{
+  display:inline-flex;align-items:center;gap:3px;
+  text-decoration:none;color:var(--rose);font-weight:700;
+  background:rgba(196,132,138,.08);border:1px solid rgba(196,132,138,.18);
+  padding:4px 9px;border-radius:7px;font-size:.58rem;
+  font-family:'Outfit',sans-serif;cursor:pointer;
+  transition:all .2s;
+}
+.wa-contact-btn:hover{background:rgba(196,132,138,.16);transform:translateY(-1px);}
+.wa-contact-btn.biz{color:#0a7d5c;background:rgba(10,125,92,.08);border-color:rgba(10,125,92,.2);}
+.wa-contact-btn.biz:hover{background:rgba(10,125,92,.16);}
+.wa-contact-btn.copy{color:var(--ink-mid);background:var(--cream-2);border-color:var(--border);padding:4px 8px;}
 .btn{
-  width:100%;padding:16px;border-radius:12px;border:none;
+  width:100%;padding:16px;border-radius:var(--r-sm);border:none;
   font-family:'Outfit',sans-serif;font-size:.82rem;
   font-weight:700;letter-spacing:.8px;cursor:pointer;
   transition:all .25s;
 }
 .btn-primary{
-  background:linear-gradient(135deg,var(--rose),var(--deep-rose));
+  background:var(--gradient-rose);
   color:#fff;box-shadow:0 8px 22px rgba(139,79,85,.28);
   margin-bottom:10px;
 }
@@ -1194,7 +1255,7 @@ body.admin-on #userNav{display:none !important;}
 .aba-card-actions{display:flex;gap:5px;}
 .aba-btn-enter{
   flex:2;padding:8px 7px;border-radius:8px;border:none;
-  background:linear-gradient(135deg,var(--rose),var(--deep-rose));
+  background:var(--gradient-rose);
   color:#fff;font-family:'Outfit',sans-serif;
   font-size:.62rem;font-weight:700;cursor:pointer;transition:all .2s;
 }
@@ -1213,7 +1274,7 @@ body.admin-on #userNav{display:none !important;}
 .aba-add:hover{border-color:var(--rose);background:var(--blush);}
 .aba-add-ico{
   width:40px;height:40px;border-radius:50%;
-  background:linear-gradient(135deg,var(--rose),var(--deep-rose));
+  background:var(--gradient-rose);
   display:flex;align-items:center;justify-content:center;
   color:#fff;font-size:18px;
 }
@@ -1252,7 +1313,7 @@ body.admin-on #userNav{display:none !important;}
 .proc-add-card:hover{border-color:var(--rose);background:var(--blush);}
 .proc-add-ico{
   width:36px;height:36px;border-radius:50%;
-  background:linear-gradient(135deg,var(--rose),var(--deep-rose));
+  background:var(--gradient-rose);
   display:flex;align-items:center;justify-content:center;
   color:#fff;font-size:16px;
 }
@@ -1311,7 +1372,7 @@ body.admin-on #userNav{display:none !important;}
 .btn-sm-primary{
   display:inline-flex;align-items:center;gap:5px;
   padding:10px 16px;
-  background:linear-gradient(135deg,var(--rose),var(--deep-rose));
+  background:var(--gradient-rose);
   color:#fff;border:none;border-radius:10px;
   font-family:'Outfit',sans-serif;font-size:.72rem;font-weight:700;
   cursor:pointer;box-shadow:0 5px 16px rgba(196,132,138,.28);
@@ -1359,7 +1420,7 @@ input:checked + .toggle-sl:before{transform:translateX(17px);}
   transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:4px;
 }
 .media-type-btn.active{
-  background:linear-gradient(135deg,var(--rose),var(--deep-rose));
+  background:var(--gradient-rose);
   color:#fff;border-color:transparent;
 }
 .media-type-btn span{font-size:18px;}
@@ -1517,7 +1578,7 @@ input[type=range]{width:100%;accent-color:var(--rose);height:3px;cursor:pointer;
 }
 .toast.ok{background:linear-gradient(135deg,#4CAF50,#388E3C);}
 .toast.err{background:linear-gradient(135deg,#E53935,#C62828);}
-.toast.info{background:linear-gradient(135deg,var(--rose),var(--deep-rose));}
+.toast.info{background:var(--gradient-rose);}
 .toast.warn{background:linear-gradient(135deg,#FF9800,#F57C00);}
 @keyframes toastIn{from{opacity:0;transform:translateY(7px);}to{opacity:1;transform:translateY(0);}}
 
@@ -1557,7 +1618,7 @@ body.admin-on #logPanel{display:block;}
   .hero-visual video,.hero-visual img{position:absolute;inset:0;}
   .hero-visual-ph{min-height:300px;height:300px;}
   .hero-visual::after{background:linear-gradient(to bottom,transparent 50%,rgba(30,20,20,.5) 100%);}
-  .hero-info{padding:28px 24px 32px;background:var(--ink);}
+  .hero-info{padding:28px 24px 32px;background:var(--gradient-ink);}
   .hero-title{font-size:2.4rem;}
   .hero-desc{font-size:.84rem;}
   .main-nav{grid-template-columns:1fr 1fr;gap:10px;}
@@ -1663,6 +1724,23 @@ body.admin-on #logPanel{display:block;}
 </head>
 <body>
 
+<!-- Sprite oculto com o motivo assinatura: um leque de fios curvos, aludindo
+     à extensão de cílios — usado como ornamento discreto em pontos-chave
+     do site (intro, seção de assinatura), em vez do genérico ✦. -->
+<svg width="0" height="0" style="position:absolute;overflow:hidden" aria-hidden="true">
+  <defs>
+    <linearGradient id="lashGradGold" x1="0" y1="40" x2="60" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#8B4F55"/><stop offset=".5" stop-color="#C4848A"/><stop offset="1" stop-color="#EACB93"/>
+    </linearGradient>
+    <symbol id="lashMotif" viewBox="0 0 60 40">
+      <path d="M7 33C7 23 12 11 20 4" stroke="url(#lashGradGold)" stroke-width="2.1" stroke-linecap="round" fill="none"/>
+      <path d="M18 35C20 23 28 8 39 2" stroke="url(#lashGradGold)" stroke-width="2.6" stroke-linecap="round" fill="none"/>
+      <path d="M30 36C34 25 45 10 53 5" stroke="url(#lashGradGold)" stroke-width="2.1" stroke-linecap="round" fill="none"/>
+      <circle cx="9" cy="34" r="1.6" fill="#8B4F55"/>
+    </symbol>
+  </defs>
+</svg>
+
 <!-- INTRO -->
 <div id="intro">
   <div class="ib-wash">
@@ -1677,15 +1755,17 @@ body.admin-on #logPanel{display:block;}
       <div class="ib-ring-inner"><div class="ib-ring-dot2"></div></div>
       <div class="ib-mono">
         <svg viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M26 8L28.8 17.8L39 18.8L31.4 25.2L33.8 35L26 30.2L18.2 35L20.6 25.2L13 18.8L23.2 17.8L26 8Z" fill="url(#intrGold)" opacity=".85"/>
-          <circle cx="26" cy="22" r="3" fill="#FFF8EB" opacity=".9"/>
+          <circle cx="26" cy="26" r="24" fill="none" stroke="url(#introRing)" stroke-width=".75" opacity=".5"/>
+          <g transform="translate(10,15) scale(.62)">
+            <use href="#lashMotif" width="60" height="40"/>
+          </g>
           <circle cx="26" cy="4" r="1.5" fill="#C9A86C" opacity=".6"/>
           <circle cx="48" cy="26" r="1.2" fill="#C4848A" opacity=".5"/>
           <circle cx="4" cy="26" r="1.2" fill="#C4848A" opacity=".5"/>
           <circle cx="26" cy="48" r="1.5" fill="#C9A86C" opacity=".6"/>
           <defs>
-            <linearGradient id="intrGold" x1="26" y1="8" x2="26" y2="35" gradientUnits="userSpaceOnUse">
-              <stop stop-color="#FFF4CF"/><stop offset=".5" stop-color="#D9BC7B"/><stop offset="1" stop-color="#B9894E"/>
+            <linearGradient id="introRing" x1="2" y1="2" x2="50" y2="50" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#C4848A"/><stop offset="1" stop-color="#C9A86C"/>
             </linearGradient>
           </defs>
         </svg>
@@ -1707,6 +1787,7 @@ body.admin-on #logPanel{display:block;}
   <!-- TOPBAR -->
   <header class="topbar">
     <div class="topbar-brand">
+      <svg class="topbar-mark" viewBox="0 0 60 40" fill="none" aria-hidden="true"><use href="#lashMotif" width="60" height="40"/></svg>
       <div class="topbar-name">LOOK<span class="topbar-dot"></span><strong>DESIGNER</strong></div>
     </div>
     <div class="topbar-tag">Studio de Cílios</div>
@@ -1865,10 +1946,7 @@ body.admin-on #logPanel{display:block;}
   <!-- SIGNATURE -->
   <div class="sig-section">
     <div class="sig-star">
-      <svg width="26" height="26" viewBox="0 0 40 40" fill="none">
-        <path d="M20 5L22.9 13.5L32 14.4L25.1 20.2L27.2 29L20 24.6L12.8 29L14.9 20.2L8 14.4L17.1 13.5L20 5Z" fill="url(#sf)"/>
-        <defs><linearGradient id="sf" x1="20" y1="5" x2="20" y2="29" gradientUnits="userSpaceOnUse"><stop stop-color="#FFF5D6"/><stop offset=".5" stop-color="#D8B976"/><stop offset="1" stop-color="#B78649"/></linearGradient></defs>
-      </svg>
+      <svg width="30" height="20" viewBox="0 0 60 40" fill="none"><use href="#lashMotif" width="60" height="40"/></svg>
     </div>
     <div class="sig-name">Camila Alves</div>
     <div class="sig-role">Gerente · Studio de Cílios</div>
@@ -2018,6 +2096,7 @@ let LOCATION_CFG={...DEFAULT_LOCATION};
 let abaAtiva=null,procFotos=[],imgPend=[],imgAtivaIdx=0;
 let procTagsDraft=[];
 let confirmCb=null,selectedDur=0;
+let currentGapInfo=null;
 let cmsMediaPend=null,cmsMediaTipo='video';
 let cmsAjustePos=50,cmsAjusteAlt=420;
 
@@ -2044,6 +2123,40 @@ function serializeProcTags(list){const tags=(list||[]).map(normalizeProcTag).fil
 function getProcTagValue(tag){return tag?.tipo==='real'?formatarValor(tag.valor):String(tag?.valor||'').trim();}
 function getProcTagLabel(tag){return String(tag?.label||'').trim()||'Informação';}
 function formatarValor(v){if(!v)return'';const s=String(v).trim();return/^R\s?\$/.test(s)?s:'R$ '+s;}
+/** Monta os dois links de contato (WhatsApp normal e Business) pro admin falar com a cliente.
+ *  O link "normal" (wa.me) funciona na maioria dos casos, seja qual for o app instalado.
+ *  O link "Business" força a abertura do WhatsApp Business especificamente no Android
+ *  (via intent:// com o pacote com.whatsapp.w4b), com fallback automático pro wa.me
+ *  caso o Business não esteja instalado ou o navegador não suporte esse tipo de link. */
+function buildWaContactLinks(phoneFull,msgEncoded){
+  const waMe=`https://wa.me/${phoneFull}?text=${msgEncoded}`;
+  const isAndroid=/Android/i.test((typeof navigator!=='undefined'&&navigator.userAgent)||'');
+  const business=isAndroid
+    ?`intent://send?phone=${phoneFull}&text=${msgEncoded}#Intent;scheme=whatsapp;package=com.whatsapp.w4b;S.browser_fallback_url=${encodeURIComponent(waMe)};end`
+    :waMe;
+  return{waMe,business};
+}
+function copyClientPhone(phone){
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(phone).then(()=>toast('Número copiado!','ok')).catch(()=>toast('Não foi possível copiar','err'));
+  }else{
+    toast('Cópia não suportada neste navegador','err');
+  }
+}
+function fmtDur(min){min=Math.max(0,parseInt(min)||0);const h=Math.floor(min/60),m=min%60;return h>0?(h+'h'+(m>0?' '+m+'min':'')):(min+'min');}
+/** Calcula quanto tempo livre existe a partir de um horário (clock, "HH:MM") num dia (iso),
+ *  até o próximo compromisso não-Livre ou até o fechamento do expediente — o que vier primeiro.
+ *  Usado pelo agendamento manual do admin para nunca deixar duas reservas se sobreporem. */
+function getScheduleGapInfo(iso,clock){
+  const[eH,eM]=srvCfg.end.split(':').map(Number);
+  const endMins=eH*60+eM;
+  const[h,m]=String(clock).split(':').map(Number);
+  const cur=h*60+m;
+  const next=db.filter(r=>String(r.data).substring(0,10)===iso&&r.status!=='Livre').map(r=>{const[hh,mm]=String(r.horario).substring(0,5).split(':').map(Number);return{mins:hh*60+mm,clock:String(r.horario).substring(0,5),cliente:r.cliente,duration:parseInt(r.duration||srvCfg.duration)};}).filter(r=>r.mins>cur).sort((a,b)=>a.mins-b.mins)[0]||null;
+  const limitMins=next?next.mins:endMins;
+  const gap=Math.max(0,limitMins-cur);
+  return{gap,next};
+}
 function normalizePhone(p){let c=(p||'').replace(/\D/g,'');if(c.startsWith('55')&&c.length>11)c=c.slice(2);return c;}
 function handlePhoneInput(el){let v=el.value.replace(/\D/g,'');if(v.length>11)v=v.slice(0,11);let f='';if(v.length>0){f='('+v.substring(0,2);if(v.length>2){f+=') '+v.substring(2,3);if(v.length>3){f+=' '+v.substring(3,7);if(v.length>7)f+='-'+v.substring(7,11);}}}el.value=f;}
 function scrollToTop(){window.scrollTo({top:0,behavior:'smooth'});}
@@ -2103,7 +2216,7 @@ function applySiteTexts(){
 }
 
 // EXPORT IMAGE
-function getAvailableSlotsForDay(iso){const now=new Date(),todayIso=formatLocalIsoDate(now),curMins=now.getHours()*60+now.getMinutes();const[sH,sM]=srvCfg.start.split(':').map(Number),[eH,eM]=srvCfg.end.split(':').map(Number);let cur=sH*60+sM,end=eH*60+eM;const slots=[];while(cur<end){const hh=String(Math.floor(cur/60)).padStart(2,'0'),mm=String(cur%60).padStart(2,'0'),clock=`${hh}:${mm}`;const isPast=(iso<todayIso)||(iso===todayIso&&cur<curMins);const reg=db.find(r=>String(r.data).substring(0,10)===iso&&String(r.horario).substring(0,5)===clock);let st=reg?reg.status:'Livre',durMin=reg?parseInt(reg.duration||srvCfg.duration):srvCfg.duration;const reservedUntil=reg?reg.reservedUntil:null;let isExpired=false;if(st==='Aguardando Pagamento'&&reservedUntil&&new Date()>new Date(reservedUntil))isExpired=true;if(st==='Aguardando Pagamento'&&isExpired)st='Livre';if(st==='Livre'){const nextOcc=db.filter(r=>String(r.data).substring(0,10)===iso&&r.status!=='Livre').map(r=>{const[h,m]=String(r.horario).substring(0,5).split(':').map(Number);return h*60+m;}).filter(m=>m>cur).sort((a,b)=>a-b)[0];if(nextOcc){const gap=nextOcc-cur;if(gap<durMin)durMin=gap;}if(!isPast)slots.push(clock);}cur+=Math.max(30,durMin||30);}return slots;}
+function getAvailableSlotsForDay(iso){const now=new Date(),todayIso=formatLocalIsoDate(now),curMins=now.getHours()*60+now.getMinutes();const[sH,sM]=srvCfg.start.split(':').map(Number),[eH,eM]=srvCfg.end.split(':').map(Number);let cur=sH*60+sM,end=eH*60+eM;const slots=[];while(cur<end){const hh=String(Math.floor(cur/60)).padStart(2,'0'),mm=String(cur%60).padStart(2,'0'),clock=`${hh}:${mm}`;const isPast=(iso<todayIso)||(iso===todayIso&&cur<curMins);const reg=db.find(r=>String(r.data).substring(0,10)===iso&&String(r.horario).substring(0,5)===clock);let st=reg?reg.status:'Livre',durMin=reg?parseInt(reg.duration||srvCfg.duration):srvCfg.duration;const reservedUntil=reg?reg.reservedUntil:null;let isExpired=false;if(st==='Aguardando Pagamento'&&reservedUntil&&new Date()>new Date(reservedUntil))isExpired=true;if(st==='Aguardando Pagamento'&&isExpired)st='Livre';if(st==='Livre'){const nextOcc=db.filter(r=>String(r.data).substring(0,10)===iso&&r.status!=='Livre').map(r=>{const[h,m]=String(r.horario).substring(0,5).split(':').map(Number);return h*60+m;}).filter(m=>m>cur).sort((a,b)=>a-b)[0];if(nextOcc!==undefined){const gap=nextOcc-cur;if(gap<durMin){cur=nextOcc;continue;}}if(!isPast)slots.push(clock);}cur+=Math.max(30,durMin||30);}return slots;}
 function updateDayExportButton(){const btn=document.getElementById('saveDayBtn');if(!btn)return;if(!isAdmin||isUserView){btn.style.display='none';return;}btn.style.display='';const title=document.getElementById('saveDayBtnTitle');const hint=document.getElementById('saveDayBtnHint');const badge=document.getElementById('saveDayBtnBadge');const enabled=!!currentDay&&typeof html2canvas==='function';const count=enabled?getAvailableSlotsForDay(currentDay).length:0;btn.disabled=!enabled;if(title)title.textContent=enabled?'Baixar imagem':'Escolha um dia';if(hint)hint.textContent=enabled?(count>0?'Horários para WhatsApp':'Sem horários livres'):'Selecione uma data';if(badge)badge.textContent=String(count);}
 function setDayExportButtonLoading(v){const btn=document.getElementById('saveDayBtn');if(!btn)return;btn.disabled=!!v;document.getElementById('saveDayBtnTitle').textContent=v?'Gerando imagem':'Baixar imagem';document.getElementById('saveDayBtnHint').textContent=v?'Preparando arte...':'Horários para WhatsApp';document.getElementById('saveDayBtnBadge').textContent=v?'...':String(currentDay?getAvailableSlotsForDay(currentDay).length:0);}
 function buildAvailableSlotsExportNode(iso,slots){const mount=document.createElement('div');mount.style.cssText='position:fixed;left:-10000px;top:0;z-index:-1;padding:0;margin:0;';const dateLabel=formatManausLabel(iso,{weekday:'long',day:'2-digit',month:'long'}).replace(/^\w/,c=>c.toUpperCase());const chips=slots.length?slots.map(clock=>`<div style="padding:24px 14px 22px;border-radius:24px;background:linear-gradient(180deg,#F7FFF8 0%,#ECF9EF 100%);border:1px solid rgba(111,181,125,.28);text-align:center;box-shadow:0 14px 28px rgba(66,134,80,.12);"><div style="font-size:12px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#5D9E68;margin-bottom:10px;">Disponivel</div><div style="font-family:'Cormorant Garamond',serif;font-size:60px;line-height:.9;color:#2F7A3D;">${clock}</div></div>`).join(''):`<div style="grid-column:1/-1;padding:38px 34px;border-radius:28px;background:#FFFFFF;border:1px solid rgba(196,132,138,.16);font-size:30px;line-height:1.45;color:#5C4F4F;text-align:center;">Sem horarios livres para este dia.</div>`;const summary=slots.length?`${slots.length} horario${slots.length>1?'s':''} disponive${slots.length>1?'is':'l'}`:'Agenda atualizada';mount.innerHTML=`<div id="daySlotsExportVisual" style="width:1080px;padding:42px;background:#F7F0E8;color:#2A2020;font-family:'Outfit',sans-serif;border-radius:36px;overflow:hidden;"><div style="padding:34px 36px 38px;border-radius:30px;background:#FFFDFB;border:1px solid rgba(196,132,138,.14);"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:24px;margin-bottom:26px;"><div><div style="font-size:16px;font-weight:700;letter-spacing:5px;text-transform:uppercase;color:#C9A86C;margin-bottom:14px;">Studio de Cilios</div><div style="font-family:'Cormorant Garamond',serif;font-size:82px;letter-spacing:4px;line-height:.88;color:#2A2020;">LOOK <span style="color:#C4848A;">DESIGNER</span></div><div style="margin-top:18px;font-size:22px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:#5D9E68;">Horarios disponiveis</div></div><div style="min-width:248px;padding:22px 24px;border-radius:24px;background:#2A2020;color:#FFFFFF;text-align:right;"><div style="font-size:13px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.68);margin-bottom:10px;">${summary}</div><div style="font-family:'Cormorant Garamond',serif;font-size:42px;line-height:1.02;">${dateLabel}</div></div></div><div style="margin-bottom:24px;border-top:1px solid rgba(196,132,138,.18);"></div><div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;">${chips}</div><div style="margin-top:24px;padding-top:18px;border-top:1px solid rgba(196,132,138,.14);display:flex;align-items:center;justify-content:space-between;gap:18px;"><div style="font-size:18px;letter-spacing:3px;text-transform:uppercase;color:#5D9E68;font-weight:700;">Agende pelo WhatsApp</div><div style="font-size:34px;font-weight:700;color:#2A2020;">(92) 9 9615-0540</div></div></div></div>`;return mount;}
@@ -2420,7 +2533,7 @@ function renderGrid(iso){
       if(hasActiveBooking){if(!isMyBooking){cur+=Math.max(15,durMin||30);continue;}}
       else{if(st!=='Livre'){cur+=Math.max(15,durMin||30);continue;}}
     }
-    if(st==='Livre'){const nextOcc=db.filter(r=>String(r.data).substring(0,10)===iso&&r.status!=='Livre').map(r=>{const[h,m]=r.horario.split(':').map(Number);return h*60+m;}).filter(m=>m>cur).sort((a,b)=>a-b)[0];if(nextOcc){const gap=nextOcc-cur;if(gap<durMin)durMin=gap;}}
+    if(st==='Livre'){const nextOcc=db.filter(r=>String(r.data).substring(0,10)===iso&&r.status!=='Livre').map(r=>{const[h,m]=r.horario.split(':').map(Number);return h*60+m;}).filter(m=>m>cur).sort((a,b)=>a-b)[0];if(nextOcc!==undefined){const gap=nextOcc-cur;if(gap<durMin){cur=nextOcc;continue;}}}
     const pipColor={'Livre':'var(--st-livre)','Aguardando Pagamento':'var(--st-aguard)','Ocupado':'var(--st-ocupado)','Bloqueado':'var(--st-block)'}[st]||'var(--st-block)';
     let expiredHtml='';
     if(isAdmin&&logMsg)logs.push({time:clock,msg:logMsg,client:reg.cliente,phone:reg.telefone,token:reg.codigo});
@@ -2430,13 +2543,25 @@ function renderGrid(iso){
     let clientName='Horário disponível';
     if(st==='Ocupado'||st==='Aguardando Pagamento')clientName=(isMyBooking&&!isAdmin)?'Seu agendamento':(reg.cliente||'—');
     if(st==='Bloqueado')clientName='Indisponível';
+    let capacityHtml='';
+    if(isAdmin&&st==='Livre'){
+      const gi=getScheduleGapInfo(iso,clock);
+      const roomy=gi.gap>durMin+15; // tem bem mais espaço do que a duração padrão
+      capacityHtml=`<div class="slot-capacity${roomy?' roomy':''}">Espaço livre: <strong>${fmtDur(gi.gap)}</strong>${gi.next?` · próx. ${gi.next.clock} (${htmlEsc(gi.next.cliente||'—')})`:' · sem próximo compromisso hoje'}</div>`;
+    }
     let extra='';
-    if(isAdmin&&reg&&reg.telefone){const clean=reg.telefone.replace(/\D/g,'');const msg=encodeURIComponent(`Olá, ${reg.cliente}! ✨ Sou a Camila do Studio Look Designer. Vi seu interesse no horário das ${clock} do dia ${iso.split('-').reverse().join('/')}. Posso te ajudar? 💗`);extra=`<div class="slot-dur" style="margin-top:5px;"><a href="https://wa.me/${clean.startsWith('55')?clean:'55'+clean}?text=${msg}" target="_blank" style="text-decoration:none;color:var(--rose);font-weight:700;background:rgba(196,132,138,.08);padding:3px 9px;border-radius:7px;display:inline-block;font-size:.58rem;">💬 Contato Rápido</a></div>`;}
+    if(isAdmin&&reg&&reg.telefone){
+      const clean=reg.telefone.replace(/\D/g,'');
+      const phoneFull=clean.startsWith('55')?clean:'55'+clean;
+      const msg=encodeURIComponent(`Olá, ${reg.cliente}! ✨ Sou a Camila do Studio Look Designer. Vi seu interesse no horário das ${clock} do dia ${iso.split('-').reverse().join('/')}. Posso te ajudar? 💗`);
+      const wa=buildWaContactLinks(phoneFull,msg);
+      extra=`<div class="wa-contact-row" onclick="event.stopPropagation()"><a href="${wa.waMe}" target="_blank" class="wa-contact-btn">💬 WhatsApp</a><a href="${wa.business}" target="_blank" class="wa-contact-btn biz">💼 Business</a><button type="button" class="wa-contact-btn copy" onclick="copyClientPhone('${phoneFull}')" title="Copiar número">📋</button></div>`;
+    }
     const card=document.createElement('div');
     card.dataset.time=clock;card.dataset.status=st;card.style.animationDelay=`${idx*.04}s`;
     card.className='slot-card'+(isPast&&!isAdmin?' past':'');
     card.onclick=e=>handleSlotClick(e,card,iso,clock,st,reservedUntil,reg);
-    card.innerHTML=`<div class="slot-check" data-chk="true">✓</div><div class="slot-pip" style="background:${pipColor}"></div><div class="slot-time">${clock}</div><div class="slot-info"><div class="slot-status" style="color:${pipColor}">${stLabel}</div><div class="slot-client">${clientName}</div><div class="slot-dur" style="margin-top:1px;font-size:.58rem;opacity:.55;">${st!=='Livre'&&reg&&reg.telefone?'📞 '+reg.telefone:''} ${st!=='Livre'&&reg&&reg.codigo?' · 🎫 '+reg.codigo:''}</div><div class="slot-dur">${durLabel}</div>${extra}${expiredHtml}</div>`;
+    card.innerHTML=`<div class="slot-check" data-chk="true">✓</div><div class="slot-pip" style="background:${pipColor}"></div><div class="slot-time">${clock}</div><div class="slot-info"><div class="slot-status" style="color:${pipColor}">${stLabel}</div><div class="slot-client">${clientName}</div><div class="slot-dur" style="margin-top:1px;font-size:.58rem;opacity:.55;">${st!=='Livre'&&reg&&reg.telefone?'📞 '+reg.telefone:''} ${st!=='Livre'&&reg&&reg.codigo?' · 🎫 '+reg.codigo:''}</div><div class="slot-dur">${durLabel}</div>${capacityHtml}${extra}${expiredHtml}</div>`;
     container.appendChild(card);
     cur+=Math.max(30,durMin);idx++;
   }
@@ -2640,10 +2765,73 @@ function showBlockedScreen(){
 }
 
 // ADMIN SLOT
-function showAdminSlotSheet(iso,clock,st,reg){const durOpts=[30,45,60,75,90,120].map(d=>`<div class="dur-opt${(reg&&parseInt(reg.duration||srvCfg.duration)===d)||(!reg&&srvCfg.duration===d)?' sel':''}" onclick="selectDur(this,${d})">${d>=60?Math.floor(d/60)+'h'+(d%60>0?d%60:''):d+'min'}</div>`).join('');openSheet(`Gestão · ${clock}`,`Status atual: ${st}`);document.getElementById('sheetBody').innerHTML=`<div class="admin-act-grid">${st!=='Bloqueado'&&st!=='Aguardando Pagamento'?`<button class="btn btn-danger" onclick="adminAction('${iso}','${clock}','block')">🔒 Bloquear este horário</button>`:''}${st==='Bloqueado'||st==='Ocupado'||st==='Aguardando Pagamento'?`<button class="btn btn-gold" onclick="adminAction('${iso}','${clock}','free')">🔓 Liberar horário</button>`:''}</div><label class="f-label">${st==='Ocupado'?'Dados do Cliente':'Agendar manualmente'}</label><input id="aName" class="f-inp" placeholder="Nome do cliente" value="${reg?reg.cliente:''}"><input id="aPhone" class="f-inp" placeholder="(92) 9 0000-0000" type="tel" value="${reg&&reg.telefone?reg.telefone:''}" oninput="handlePhoneInput(this)"><label class="f-label">Duração do procedimento</label><div class="dur-grid" id="durGrid">${durOpts}</div>`;document.getElementById('sheetActions').innerHTML=`<button class="btn btn-primary" onclick="adminManual('${iso}','${clock}')">✓ Salvar agendamento</button><button class="btn btn-secondary" onclick="closeSheet()">Voltar</button>`;}
-function selectDur(el,val){document.querySelectorAll('.dur-opt').forEach(e=>e.classList.remove('sel'));el.classList.add('sel');selectedDur=val;}
+function showAdminSlotSheet(iso,clock,st,reg){
+  currentGapInfo=getScheduleGapInfo(iso,clock);
+  const gap=currentGapInfo.gap,next=currentGapInfo.next;
+  const curDur=reg?parseInt(reg.duration||srvCfg.duration):srvCfg.duration;
+  const durOpts=[30,45,60,75,90,120].map(d=>{
+    const fits=d<=gap;
+    return `<div class="dur-opt${(curDur===d&&fits)?' sel':''}${fits?'':' disabled'}" onclick="selectDur(this,${d})">${fmtDur(d)}</div>`;
+  }).join('');
+  selectedDur=(curDur<=gap)?curDur:0;
+  const gapNoticeHtml=next
+    ?`<div class="gap-notice${gap<curDur?' warn':''}">⏱ <strong>${fmtDur(gap)} livres</strong> até ${next.clock} — depois disso, <strong>${htmlEsc(next.cliente||'outro horário')}</strong> ocupa a agenda (${fmtDur(next.duration)}).</div>`
+    :`<div class="gap-notice">⏱ <strong>${fmtDur(gap)} livres</strong> até o fechamento (${srvCfg.end}) — sem outros compromissos hoje.</div>`;
+  openSheet(`Gestão · ${clock}`,`Status atual: ${st}`);
+  document.getElementById('sheetBody').innerHTML=`<div class="admin-act-grid">${st!=='Bloqueado'&&st!=='Aguardando Pagamento'?`<button class="btn btn-danger" onclick="adminAction('${iso}','${clock}','block')">🔒 Bloquear este horário</button>`:''}${st==='Bloqueado'||st==='Ocupado'||st==='Aguardando Pagamento'?`<button class="btn btn-gold" onclick="adminAction('${iso}','${clock}','free')">🔓 Liberar horário</button>`:''}</div><label class="f-label">${st==='Ocupado'?'Dados do Cliente':'Agendar manualmente'}</label><input id="aName" class="f-inp" placeholder="Nome do cliente" value="${reg?reg.cliente:''}"><input id="aPhone" class="f-inp" placeholder="(92) 9 0000-0000" type="tel" value="${reg&&reg.telefone?reg.telefone:''}" oninput="handlePhoneInput(this)"><label class="f-label">Duração do procedimento</label>${gapNoticeHtml}<div class="dur-grid" id="durGrid">${durOpts}</div><div class="dur-custom-row"><label class="f-lbl" style="display:block;margin-bottom:6px;">Duração personalizada (min) — aproveite todo o espaço livre</label><div style="display:flex;gap:8px;"><input id="durCustom" class="f-inp" style="margin-bottom:0;" type="number" min="5" step="5" placeholder="até ${gap} min"><button type="button" class="btn-sm-secondary" onclick="useMaxDur()" style="white-space:nowrap;">Usar máx. (${fmtDur(gap)})</button></div><div id="durCustomMsg" class="dur-custom-msg"></div></div>`;
+  const custIn=document.getElementById('durCustom');
+  if(custIn)custIn.oninput=onCustomDurInput;
+  document.getElementById('sheetActions').innerHTML=`<button class="btn btn-primary" onclick="adminManual('${iso}','${clock}')">✓ Salvar agendamento</button><button class="btn btn-secondary" onclick="closeSheet()">Voltar</button>`;
+}
+function selectDur(el,val){
+  if(el.classList.contains('disabled')){
+    const msg=document.getElementById('durCustomMsg');
+    const next=currentGapInfo?.next;
+    if(msg)msg.innerHTML=`<span class="dur-warn">Não é possível reservar ${fmtDur(val)} aqui — só há <strong>${fmtDur(currentGapInfo?.gap||0)}</strong> livres${next?` antes de <strong>${htmlEsc(next.cliente||'outro horário')}</strong> às ${next.clock} (${fmtDur(next.duration)})`:''}.</span>`;
+    return;
+  }
+  document.querySelectorAll('.dur-opt').forEach(e=>e.classList.remove('sel'));
+  el.classList.add('sel');
+  selectedDur=val;
+  const msg=document.getElementById('durCustomMsg');if(msg)msg.innerHTML='';
+  const custom=document.getElementById('durCustom');if(custom)custom.value='';
+}
+function onCustomDurInput(){
+  const inp=document.getElementById('durCustom'),msg=document.getElementById('durCustomMsg');
+  const val=parseInt(inp.value,10);
+  document.querySelectorAll('.dur-opt').forEach(e=>e.classList.remove('sel'));
+  if(!val||val<=0){selectedDur=0;msg.innerHTML='';return;}
+  const gap=currentGapInfo?.gap||0,next=currentGapInfo?.next;
+  if(val>gap){
+    selectedDur=0;
+    msg.innerHTML=`<span class="dur-warn">Excede o espaço livre — só há <strong>${fmtDur(gap)}</strong> livres${next?` antes de <strong>${htmlEsc(next.cliente||'outro horário')}</strong> às ${next.clock} (${fmtDur(next.duration)})`:''}.</span>`;
+  }else{
+    selectedDur=val;
+    msg.innerHTML=`<span class="dur-ok">✓ ${fmtDur(val)} cabem no espaço livre.</span>`;
+  }
+}
+function useMaxDur(){
+  const inp=document.getElementById('durCustom');
+  if(!inp||!currentGapInfo)return;
+  inp.value=currentGapInfo.gap;
+  onCustomDurInput();
+}
 async function adminAction(iso,clock,action){closeSheet();if(action==='block')await postUpdates([{data:iso,horario:clock,status:'Bloqueado',cliente:'INDISPONÍVEL',password:adminPass}]);else await postUpdates([{data:iso,horario:clock,status:'Livre',cliente:'',password:adminPass}]);renderMyBookingBanner();}
-async function adminManual(iso,clock){const name=document.getElementById('aName').value.trim();const phone=document.getElementById('aPhone').value.trim();if(!name||!phone){alert('Preencha nome e WhatsApp.');return;}const dur=selectedDur||srvCfg.duration;closeSheet();await postUpdates([{data:iso,horario:clock,status:'Ocupado',cliente:name,telefone:phone,duration:dur,password:adminPass}]);}
+async function adminManual(iso,clock){
+  const name=document.getElementById('aName').value.trim();
+  const phone=document.getElementById('aPhone').value.trim();
+  if(!name||!phone){alert('Preencha nome e WhatsApp.');return;}
+  const dur=selectedDur||0;
+  const gi=currentGapInfo||getScheduleGapInfo(iso,clock);
+  if(!dur){alert('Escolha uma duração dentro do espaço livre exibido acima.');return;}
+  if(dur>gi.gap){
+    const next=gi.next;
+    alert(`Não é possível reservar ${fmtDur(dur)} às ${clock} — só há ${fmtDur(gi.gap)} livres${next?` antes de ${next.cliente||'outro horário'} às ${next.clock} (${fmtDur(next.duration)})`:''}. Ajuste a duração.`);
+    return;
+  }
+  closeSheet();
+  await postUpdates([{data:iso,horario:clock,status:'Ocupado',cliente:name,telefone:phone,duration:dur,password:adminPass}]);
+}
 
 // CONFIG
 function openConfig(){openSheet('Configurações','Expediente e Valor da Reserva (PIX)');document.getElementById('sheetBody').innerHTML=`<label class="f-label">Horário de início</label><input id="cfgS" class="f-inp" value="${srvCfg.start}" placeholder="08:00"><label class="f-label">Horário de término</label><input id="cfgE" class="f-inp" value="${srvCfg.end}" placeholder="20:00"><label class="f-label">Duração padrão (minutos)</label><input id="cfgD" class="f-inp" type="number" value="${srvCfg.duration}" min="30" step="15"><label class="f-label">Valor da Reserva (PIX)</label><input id="cfgP" class="f-inp" value="${(srvCfg.pix_value||'0.00').toString().replace('.',',')}" placeholder="25,50">`;document.getElementById('sheetActions').innerHTML=`<button id="btnSaveCfg" class="btn btn-primary" onclick="saveConfig()">Salvar configurações</button><button class="btn btn-secondary" onclick="closeSheet()">Cancelar</button>`;}
