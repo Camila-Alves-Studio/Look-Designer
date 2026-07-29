@@ -868,7 +868,7 @@ body{
   width:36px;height:36px;border-radius:var(--r-sm);
   background:rgba(255,255,255,.15);
   display:flex;align-items:center;justify-content:center;
-  font-size:1rem;flex-shrink:0;position:relative;z-index:1;
+  font-size:1rem;flex-shrink:0;
 }
 .export-copy{display:flex;flex-direction:column;gap:1px;position:relative;z-index:1;}
 .export-copy strong{font-size:.68rem;letter-spacing:1.5px;text-transform:uppercase;line-height:1.1;}
@@ -2157,6 +2157,22 @@ function getScheduleGapInfo(iso,clock){
   const gap=Math.max(0,limitMins-cur);
   return{gap,next};
 }
+/** Verifica se um agendamento (data + horário [+ duração]) da cliente ainda está por vir —
+ *  ou seja, se a data/hora escolhida (considerando a duração do serviço) ainda não passou.
+ *  Usado para não deixar uma reserva antiga bloqueando eternamente novos agendamentos da
+ *  própria cliente (banner, grade de horários e o bloqueio de 12h). */
+function isBookingUpcoming(iso,clock,duration){
+  if(!iso||!clock)return false;
+  const todayIso=getManausIsoDate(new Date());
+  const isoOnly=String(iso).substring(0,10);
+  if(isoOnly>todayIso)return true;
+  if(isoOnly<todayIso)return false;
+  const curMins=getManausMinutes(new Date());
+  const[h,m]=String(clock).substring(0,5).split(':').map(Number);
+  const startMins=(h||0)*60+(m||0);
+  const dur=parseInt(duration||srvCfg.duration||60);
+  return curMins<(startMins+dur);
+}
 function normalizePhone(p){let c=(p||'').replace(/\D/g,'');if(c.startsWith('55')&&c.length>11)c=c.slice(2);return c;}
 function handlePhoneInput(el){let v=el.value.replace(/\D/g,'');if(v.length>11)v=v.slice(0,11);let f='';if(v.length>0){f='('+v.substring(0,2);if(v.length>2){f+=') '+v.substring(2,3);if(v.length>3){f+=' '+v.substring(3,7);if(v.length>7)f+='-'+v.substring(7,11);}}}el.value=f;}
 function scrollToTop(){window.scrollTo({top:0,behavior:'smooth'});}
@@ -2268,7 +2284,11 @@ async function syncData(){
         if(saved){
           const bk=JSON.parse(saved);
           const still=db.find(x=>String(x.codigo||'')===String(bk.token||'')&&x.status==='Ocupado');
-          if(!still)clearClientBlock();
+          const bIso=String(still?.data||bk.iso||'').substring(0,10);
+          const bClock=String(still?.horario||bk.clock||'').substring(0,5);
+          // Limpa o bloqueio local se o agendamento não existe mais OU se a data/hora já passou —
+          // assim a cliente não fica presa eternamente a uma reserva que já aconteceu.
+          if(!still||!isBookingUpcoming(bIso,bClock,still?.duration))clearClientBlock();
         }
       }
       updateAppMode();renderDays();
@@ -2302,6 +2322,14 @@ function getActiveClientBooking(){
   const bk=JSON.parse(saved);
   const rec=db.find(r=>r.codigo===bk.token&&r.status==='Ocupado');
   if(!rec)return null;
+  // Se o horário reservado (com a duração do serviço) já passou, a reserva deixou de ser
+  // "ativa" — não deve mais bloquear nem aparecer no banner. Libera a cliente para agendar de novo.
+  const iso=String(rec.data||bk.iso||'').substring(0,10);
+  const clock=String(rec.horario||bk.clock||'').substring(0,5);
+  if(!isBookingUpcoming(iso,clock,rec.duration)){
+    clearClientBlock();
+    return null;
+  }
   return{...bk,...rec};
 }
 
@@ -2515,7 +2543,9 @@ function renderGrid(iso){
   logContainer.innerHTML='';
   const now=new Date(),todayIso=formatLocalIsoDate(now),curMins=now.getHours()*60+now.getMinutes();
   const lastBooking=JSON.parse(localStorage.getItem('last_booking_v3')||'null');
-  const hasActiveBooking=!isAdmin&&lastBooking&&(()=>{const rec=db.find(r=>String(r.codigo||'')===String(lastBooking.token||'')&&r.status==='Ocupado');return!!rec;})();
+  // Só considera a reserva salva como "ativa" (bloqueando a grade) se ela ainda estiver
+  // por vir — uma reserva cuja data/hora já passou não deve mais impedir novos agendamentos.
+  const hasActiveBooking=!isAdmin&&!!getActiveClientBooking();
   const[sH,sM]=srvCfg.start.split(':').map(Number);
   const[eH,eM]=srvCfg.end.split(':').map(Number);
   let cur=sH*60+sM,end=eH*60+eM;
@@ -2886,7 +2916,7 @@ window.onload=()=>{
     renderMyBookingBanner(); // banner de consulta da cliente
   });
   try{initWebNotifications();}catch{}
-  setInterval(()=>{if(currentDay)renderGrid(currentDay);},60000);
+  setInterval(()=>{if(currentDay)renderGrid(currentDay);renderMyBookingBanner();},60000);
 };
 </script>
 </body>
