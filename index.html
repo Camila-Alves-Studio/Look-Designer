@@ -254,41 +254,55 @@ body{
 }
 .hero-btn.ghost:hover{background:rgba(255,255,255,.12);}
 
-/* ── NAV TABS ───────────────────────────────────────────── */
+/* ── NAV TABS ─────────────────────────────────────────────
+   Barra única em 3 colunas iguais (estilo "segmented control").
+   Antes eram 2 cards por linha, o que sobrava o 3º botão isolado
+   numa linha à parte — obrigando o olho a "procurar" o Agendamento.
+   Agora os três ficam sempre lado a lado, do mesmo tamanho, dentro
+   de um único bloco arredondado — leitura rápida e sem esforço. */
 .main-nav{
-  display:grid;grid-template-columns:1fr 1fr;gap:12px;
-  margin-bottom:40px;
+  display:flex;
+  gap:5px;
+  background:var(--white);
+  border:1.5px solid var(--border);
+  border-radius:var(--r-xl);
+  padding:6px;
+  box-shadow:var(--sh);
+  margin-bottom:16px;
 }
 .main-nav-btn{
-  padding:20px 24px;border-radius:var(--r-md);border:1.5px solid var(--border);
-  background:var(--white);cursor:pointer;
-  display:flex;align-items:center;gap:16px;
-  text-align:left;transition:all .3s var(--ease);
-  box-shadow:var(--sh);
+  flex:1;min-width:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:7px;
+  padding:16px 6px;
+  border-radius:var(--r-lg);border:none;
+  background:transparent;cursor:pointer;
+  text-align:center;
+  transition:background .25s var(--ease),transform .2s var(--ease);
 }
-.main-nav-btn:hover{border-color:var(--rose);transform:translateY(-2px);box-shadow:var(--sh-md),var(--sh-rose);}
+.main-nav-btn:hover{background:var(--cream-2);}
+.main-nav-btn:active{transform:scale(.97);}
 .main-nav-btn.active{
-  background:var(--gradient-ink);
-  border-color:transparent;
-  box-shadow:0 16px 36px rgba(27,18,16,.24);
+  background:var(--gradient-rose);
+  box-shadow:0 10px 26px rgba(139,79,85,.3);
 }
-.main-nav-btn:disabled{opacity:.45;pointer-events:none;}
+.main-nav-btn.active:hover{background:var(--gradient-rose);}
+.main-nav-btn:disabled{opacity:.4;pointer-events:none;}
 .nav-ico{
-  width:46px;height:46px;border-radius:var(--r-sm);flex-shrink:0;
+  width:40px;height:40px;border-radius:50%;flex-shrink:0;
   background:linear-gradient(135deg,var(--blush),var(--cream-2));
   display:flex;align-items:center;justify-content:center;
-  font-size:20px;
-  transition:all .3s var(--ease);
+  font-size:18px;line-height:1;
+  transition:background .25s var(--ease);
 }
-.main-nav-btn.active .nav-ico{background:rgba(255,255,255,.1);}
+.main-nav-btn.active .nav-ico{background:rgba(255,255,255,.22);}
 .nav-copy strong{
-  display:block;font-size:.75rem;font-weight:700;
-  letter-spacing:1px;text-transform:uppercase;
-  color:var(--ink);margin-bottom:3px;
+  display:block;font-size:.64rem;font-weight:700;
+  letter-spacing:.4px;text-transform:uppercase;line-height:1.2;
+  color:var(--ink-mid);
 }
-.nav-copy small{font-size:.7rem;color:var(--ink-lt);line-height:1.3;}
-.main-nav-btn.active .nav-copy strong,
-.main-nav-btn.active .nav-copy small{color:rgba(255,255,255,.85);}
+.main-nav-btn.active .nav-copy strong{color:#fff;}
+.nav-copy small{display:none;}
 
 /* ── SECTION HEADER ─────────────────────────────────────── */
 .sec-hdr{
@@ -1621,11 +1635,10 @@ body.admin-on #logPanel{display:block;}
   .hero-info{padding:28px 24px 32px;background:var(--gradient-ink);}
   .hero-title{font-size:2.4rem;}
   .hero-desc{font-size:.84rem;}
-  .main-nav{grid-template-columns:1fr 1fr;gap:10px;}
-  .main-nav-btn{padding:16px 14px;gap:12px;}
-  .nav-ico{width:38px;height:38px;font-size:17px;}
-  .nav-copy strong{font-size:.68rem;}
-  .nav-copy small{font-size:.64rem;}
+  .main-nav{padding:5px;gap:4px;}
+  .main-nav-btn{padding:12px 3px;gap:5px;}
+  .nav-ico{width:34px;height:34px;font-size:16px;}
+  .nav-copy strong{font-size:.55rem;letter-spacing:.2px;}
   .admin-stats{grid-template-columns:repeat(3,1fr);}
   .admin-stats .stat-item:nth-child(4),
   .admin-stats .stat-item:nth-child(5){display:none;}
@@ -1823,7 +1836,7 @@ body.admin-on #logPanel{display:block;}
 
   <!-- NAV TABS -->
   <div class="main-nav" id="publicMainNav"></div>
-  <div id="publicMainNote" style="font-size:.68rem;color:var(--ink-lt);text-align:center;margin-top:-28px;margin-bottom:32px;min-height:14px;"></div>
+  <div id="publicMainNote" style="font-size:.68rem;color:var(--ink-lt);text-align:center;margin-top:2px;margin-bottom:26px;min-height:14px;"></div>
 
   <!-- CATALOG -->
   <section id="servicesSection">
@@ -2431,7 +2444,7 @@ function saveSiteTexts(obj){localStorage.setItem(SITE_TEXTS_KEY,JSON.stringify(o
 // ════════════════════════════════════════════════════
 //  SERVICES PUBLIC
 // ════════════════════════════════════════════════════
-function renderPublicMainNav(){const wrap=document.getElementById('publicMainNav');if(!wrap)return;const T=getSiteTexts();const note=document.getElementById('publicMainNote');const hasCatalogo=ABAS.length>0;const hasPortfolio=PROCS.some(p=>parseFotos(p.fotos||p.imagem).length);wrap.innerHTML=`<button class="main-nav-btn" data-tab="catalogo" onclick="setPublicMainTab('catalogo')"${hasCatalogo?'':' disabled'}><span class="nav-ico">✦</span><span class="nav-copy"><strong>${htmlEsc(T.navCatalog)}</strong><small>${hasCatalogo?`${PROCS.length} ${htmlEsc(T.navCatalogSub)}`:'Em atualização'}</small></span></button><button class="main-nav-btn" data-tab="portfolio" onclick="setPublicMainTab('portfolio')"${hasPortfolio?'':' disabled'}><span class="nav-ico">🖼</span><span class="nav-copy"><strong>${htmlEsc(T.navPortfolio)}</strong><small>${hasPortfolio?htmlEsc(T.navPortfolioSub):'Sem imagens ainda'}</small></span></button><button class="main-nav-btn" data-tab="agendamento" onclick="setPublicMainTab('agendamento')"><span class="nav-ico">📅</span><span class="nav-copy"><strong>${htmlEsc(T.navBooking)}</strong><small>${htmlEsc(T.navBookingSub)}</small></span></button>`;if(note)note.textContent=hasCatalogo?'':'Catálogo em atualização. O agendamento continua disponível.';}
+function renderPublicMainNav(){const wrap=document.getElementById('publicMainNav');if(!wrap)return;const T=getSiteTexts();const note=document.getElementById('publicMainNote');const hasCatalogo=ABAS.length>0;const hasPortfolio=PROCS.some(p=>parseFotos(p.fotos||p.imagem).length);wrap.innerHTML=`<button class="main-nav-btn" data-tab="catalogo" onclick="setPublicMainTab('catalogo')"${hasCatalogo?'':' disabled'} title="${hasCatalogo?`${PROCS.length} ${htmlEsc(T.navCatalogSub)}`:'Em atualização'}"><span class="nav-ico">✦</span><span class="nav-copy"><strong>${htmlEsc(T.navCatalog)}</strong></span></button><button class="main-nav-btn" data-tab="portfolio" onclick="setPublicMainTab('portfolio')"${hasPortfolio?'':' disabled'} title="${hasPortfolio?htmlEsc(T.navPortfolioSub):'Sem imagens ainda'}"><span class="nav-ico">🖼</span><span class="nav-copy"><strong>${htmlEsc(T.navPortfolio)}</strong></span></button><button class="main-nav-btn" data-tab="agendamento" onclick="setPublicMainTab('agendamento')" title="${htmlEsc(T.navBookingSub)}"><span class="nav-ico">📅</span><span class="nav-copy"><strong>${htmlEsc(T.navBooking)}</strong></span></button>`;if(note)note.textContent=hasCatalogo?'':'Catálogo em atualização. O agendamento continua disponível.';}
 function refreshPublicMainSections(){const catalog=document.getElementById('servicesSection');const portfolio=document.getElementById('portfolioSection');const booking=document.getElementById('bookingSection');if(catalog)catalog.style.display=(publicMainTab==='catalogo'&&ABAS.length)?'block':'none';if(portfolio)portfolio.style.display=(publicMainTab==='portfolio')?'block':'none';if(booking)booking.style.display=publicMainTab==='agendamento'?'block':'none';}
 function setPublicMainTab(tab){const hasCatalogo=ABAS.length>0;const hasPortfolio=PROCS.some(p=>parseFotos(p.fotos||p.imagem).length);publicMainTab=['catalogo','portfolio','agendamento'].includes(tab)?tab:'catalogo';if(publicMainTab==='catalogo'&&!hasCatalogo)publicMainTab=hasPortfolio?'portfolio':'agendamento';if(publicMainTab==='portfolio'&&!hasPortfolio)publicMainTab=hasCatalogo?'catalogo':'agendamento';document.querySelectorAll('.main-nav-btn').forEach(btn=>btn.classList.toggle('active',btn.getAttribute('data-tab')===publicMainTab));refreshPublicMainSections();if(publicMainTab==='catalogo'&&ABAS.length){const alvo=ABAS.some(a=>a.nome===abaPublicaAtiva)?abaPublicaAtiva:ABAS[0].nome;if(alvo)showServico(alvo);}if(publicMainTab==='portfolio')renderPortfolioSection();applySiteTexts();}
 function renderServicesTabs(){const wrap=document.getElementById('servicesTabs');const panel=document.getElementById('srvPanel');renderPublicMainNav();renderPortfolioSection();if(!ABAS.length){if(publicMainTab==='catalogo')publicMainTab=PROCS.some(p=>parseFotos(p.fotos||p.imagem).length)?'portfolio':'agendamento';wrap.innerHTML='';panel.innerHTML=`<div class="srv-empty"><div class="srv-empty-ico">✦</div><p>Cadastre categorias para montar seu catálogo.</p></div>`;refreshPublicMainSections();return;}wrap.innerHTML=ABAS.map(a=>{const cnt=PROCS.filter(p=>p.aba===a.nome).length;return `<div class="srv-tab" data-aba="${htmlEsc(a.nome)}" onclick="showServico('${String(a.nome).replace(/'/g,"\\'")}')"><div class="srv-tab-ico">${a.emoji}</div><div class="srv-tab-name">${htmlEsc(a.nome)}</div><div class="srv-tab-cnt">${cnt} serviço${cnt!==1?'s':''}</div></div>`;}).join('');if(!ABAS.some(a=>a.nome===abaPublicaAtiva))abaPublicaAtiva=ABAS[0].nome;refreshPublicMainSections();if(publicMainTab==='catalogo'&&abaPublicaAtiva)showServico(abaPublicaAtiva);applySiteTexts();}
