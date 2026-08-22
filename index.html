@@ -2700,6 +2700,12 @@ function renderGridHead(iso){
   const el=(id,v)=>{const n=document.getElementById(id);if(n)n.innerHTML=v;};
   el('gridWeekday',htmlEsc(wd.charAt(0).toUpperCase()+wd.slice(1)));
   el('gridDate',htmlEsc(formatManausLabel(iso,{day:'2-digit',month:'long'})));
+  /* O resumo é informação de gestão (agendados, aguardando, bloqueados) e
+     não pode aparecer pra cliente — some por completo fora do modo admin. */
+  const resumo=document.getElementById('gridResume');
+  if(!resumo)return;
+  if(!isAdmin||isUserView){resumo.innerHTML='';resumo.style.display='none';return;}
+  resumo.style.display='';
   const recs=db.filter(r=>String(r.data).substring(0,10)===iso);
   const livres=getAvailableSlotsForDay(iso).length;
   const ocup=recs.filter(r=>r.status==='Ocupado').length;
@@ -2708,7 +2714,7 @@ function renderGridHead(iso){
   const partes=[`<b>${livres}</b> livre${livres===1?'':'s'}`,`<b>${ocup}</b> agendado${ocup===1?'':'s'}`];
   if(aguard)partes.push(`<b>${aguard}</b> aguardando`);
   if(bloq)partes.push(`<b>${bloq}</b> bloqueado${bloq===1?'':'s'}`);
-  el('gridResume',partes.join('<span class="gr-sep">·</span>'));
+  resumo.innerHTML=partes.join('<span class="gr-sep">·</span>');
 }
 function selectDay(iso){currentDay=iso;clearSelection();renderDays();renderGridHead(iso);document.getElementById('gridSection').classList.add('vis');renderGrid(iso);updateDayExportButton();}
 function closeGrid(){currentDay='';clearSelection();document.getElementById('gridSection').classList.remove('vis');renderDays();updateDayExportButton();}
@@ -3233,7 +3239,7 @@ function toggleUserView(){isUserView=!isUserView;updateAppMode();if(currentDay)r
 function onGearClick(){if(isAdmin&&isUserView){toggleUserView();return;}promptAdmin();}
 function updateGearState(){const gear=document.getElementById('topbarGear');if(!gear)return;const back=isAdmin&&isUserView;gear.classList.toggle('is-back',back);const lbl=back?'Voltar ao painel administrativo':'Área administrativa';gear.title=lbl;gear.setAttribute('aria-label',lbl);}
 let lastAppMode=null;
-function updateAppMode(){const body=document.body;const aN=document.getElementById('adminNav');const modo=adminTabAvailable()?'adm':'pub';if(modo==='adm'){body.classList.add('admin-on');setupAdminStats();}else{body.classList.remove('admin-on');}updateGearState();if(aN)aN.style.removeProperty('display');renderPublicMainNav();
+function updateAppMode(){const body=document.body;const aN=document.getElementById('adminNav');const modo=adminTabAvailable()?'adm':'pub';if(modo==='adm'){body.classList.add('admin-on');setupAdminStats();}else{body.classList.remove('admin-on');}updateGearState();updateMultiBar();if(aN)aN.style.removeProperty('display');renderPublicMainNav();
   /* Só troca de aba quando o modo muda — senão cada sync jogaria a gerente
      de volta pra Gerência enquanto ela mexe na agenda. Nunca chamamos
      setPublicMainTab à toa: o catálogo ainda pode estar carregando e a
@@ -3279,7 +3285,7 @@ function initWebNotifications(){if(notifInit)return;try{window.OneSignalDeferred
 // ════════════════════════════════════════════════════
 /* Marcador de versão: serve pra conferir, dentro do app publicado, se a
    implantação do Apps Script já está com o arquivo mais novo. */
-const APP_BUILD='22/08/2026 · 9';
+const APP_BUILD='22/08/2026 · 10';
 window.onload=()=>{
   const bs=document.getElementById('appBuild');if(bs)bs.textContent=APP_BUILD;
   calcExperience();
