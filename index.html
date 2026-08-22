@@ -111,7 +111,8 @@ body{
 @keyframes scaleX{from{transform:scaleX(0);}to{transform:scaleX(1);}}
 
 /* ── LAYOUT ─────────────────────────────────────────────── */
-.page{max-width:1200px;margin:0 auto;padding:0 24px 140px;}
+.page{max-width:1200px;margin:0 auto;padding:0 24px 72px;}
+body.admin-on .page{padding-bottom:140px;}
 
 /* ── TOPBAR ─────────────────────────────────────────────── */
 .topbar{
@@ -141,6 +142,21 @@ body{
   font-weight:600;border-left:2px solid var(--rose);padding-left:10px;
   opacity:0;animation:fadeUp .7s 3.8s var(--ease) forwards;
 }
+.topbar-right{display:flex;align-items:center;gap:12px;flex-shrink:0;}
+.topbar-gear{
+  width:32px;height:32px;padding:0;flex-shrink:0;
+  display:inline-flex;align-items:center;justify-content:center;
+  background:none;border:1px solid var(--border);border-radius:50%;
+  color:var(--ink-lt);cursor:pointer;
+  transition:color .25s var(--ease),border-color .25s var(--ease),background .25s var(--ease);
+  opacity:0;animation:fadeUp .7s 4s var(--ease) forwards;
+}
+.topbar-gear svg{width:15px;height:15px;display:block;transition:transform .5s var(--ease);}
+.topbar-gear:hover{color:var(--rose);border-color:rgba(196,132,138,.42);background:var(--cream-2);}
+.topbar-gear:hover svg{transform:rotate(60deg);}
+.topbar-gear:focus-visible{outline:2px solid var(--rose);outline-offset:3px;}
+.topbar-gear.is-back{color:var(--rose);border-color:rgba(196,132,138,.42);}
+body.admin-on .topbar-gear{display:none;}
 
 /* ── HERO ────────────────────────────────────────────────── */
 .hero{
@@ -1002,6 +1018,58 @@ body.admin-on::after{
   color:rgba(255,255,255,.4);text-transform:uppercase;
   margin-top:4px;display:block;
 }
+.hist-filters{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
+.hist-chip{
+  font-family:'Outfit',sans-serif;font-size:.58rem;font-weight:700;
+  letter-spacing:1px;text-transform:uppercase;
+  padding:8px 13px;border-radius:999px;
+  border:1px solid var(--border);background:var(--white);color:var(--ink-mid);
+  cursor:pointer;transition:all .2s;
+}
+.hist-chip:hover{border-color:var(--rose);color:var(--rose);}
+.hist-chip.on{background:var(--gradient-rose);border-color:transparent;color:#fff;}
+.hist-custom{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.hist-summary{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(68px,1fr));gap:8px;
+  padding:12px 10px;margin-bottom:14px;
+  border-radius:var(--r-sm);background:var(--cream);border:1px solid var(--border);
+}
+.hs-item{text-align:center;display:flex;flex-direction:column;gap:3px;}
+.hs-item strong{font-family:'Cormorant Garamond',serif;font-size:1.5rem;line-height:1;color:var(--ink);}
+.hs-item span{font-size:.52rem;letter-spacing:1px;text-transform:uppercase;color:var(--ink-lt);font-weight:600;}
+.hist-day{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:16px 0 6px;}
+.hist-day-lbl{font-size:.6rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--rose);}
+.hist-day-cnt{font-size:.54rem;color:var(--ink-lt);letter-spacing:.5px;}
+.free-chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:8px;}
+.free-chip{
+  padding:11px 6px;border-radius:12px;text-align:center;
+  font-family:'Cormorant Garamond',serif;font-size:1.3rem;line-height:1;color:#2F7A3D;
+  background:linear-gradient(180deg,#F7FFF8,#ECF9EF);border:1px solid rgba(111,181,125,.3);
+}
+.cli-search{margin-bottom:12px;}
+.cli-card{
+  display:flex;gap:10px;align-items:flex-start;
+  padding:12px;margin-bottom:8px;
+  border:1px solid var(--border);border-radius:var(--r-sm);background:var(--white);
+}
+.cli-rank{
+  flex-shrink:0;width:26px;height:26px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Outfit',sans-serif;font-size:.62rem;font-weight:700;
+  background:var(--cream-2);color:var(--ink-mid);
+}
+.cli-card.top .cli-rank{background:var(--gradient-rose);color:#fff;}
+.cli-body{flex:1;min-width:0;}
+.cli-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px;}
+.cli-name{font-size:.82rem;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.cli-count{
+  flex-shrink:0;font-family:'Outfit',sans-serif;font-size:.55rem;font-weight:700;
+  letter-spacing:.8px;text-transform:uppercase;color:var(--rose);
+  background:rgba(196,132,138,.1);border:1px solid rgba(196,132,138,.2);
+  padding:3px 8px;border-radius:999px;
+}
+.cli-meta{font-size:.6rem;color:var(--ink-lt);margin:3px 0 2px;line-height:1.45;}
+.cli-tel{font-size:.6rem;color:var(--ink-mid);font-weight:600;}
 .admin-cards{
   display:grid;grid-template-columns:1fr 1fr;gap:12px;
   margin-bottom:16px;
@@ -1082,6 +1150,7 @@ body.admin-on::after{
   box-sizing:border-box;
   opacity:0;animation:fadeUp .8s 4.5s var(--ease) forwards;
 }
+body:not(.admin-on) .nav-float{display:none;}
 .nav-btn{
   background:none;border:none;
   font-family:'Outfit',sans-serif;
@@ -1096,20 +1165,8 @@ body.admin-on::after{
   background:var(--gradient-rose);
   color:#fff;
 }
-.nav-admin-btn{
-  background:none;border:1.5px solid rgba(196,132,138,.3);
-  font-family:'Outfit',sans-serif;font-size:.58rem;font-weight:700;
-  letter-spacing:1.5px;text-transform:uppercase;color:var(--rose);
-  cursor:pointer;padding:10px 16px;border-radius:16px;
-  transition:all .25s;min-height:42px;
-}
-#userNav{
-  display:flex;flex-wrap:nowrap;gap:4px;align-items:center;
-  width:100%;min-width:0;box-sizing:border-box;
-}
 #adminNav{display:none;gap:4px;align-items:center;flex-wrap:nowrap;width:100%;min-width:0;box-sizing:border-box;}
 body.admin-on #adminNav{display:flex;}
-body.admin-on #userNav{display:none !important;}
 
 /* ── OVERLAY / SHEET ─────────────────────────────────────── */
 .overlay{
@@ -1187,6 +1244,7 @@ body.admin-on #userNav{display:none !important;}
 .wa-contact-btn{
   display:inline-flex;align-items:center;gap:3px;
   text-decoration:none;color:var(--rose);font-weight:700;
+  line-height:1.2;white-space:nowrap;
   background:rgba(196,132,138,.08);border:1px solid rgba(196,132,138,.18);
   padding:4px 9px;border-radius:7px;font-size:.58rem;
   font-family:'Outfit',sans-serif;cursor:pointer;
@@ -1623,7 +1681,8 @@ body.admin-on #logPanel{display:block;}
 
 /* ── RESPONSIVE ──────────────────────────────────────────── */
 @media (max-width:760px){
-  .page{padding:0 16px max(140px,calc(120px + env(safe-area-inset-bottom,0px)));}
+  .page{padding:0 16px 56px;}
+  body.admin-on .page{padding-bottom:max(140px,calc(120px + env(safe-area-inset-bottom,0px)));}
   .topbar{padding:20px 0 18px;margin-bottom:24px;}
   .topbar-name{font-size:1.4rem;}
   .topbar-tag{display:none;}
@@ -1661,21 +1720,13 @@ body.admin-on #logPanel{display:block;}
     gap:0;
     justify-content:stretch;
   }
-  /* JS não deve usar style.display no #userNav — grid aqui não pode ser sobrescrito por inline flex */
-  #userNav{
-    display:grid !important;
-    grid-template-columns:repeat(auto-fit,minmax(0,1fr));
-    gap:8px;
-    align-items:stretch;
-    flex-wrap:unset;
-  }
   body.admin-on #adminNav{
     display:grid !important;
     grid-template-columns:repeat(3,minmax(0,1fr));
     gap:6px;
     flex-wrap:unset;
   }
-  .nav-btn,.nav-admin-btn{
+  .nav-btn{
     width:100%;
     min-width:0;
     max-width:none;
@@ -1730,8 +1781,8 @@ body.admin-on #logPanel{display:block;}
     transform:none;width:auto;flex-wrap:nowrap;
     max-width:none;
   }
-  #userNav,#adminNav{width:auto;}
-  .nav-btn,.nav-admin-btn{flex:none;min-width:0;}
+  #adminNav{width:auto;}
+  .nav-btn{flex:none;min-width:0;}
 }
 </style>
 </head>
@@ -1803,7 +1854,15 @@ body.admin-on #logPanel{display:block;}
       <svg class="topbar-mark" viewBox="0 0 60 40" fill="none" aria-hidden="true"><use href="#lashMotif" width="60" height="40"/></svg>
       <div class="topbar-name">LOOK<span class="topbar-dot"></span><strong>DESIGNER</strong></div>
     </div>
-    <div class="topbar-tag">Studio de Cílios</div>
+    <div class="topbar-right">
+      <div class="topbar-tag">Studio de Cílios</div>
+      <button type="button" id="topbarGear" class="topbar-gear" onclick="onGearClick()" title="Área administrativa" aria-label="Área administrativa">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="3.1"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+      </button>
+    </div>
   </header>
 
   <!-- HERO -->
@@ -1938,12 +1997,13 @@ body.admin-on #logPanel{display:block;}
     <div class="admin-title">✦ Painel Administrativo ✦</div>
     <div class="admin-stats">
       <div class="stat-item" style="cursor:pointer" id="wrapOcupado"><span class="stat-num" id="statOcupado">—</span><span class="stat-lbl">Agendados</span></div>
-      <div class="stat-item"><span class="stat-num" id="statLivre">—</span><span class="stat-lbl">Livres hoje</span></div>
+      <div class="stat-item" style="cursor:pointer" id="wrapLivre"><span class="stat-num" id="statLivre">—</span><span class="stat-lbl" id="statLivreLbl">Livres hoje</span></div>
       <div class="stat-item" style="cursor:pointer" id="wrapAguard"><span class="stat-num" id="statAguard">—</span><span class="stat-lbl">Histórico</span></div>
       <div class="stat-item" style="border-left:1px solid rgba(255,255,255,.1);padding-left:8px;"><span class="stat-num" id="statPix" style="font-size:1.1rem;color:var(--gold);">—</span><span class="stat-lbl">Taxa PIX</span></div>
       <div class="stat-item" style="border-left:1px solid rgba(255,255,255,.1);padding-left:8px;cursor:pointer;" id="wrapNext"><span class="stat-num" id="statNext" style="font-size:1.1rem;color:var(--rose);">—</span><span class="stat-lbl">Próximo</span></div>
     </div>
     <div class="admin-cards">
+      <div class="admin-card" onclick="openClientesSheet()"><span class="ac-ico">👥</span><div class="ac-lbl">Clientes</div><div class="ac-desc">Ranking de frequência e contato</div></div>
       <div class="admin-card" onclick="openConfig()"><span class="ac-ico">⚙️</span><div class="ac-lbl">Configurações</div><div class="ac-desc">Expediente e Valor da Reserva</div></div>
       <div class="admin-card" onclick="openServicosAdmin()"><span class="ac-ico">💅</span><div class="ac-lbl">Serviços</div><div class="ac-desc">Abas e procedimentos do studio</div></div>
       <div class="admin-card" onclick="openMidiaAdmin()"><span class="ac-ico">🖼️</span><div class="ac-lbl">Tela Principal</div><div class="ac-desc">Foto ou vídeo de apresentação</div></div>
@@ -1970,11 +2030,6 @@ body.admin-on #logPanel{display:block;}
 
 <!-- FLOAT NAV -->
 <nav class="nav-float">
-  <div id="userNav">
-    <button class="nav-btn" onclick="scrollToTop()">Início</button>
-    <button class="nav-admin-btn" onclick="promptAdmin()">🔐 Admin</button>
-    <button id="backToAdminBtn" class="nav-btn" onclick="toggleUserView()" style="display:none;color:var(--rose);">🛠 Admin</button>
-  </div>
   <div id="adminNav">
     <button id="syncBtn" class="nav-btn primary" onclick="syncData()">↻ Atualizar</button>
     <button class="nav-btn" onclick="toggleUserView()" style="border:1px solid var(--gold);color:var(--gold);">👁 Cliente</button>
@@ -2136,18 +2191,44 @@ function serializeProcTags(list){const tags=(list||[]).map(normalizeProcTag).fil
 function getProcTagValue(tag){return tag?.tipo==='real'?formatarValor(tag.valor):String(tag?.valor||'').trim();}
 function getProcTagLabel(tag){return String(tag?.label||'').trim()||'Informação';}
 function formatarValor(v){if(!v)return'';const s=String(v).trim();return/^R\s?\$/.test(s)?s:'R$ '+s;}
-/** Monta os dois links de contato (WhatsApp normal e Business) pro admin falar com a cliente.
- *  O link "normal" (wa.me) funciona na maioria dos casos, seja qual for o app instalado.
- *  O link "Business" força a abertura do WhatsApp Business especificamente no Android
- *  (via intent:// com o pacote com.whatsapp.w4b), com fallback automático pro wa.me
- *  caso o Business não esteja instalado ou o navegador não suporte esse tipo de link. */
-function buildWaContactLinks(phoneFull,msgEncoded){
-  const waMe=`https://wa.me/${phoneFull}?text=${msgEncoded}`;
-  const isAndroid=/Android/i.test((typeof navigator!=='undefined'&&navigator.userAgent)||'');
-  const business=isAndroid
-    ?`intent://send?phone=${phoneFull}&text=${msgEncoded}#Intent;scheme=whatsapp;package=com.whatsapp.w4b;S.browser_fallback_url=${encodeURIComponent(waMe)};end`
-    :waMe;
-  return{waMe,business};
+/** Contato por WhatsApp — abre o app certo (comum x Business) pro admin falar com a cliente.
+ *
+ *  Só o Android permite escolher o app: cada um tem seu pacote (com.whatsapp e
+ *  com.whatsapp.w4b) e o intent:// direciona pra ele. Por isso os DOIS botões forçam
+ *  o pacote — sem isso o link wa.me abre o app padrão do sistema, que pode ser o
+ *  Business, fazendo os dois botões cairem no mesmo lugar.
+ *
+ *  A navegação precisa ser no próprio contexto (window.location) — intent:// aberto
+ *  com target="_blank" é bloqueado pelo Chrome e ignorado pela WebView do APK.
+ *
+ *  No iPhone e no desktop não existe URL scheme separado pro Business: os dois apps
+ *  registram whatsapp:// e o sistema decide. Nesse caso avisamos e abrimos o padrão. */
+const WA_PKG={normal:'com.whatsapp',business:'com.whatsapp.w4b'};
+function isAndroidDevice(){return /Android/i.test((typeof navigator!=='undefined'&&navigator.userAgent)||'');}
+/** encodeURIComponent que também escapa ' ( ) ! * — o texto vai dentro de um onclick inline. */
+function encWaText(t){return encodeURIComponent(String(t==null?'':t)).replace(/[!'()*]/g,c=>'%'+c.charCodeAt(0).toString(16).toUpperCase());}
+function waMeUrl(phoneFull,msgEncoded){return `https://wa.me/${phoneFull}?text=${msgEncoded}`;}
+function waIntentUrl(pkg,phoneFull,msgEncoded){return `intent://send?phone=${phoneFull}&text=${msgEncoded}#Intent;scheme=whatsapp;package=${pkg};end`;}
+function openWaContact(phoneFull,msgEncoded,mode){
+  const biz=mode==='business';
+  const waMe=waMeUrl(phoneFull,msgEncoded);
+  if(!isAndroidDevice()){
+    if(biz)toast('Escolher entre WhatsApp e Business só funciona no Android — abrindo o app padrão.','info',4000);
+    window.open(waMe,'_blank','noopener');
+    return;
+  }
+  let leftPage=false;
+  const mark=()=>{leftPage=true;};
+  document.addEventListener('visibilitychange',mark,{once:true});
+  window.addEventListener('pagehide',mark,{once:true});
+  setTimeout(()=>{
+    document.removeEventListener('visibilitychange',mark);
+    window.removeEventListener('pagehide',mark);
+    if(leftPage||document.hidden)return;
+    toast(biz?'WhatsApp Business não abriu — confira se está instalado. Abrindo o WhatsApp comum.':'WhatsApp não abriu — abrindo pelo navegador.','warn',4500);
+    window.open(waMe,'_blank','noopener');
+  },1800);
+  try{window.location.href=waIntentUrl(biz?WA_PKG.business:WA_PKG.normal,phoneFull,msgEncoded);}catch(e){}
 }
 function copyClientPhone(phone){
   if(navigator.clipboard&&navigator.clipboard.writeText){
@@ -2245,7 +2326,7 @@ function applySiteTexts(){
 }
 
 // EXPORT IMAGE
-function getAvailableSlotsForDay(iso){const now=new Date(),todayIso=formatLocalIsoDate(now),curMins=now.getHours()*60+now.getMinutes();const[sH,sM]=srvCfg.start.split(':').map(Number),[eH,eM]=srvCfg.end.split(':').map(Number);let cur=sH*60+sM,end=eH*60+eM;const slots=[];while(cur<end){const hh=String(Math.floor(cur/60)).padStart(2,'0'),mm=String(cur%60).padStart(2,'0'),clock=`${hh}:${mm}`;const isPast=(iso<todayIso)||(iso===todayIso&&cur<curMins);const reg=db.find(r=>String(r.data).substring(0,10)===iso&&String(r.horario).substring(0,5)===clock);let st=reg?reg.status:'Livre',durMin=reg?parseInt(reg.duration||srvCfg.duration):srvCfg.duration;const reservedUntil=reg?reg.reservedUntil:null;let isExpired=false;if(st==='Aguardando Pagamento'&&reservedUntil&&new Date()>new Date(reservedUntil))isExpired=true;if(st==='Aguardando Pagamento'&&isExpired)st='Livre';if(st==='Livre'){const nextOcc=db.filter(r=>String(r.data).substring(0,10)===iso&&r.status!=='Livre').map(r=>{const[h,m]=String(r.horario).substring(0,5).split(':').map(Number);return h*60+m;}).filter(m=>m>cur).sort((a,b)=>a-b)[0];if(nextOcc!==undefined){const gap=nextOcc-cur;if(gap<durMin){cur=nextOcc;continue;}}if(!isPast)slots.push(clock);}cur+=Math.max(30,durMin||30);}return slots;}
+function getAvailableSlotsForDay(iso){const now=new Date(),todayIso=getManausIsoDate(now),curMins=getManausMinutes(now);const[sH,sM]=srvCfg.start.split(':').map(Number),[eH,eM]=srvCfg.end.split(':').map(Number);let cur=sH*60+sM,end=eH*60+eM;const slots=[];while(cur<end){const hh=String(Math.floor(cur/60)).padStart(2,'0'),mm=String(cur%60).padStart(2,'0'),clock=`${hh}:${mm}`;const isPast=(iso<todayIso)||(iso===todayIso&&cur<curMins);const reg=db.find(r=>String(r.data).substring(0,10)===iso&&String(r.horario).substring(0,5)===clock);let st=reg?reg.status:'Livre',durMin=reg?parseInt(reg.duration||srvCfg.duration):srvCfg.duration;const reservedUntil=reg?reg.reservedUntil:null;let isExpired=false;if(st==='Aguardando Pagamento'&&reservedUntil&&new Date()>new Date(reservedUntil))isExpired=true;if(st==='Aguardando Pagamento'&&isExpired)st='Livre';if(st==='Livre'){const nextOcc=db.filter(r=>String(r.data).substring(0,10)===iso&&r.status!=='Livre').map(r=>{const[h,m]=String(r.horario).substring(0,5).split(':').map(Number);return h*60+m;}).filter(m=>m>cur).sort((a,b)=>a-b)[0];if(nextOcc!==undefined){const gap=nextOcc-cur;if(gap<durMin){cur=nextOcc;continue;}}if(!isPast)slots.push(clock);}cur+=Math.max(30,durMin||30);}return slots;}
 function updateDayExportButton(){const btn=document.getElementById('saveDayBtn');if(!btn)return;if(!isAdmin||isUserView){btn.style.display='none';return;}btn.style.display='';const title=document.getElementById('saveDayBtnTitle');const hint=document.getElementById('saveDayBtnHint');const badge=document.getElementById('saveDayBtnBadge');const enabled=!!currentDay&&typeof html2canvas==='function';const count=enabled?getAvailableSlotsForDay(currentDay).length:0;btn.disabled=!enabled;if(title)title.textContent=enabled?'Baixar imagem':'Escolha um dia';if(hint)hint.textContent=enabled?(count>0?'Horários para WhatsApp':'Sem horários livres'):'Selecione uma data';if(badge)badge.textContent=String(count);}
 function setDayExportButtonLoading(v){const btn=document.getElementById('saveDayBtn');if(!btn)return;btn.disabled=!!v;document.getElementById('saveDayBtnTitle').textContent=v?'Gerando imagem':'Baixar imagem';document.getElementById('saveDayBtnHint').textContent=v?'Preparando arte...':'Horários para WhatsApp';document.getElementById('saveDayBtnBadge').textContent=v?'...':String(currentDay?getAvailableSlotsForDay(currentDay).length:0);}
 function buildAvailableSlotsExportNode(iso,slots){const mount=document.createElement('div');mount.style.cssText='position:fixed;left:-10000px;top:0;z-index:-1;padding:0;margin:0;';const dateLabel=formatManausLabel(iso,{weekday:'long',day:'2-digit',month:'long'}).replace(/^\w/,c=>c.toUpperCase());const chips=slots.length?slots.map(clock=>`<div style="padding:24px 14px 22px;border-radius:24px;background:linear-gradient(180deg,#F7FFF8 0%,#ECF9EF 100%);border:1px solid rgba(111,181,125,.28);text-align:center;box-shadow:0 14px 28px rgba(66,134,80,.12);"><div style="font-size:12px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#5D9E68;margin-bottom:10px;">Disponivel</div><div style="font-family:'Cormorant Garamond',serif;font-size:60px;line-height:.9;color:#2F7A3D;">${clock}</div></div>`).join(''):`<div style="grid-column:1/-1;padding:38px 34px;border-radius:28px;background:#FFFFFF;border:1px solid rgba(196,132,138,.16);font-size:30px;line-height:1.45;color:#5C4F4F;text-align:center;">Sem horarios livres para este dia.</div>`;const summary=slots.length?`${slots.length} horario${slots.length>1?'s':''} disponive${slots.length>1?'is':'l'}`:'Agenda atualizada';mount.innerHTML=`<div id="daySlotsExportVisual" style="width:1080px;padding:42px;background:#F7F0E8;color:#2A2020;font-family:'Outfit',sans-serif;border-radius:36px;overflow:hidden;"><div style="padding:34px 36px 38px;border-radius:30px;background:#FFFDFB;border:1px solid rgba(196,132,138,.14);"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:24px;margin-bottom:26px;"><div><div style="font-size:16px;font-weight:700;letter-spacing:5px;text-transform:uppercase;color:#C9A86C;margin-bottom:14px;">Studio de Cilios</div><div style="font-family:'Cormorant Garamond',serif;font-size:82px;letter-spacing:4px;line-height:.88;color:#2A2020;">LOOK <span style="color:#C4848A;">DESIGNER</span></div><div style="margin-top:18px;font-size:22px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:#5D9E68;">Horarios disponiveis</div></div><div style="min-width:248px;padding:22px 24px;border-radius:24px;background:#2A2020;color:#FFFFFF;text-align:right;"><div style="font-size:13px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.68);margin-bottom:10px;">${summary}</div><div style="font-family:'Cormorant Garamond',serif;font-size:42px;line-height:1.02;">${dateLabel}</div></div></div><div style="margin-bottom:24px;border-top:1px solid rgba(196,132,138,.18);"></div><div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;">${chips}</div><div style="margin-top:24px;padding-top:18px;border-top:1px solid rgba(196,132,138,.14);display:flex;align-items:center;justify-content:space-between;gap:18px;"><div style="font-size:18px;letter-spacing:3px;text-transform:uppercase;color:#5D9E68;font-weight:700;">Agende pelo WhatsApp</div><div style="font-size:34px;font-weight:700;color:#2A2020;">(92) 9 9615-0540</div></div></div></div>`;return mount;}
@@ -2596,9 +2677,8 @@ function renderGrid(iso){
     if(isAdmin&&reg&&reg.telefone){
       const clean=reg.telefone.replace(/\D/g,'');
       const phoneFull=clean.startsWith('55')?clean:'55'+clean;
-      const msg=encodeURIComponent(`Olá, ${reg.cliente}! ✨ Sou a Camila do Studio Look Designer. Vi seu interesse no horário das ${clock} do dia ${iso.split('-').reverse().join('/')}. Posso te ajudar? 💗`);
-      const wa=buildWaContactLinks(phoneFull,msg);
-      extra=`<div class="wa-contact-row" onclick="event.stopPropagation()"><a href="${wa.waMe}" target="_blank" class="wa-contact-btn">💬 WhatsApp</a><a href="${wa.business}" target="_blank" class="wa-contact-btn biz">💼 Business</a><button type="button" class="wa-contact-btn copy" onclick="copyClientPhone('${phoneFull}')" title="Copiar número">📋</button></div>`;
+      const msg=encWaText(`Olá, ${reg.cliente}! ✨ Sou a Camila do Studio Look Designer. Vi seu interesse no horário das ${clock} do dia ${iso.split('-').reverse().join('/')}. Posso te ajudar? 💗`);
+      extra=`<div class="wa-contact-row" onclick="event.stopPropagation()"><button type="button" class="wa-contact-btn" onclick="openWaContact('${phoneFull}','${msg}','normal')" title="Abrir no WhatsApp comum">💬 WhatsApp</button><button type="button" class="wa-contact-btn biz" onclick="openWaContact('${phoneFull}','${msg}','business')" title="Abrir no WhatsApp Business">💼 Business</button><button type="button" class="wa-contact-btn copy" onclick="copyClientPhone('${phoneFull}')" title="Copiar número">📋</button></div>`;
     }
     const card=document.createElement('div');
     card.dataset.time=clock;card.dataset.status=st;card.style.animationDelay=`${idx*.04}s`;
@@ -2882,15 +2962,200 @@ async function saveConfig(){const btn=document.getElementById('btnSaveCfg');cons
 function openBlockPanel(){openSheet('Bloqueios em Lote','Selecione uma data, marque os horários e use a barra para bloquear ou liberar.');document.getElementById('sheetBody').innerHTML=`<div class="info-box">🔒 <strong>Como usar:</strong><br>1. Feche este painel<br>2. Escolha a data no calendário<br>3. Toque nos horários desejados<br>4. Use a barra para Bloquear ou Liberar</div><div class="info-box" style="border-color:var(--rose);">💡 Para folga do dia inteiro, use <em>Selecionar Tudo</em> e depois <em>Bloquear</em>.</div>`;document.getElementById('sheetActions').innerHTML=`<button class="btn btn-primary" onclick="closeSheet()">Entendido</button>`;}
 function openAgendadosSheet(){const bks=getFutureBookings().slice(0,100);const html=bks.length===0?'<div class="info-box">Nenhum cliente agendado.</div>':bks.map(r=>`<div class="log-entry" style="border-left-color:var(--st-ocupado)"><strong>${r.cliente||'—'}</strong><p style="margin:3px 0">📅 ${formatManausLabel(r.data,{day:'2-digit',month:'2-digit',year:'numeric'})} às <strong>${r.horario||'—'}</strong></p><div class="log-meta">📞 ${r.telefone||'—'}${r.codigo?' · 🎫 '+r.codigo:''}</div></div>`).join('');openSheet('Agendados',`${bks.length} cliente(s) confirmado(s).`);document.getElementById('sheetBody').innerHTML=html;document.getElementById('sheetActions').innerHTML=`<button class="btn btn-secondary" onclick="closeSheet()">Fechar</button>`;}
 function openProximoSheet(){const next=getNextOccupiedBooking();openSheet('Próximo atendimento','Detalhes do próximo cliente.');document.getElementById('sheetBody').innerHTML=next?`<div class="info-box" style="border-color:var(--gold);background:rgba(201,168,108,.07);"><strong>${next.cliente||'—'}</strong><br>📅 ${formatManausLabel(next.data,{weekday:'long',day:'2-digit',month:'long',year:'numeric'})}<br>🕐 ${next.horario||'—'}<br>📞 ${next.telefone||'—'}</div>`:'<div class="info-box">Nenhum atendimento futuro.</div>';document.getElementById('sheetActions').innerHTML=`<button class="btn btn-secondary" onclick="closeSheet()">Fechar</button>`;}
-function openHistoricoSheet(){const past=getPastBookings().slice(0,80);const html=past.length===0?'<div class="info-box">Nenhum atendimento anterior.</div>':past.map(r=>`<div class="log-entry" style="border-left-color:var(--st-block)"><strong>${r.cliente||'—'}</strong><p style="margin:3px 0">📅 ${formatManausLabel(r.data,{day:'2-digit',month:'2-digit',year:'numeric'})} às <strong>${r.horario||'—'}</strong></p><div class="log-meta">📞 ${r.telefone||'—'}${r.codigo?' · 🎫 '+r.codigo:''}</div></div>`).join('');openSheet('Histórico',`${past.length} atendimento(s) anterior(es).`);document.getElementById('sheetBody').innerHTML=html;document.getElementById('sheetActions').innerHTML=`<button class="btn btn-secondary" onclick="closeSheet()">Fechar</button>`;}
+/* ── LIVRES DO DIA ────────────────────────────────────────── */
+function openLivresSheet(){
+  const todayIso=getManausIsoDate(new Date());
+  const iso=currentDay||todayIso;
+  const slots=getAvailableSlotsForDay(iso);
+  const recs=db.filter(r=>String(r.data).substring(0,10)===iso);
+  const ocup=recs.filter(r=>r.status==='Ocupado').length;
+  const aguard=recs.filter(r=>r.status==='Aguardando Pagamento').length;
+  const bloq=recs.filter(r=>r.status==='Bloqueado').length;
+  const dayLabel=formatManausLabel(iso,{weekday:'long',day:'2-digit',month:'long'});
+  openSheet('Horários livres',dayLabel.charAt(0).toUpperCase()+dayLabel.slice(1)+(iso===todayIso?' · hoje':''));
+  const chips=slots.length
+    ?`<div class="free-chips">${slots.map(c=>`<span class="free-chip">${c}</span>`).join('')}</div>`
+    :'<div class="info-box">Nenhum horário livre neste dia.</div>';
+  document.getElementById('sheetBody').innerHTML=`<div class="hist-summary"><div class="hs-item"><strong>${slots.length}</strong><span>Livres</span></div><div class="hs-item"><strong>${ocup}</strong><span>Agendados</span></div><div class="hs-item"><strong>${aguard}</strong><span>Aguardando</span></div><div class="hs-item"><strong>${bloq}</strong><span>Bloqueados</span></div></div>${chips}`;
+  document.getElementById('sheetActions').innerHTML=`<button class="btn btn-primary" onclick="copyFreeSlots('${iso}')">Copiar lista</button><button class="btn btn-secondary" onclick="closeSheet()">Fechar</button>`;
+}
+function copyFreeSlots(iso){
+  const slots=getAvailableSlotsForDay(iso);
+  const label=formatManausLabel(iso,{weekday:'long',day:'2-digit',month:'long'});
+  const txt=slots.length?`Horários livres · ${label}\n${slots.join(' · ')}`:`Sem horários livres em ${label}.`;
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(txt).then(()=>toast('Lista copiada!','ok')).catch(()=>toast('Não foi possível copiar','err'));
+  else toast('Não foi possível copiar','err');
+}
+
+/* ── CLIENTES: RANKING DE FREQUÊNCIA ──────────────────────── */
+let cliRange='tudo',cliQuery='';
+const CLI_RANGES=[{id:'30d',lbl:'30 dias'},{id:'90d',lbl:'90 dias'},{id:'12m',lbl:'12 meses'},{id:'tudo',lbl:'Tudo'}];
+function cliBounds(){
+  const todayIso=getManausIsoDate(new Date());
+  const base=parseIsoDateLocal(todayIso);
+  const back=n=>{const d=new Date(base);d.setDate(d.getDate()-n);return formatLocalIsoDate(d);};
+  switch(cliRange){
+    case'30d':return{from:back(29),to:'9999-12-31',label:'Últimos 30 dias'};
+    case'90d':return{from:back(89),to:'9999-12-31',label:'Últimos 90 dias'};
+    case'12m':return{from:back(364),to:'9999-12-31',label:'Últimos 12 meses'};
+    default:return{from:'0000-01-01',to:'9999-12-31',label:'Todo o período'};
+  }
+}
+/** Agrupa os agendamentos confirmados por cliente. A chave é o telefone (só dígitos),
+ *  porque o mesmo nome pode se repetir; sem telefone, cai pro nome normalizado. */
+function buildClientRanking(){
+  const b=cliBounds();
+  const todayIso=getManausIsoDate(new Date());
+  const curMins=getManausMinutes(new Date());
+  const map=new Map();
+  db.filter(r=>r.status==='Ocupado').forEach(r=>{
+    const iso=String(r.data||'').substring(0,10);
+    if(!iso||iso<b.from||iso>b.to)return;
+    const tel=String(r.telefone||'').replace(/\D/g,'');
+    const nome=String(r.cliente||'').trim();
+    const key=tel||(nome?'n:'+nome.toLowerCase():'');
+    if(!key)return;
+    const hora=String(r.horario||'00:00').substring(0,5);
+    const[h,m]=hora.split(':').map(Number);
+    const futuro=iso>todayIso||(iso===todayIso&&(h*60+m)>=curMins);
+    const c=map.get(key)||{key,nome:nome||'Sem nome',tel,total:0,futuros:0,primeiro:iso,ultimo:'',ultimaHora:''};
+    c.total++;
+    if(futuro)c.futuros++;
+    if(iso<c.primeiro)c.primeiro=iso;
+    if(iso>c.ultimo||(iso===c.ultimo&&hora>c.ultimaHora)){c.ultimo=iso;c.ultimaHora=hora;if(nome)c.nome=nome;}
+    if(!c.tel&&tel)c.tel=tel;
+    map.set(key,c);
+  });
+  const q=cliQuery.trim().toLowerCase();
+  const qd=q.replace(/\D/g,'');
+  let list=[...map.values()];
+  if(q)list=list.filter(c=>c.nome.toLowerCase().includes(q)||(!!qd&&c.tel.includes(qd)));
+  return{bounds:b,list:list.sort((a,b2)=>b2.total-a.total||b2.ultimo.localeCompare(a.ultimo)||a.nome.localeCompare(b2.nome))};
+}
+function openClientesSheet(){openSheet('Clientes','');renderClientesSheet();}
+function setCliRange(r){cliRange=r;renderClientesSheet();}
+function setCliQuery(v){cliQuery=v;renderClientesContent();}
+function renderClientesSheet(){
+  const chips=CLI_RANGES.map(r=>`<button type="button" class="hist-chip${cliRange===r.id?' on':''}" onclick="setCliRange('${r.id}')">${r.lbl}</button>`).join('');
+  document.getElementById('sheetBody').innerHTML=`<div class="hist-filters">${chips}</div><div class="cli-search"><input class="f-input" type="search" placeholder="Buscar por nome ou telefone" value="${htmlEsc(cliQuery)}" oninput="setCliQuery(this.value)"></div><div id="cliContent"></div>`;
+  document.getElementById('sheetActions').innerHTML=`<button class="btn btn-primary" onclick="copyClientRanking()">Copiar ranking</button><button class="btn btn-secondary" onclick="closeSheet()">Fechar</button>`;
+  renderClientesContent();
+}
+function renderClientesContent(){
+  const box=document.getElementById('cliContent');if(!box)return;
+  const{bounds,list}=buildClientRanking();
+  const agend=list.reduce((a,c)=>a+c.total,0);
+  const recorrentes=list.filter(c=>c.total>1).length;
+  const media=list.length?(agend/list.length).toFixed(1).replace('.',','):'0';
+  const sub=document.getElementById('sheetSub');
+  if(sub)sub.textContent=`${bounds.label} · ${list.length} cliente(s)`;
+  const resumo=`<div class="hist-summary"><div class="hs-item"><strong>${list.length}</strong><span>Clientes</span></div><div class="hs-item"><strong>${agend}</strong><span>Agendamentos</span></div><div class="hs-item"><strong>${recorrentes}</strong><span>Recorrentes</span></div><div class="hs-item"><strong>${media}</strong><span>Média/cliente</span></div></div>`;
+  if(!list.length){box.innerHTML=resumo+'<div class="info-box">Nenhum cliente neste período.</div>';return;}
+  const LIMITE=200;
+  const cards=list.slice(0,LIMITE).map((c,i)=>{
+    const nome=htmlEsc(c.nome);
+    const ult=c.ultimo?formatManausLabel(c.ultimo,{day:'2-digit',month:'2-digit',year:'numeric'}):'—';
+    const pri=c.primeiro?formatManausLabel(c.primeiro,{day:'2-digit',month:'2-digit',year:'numeric'}):'—';
+    const futuro=c.futuros?` · <span style="color:var(--rose);font-weight:600;">${c.futuros} futuro${c.futuros>1?'s':''}</span>`:'';
+    let contato='<div class="cli-meta">Sem telefone cadastrado.</div>';
+    if(c.tel){
+      const full=c.tel.startsWith('55')?c.tel:'55'+c.tel;
+      const msg=encWaText(`Olá, ${c.nome}! ✨ Sou a Camila do Studio Look Designer. Tudo bem? 💗`);
+      contato=`<div class="wa-contact-row"><button type="button" class="wa-contact-btn" onclick="openWaContact('${full}','${msg}','normal')" title="Abrir no WhatsApp comum">💬 WhatsApp</button><button type="button" class="wa-contact-btn biz" onclick="openWaContact('${full}','${msg}','business')" title="Abrir no WhatsApp Business">💼 Business</button><button type="button" class="wa-contact-btn copy" onclick="copyClientPhone('${full}')" title="Copiar número">📋</button></div>`;
+    }
+    return `<div class="cli-card${i<3?' top':''}"><div class="cli-rank">${i+1}</div><div class="cli-body"><div class="cli-head"><span class="cli-name">${nome}</span><span class="cli-count">${c.total} agend.</span></div><div class="cli-meta">Último: ${ult} · Primeiro: ${pri}${futuro}</div>${c.tel?`<div class="cli-tel">📞 ${htmlEsc(c.tel)}</div>`:''}${contato}</div></div>`;
+  }).join('');
+  const corte=list.length>LIMITE?`<div class="info-box">Mostrando os ${LIMITE} primeiros de ${list.length}. Use a busca para encontrar alguém específico.</div>`:'';
+  box.innerHTML=resumo+cards+corte;
+}
+function copyClientRanking(){
+  const{bounds,list}=buildClientRanking();
+  const linhas=list.slice(0,200).map((c,i)=>`${i+1}. ${c.nome} — ${c.total} agend.${c.tel?' — '+c.tel:''}`).join('\n');
+  const txt=`Clientes por frequência · ${bounds.label}\nTotal: ${list.length} cliente(s)\n\n${linhas}`;
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(txt).then(()=>toast('Ranking copiado!','ok')).catch(()=>toast('Não foi possível copiar','err'));
+  else toast('Não foi possível copiar','err');
+}
+
+/* ── HISTÓRICO COM FILTRO DE PERÍODO ──────────────────────── */
+let histRange='30d';
+let histCustom={from:'',to:''};
+const HIST_RANGES=[{id:'hoje',lbl:'Hoje'},{id:'7d',lbl:'7 dias'},{id:'30d',lbl:'30 dias'},{id:'mes',lbl:'Mês atual'},{id:'mesant',lbl:'Mês passado'},{id:'tudo',lbl:'Tudo'},{id:'custom',lbl:'Escolher'}];
+function histBounds(){
+  const todayIso=getManausIsoDate(new Date());
+  const base=parseIsoDateLocal(todayIso);
+  const back=n=>{const d=new Date(base);d.setDate(d.getDate()-n);return formatLocalIsoDate(d);};
+  switch(histRange){
+    case'hoje':return{from:todayIso,to:todayIso,label:'Hoje'};
+    case'7d':return{from:back(6),to:todayIso,label:'Últimos 7 dias'};
+    case'30d':return{from:back(29),to:todayIso,label:'Últimos 30 dias'};
+    case'mes':return{from:todayIso.substring(0,7)+'-01',to:todayIso,label:'Mês atual'};
+    case'mesant':{const d=new Date(base.getFullYear(),base.getMonth(),1);d.setDate(0);const ini=formatLocalIsoDate(new Date(d.getFullYear(),d.getMonth(),1));return{from:ini,to:formatLocalIsoDate(d),label:'Mês passado'};}
+    case'custom':return{from:histCustom.from||'0000-01-01',to:histCustom.to||todayIso,label:'Período escolhido'};
+    default:return{from:'0000-01-01',to:'9999-12-31',label:'Todo o histórico'};
+  }
+}
+function setHistRange(r){histRange=r;renderHistoricoSheet();}
+function setHistCustom(k,v){histCustom[k]=v;renderHistoricoContent();}
+function openHistoricoSheet(){openSheet('Histórico','');renderHistoricoSheet();}
+function renderHistoricoSheet(){
+  const chips=HIST_RANGES.map(r=>`<button type="button" class="hist-chip${histRange===r.id?' on':''}" onclick="setHistRange('${r.id}')">${r.lbl}</button>`).join('');
+  const custom=histRange==='custom'
+    ?`<div class="hist-custom"><div><label class="f-lbl">De</label><input type="date" class="f-input" value="${histCustom.from}" onchange="setHistCustom('from',this.value)"></div><div><label class="f-lbl">Até</label><input type="date" class="f-input" value="${histCustom.to}" onchange="setHistCustom('to',this.value)"></div></div>`
+    :'';
+  document.getElementById('sheetBody').innerHTML=`<div class="hist-filters">${chips}</div>${custom}<div id="histContent"></div>`;
+  document.getElementById('sheetActions').innerHTML=`<button class="btn btn-primary" onclick="copyHistoricoResumo()">Copiar resumo</button><button class="btn btn-secondary" onclick="closeSheet()">Fechar</button>`;
+  renderHistoricoContent();
+}
+function histFiltered(){
+  const b=histBounds();
+  return{bounds:b,list:getPastBookings().filter(r=>{const d=String(r.data).substring(0,10);return d>=b.from&&d<=b.to;})};
+}
+function renderHistoricoContent(){
+  const box=document.getElementById('histContent');if(!box)return;
+  const{bounds,list}=histFiltered();
+  const total=getPastBookings().length;
+  const clientes=new Set(list.map(r=>String(r.telefone||r.cliente||'').trim()).filter(Boolean)).size;
+  const dias=new Set(list.map(r=>String(r.data).substring(0,10))).size;
+  const media=dias?(list.length/dias).toFixed(1).replace('.',','):'0';
+  const sub=document.getElementById('sheetSub');
+  if(sub)sub.textContent=`${bounds.label} · ${list.length} de ${total} atendimento(s)`;
+  const resumo=`<div class="hist-summary"><div class="hs-item"><strong>${list.length}</strong><span>Atendimentos</span></div><div class="hs-item"><strong>${clientes}</strong><span>Clientes</span></div><div class="hs-item"><strong>${dias}</strong><span>Dias c/ atend.</span></div><div class="hs-item"><strong>${media}</strong><span>Média/dia</span></div></div>`;
+  if(!list.length){box.innerHTML=resumo+'<div class="info-box">Nenhum atendimento neste período.</div>';return;}
+  const LIMITE=300;
+  const shown=list.slice(0,LIMITE);
+  const byDay={};shown.forEach(r=>{const d=String(r.data).substring(0,10);(byDay[d]=byDay[d]||[]).push(r);});
+  const dayKeys=Object.keys(byDay).sort().reverse();
+  const corpo=dayKeys.map(d=>{
+    const its=byDay[d].map(r=>`<div class="log-entry" style="border-left-color:var(--st-block)"><strong>${r.cliente||'—'}</strong><p style="margin:3px 0">🕐 <span style="font-weight:700;color:var(--ink)">${r.horario||'—'}</span></p><div class="log-meta">📞 ${r.telefone||'—'}${r.codigo?' · 🎫 '+r.codigo:''}</div></div>`).join('');
+    const lbl=formatManausLabel(d,{weekday:'short',day:'2-digit',month:'2-digit',year:'numeric'});
+    return `<div class="hist-day"><span class="hist-day-lbl">${lbl}</span><span class="hist-day-cnt">${byDay[d].length} atend.</span></div>${its}`;
+  }).join('');
+  const corte=list.length>LIMITE?`<div class="info-box">Mostrando os ${LIMITE} mais recentes de ${list.length}. Reduza o período para ver o restante.</div>`:'';
+  box.innerHTML=resumo+corpo+corte;
+}
+function copyHistoricoResumo(){
+  const{bounds,list}=histFiltered();
+  const clientes=new Set(list.map(r=>String(r.telefone||r.cliente||'').trim()).filter(Boolean)).size;
+  const byDay={};list.forEach(r=>{const d=String(r.data).substring(0,10);byDay[d]=(byDay[d]||0)+1;});
+  const linhas=Object.keys(byDay).sort().reverse().map(d=>`${formatManausLabel(d,{day:'2-digit',month:'2-digit',year:'numeric'})}: ${byDay[d]}`).join('\n');
+  const txt=`Histórico · ${bounds.label}\nAtendimentos: ${list.length}\nClientes: ${clientes}\n\n${linhas}`;
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(txt).then(()=>toast('Resumo copiado!','ok')).catch(()=>toast('Não foi possível copiar','err'));
+  else toast('Não foi possível copiar','err');
+}
 
 // AUTH
 function promptAdmin(){const p=prompt('Senha do painel administrativo:');if(p){adminPass=p;localStorage.setItem('look_admin_pass',p);syncData();}}
 function logoutAdmin(){if(!confirm('Sair e remover senha salva?'))return;adminPass='';isAdmin=false;localStorage.removeItem('look_admin_pass');clearSelection();updateAppMode();if(currentDay)renderGrid(currentDay);}
 function toggleUserView(){isUserView=!isUserView;updateAppMode();if(currentDay)renderGrid(currentDay);renderMyBookingBanner();}
-function updateAppMode(){const body=document.body;const aN=document.getElementById('adminNav');const uN=document.getElementById('userNav');const navAdminBtn=document.querySelector('.nav-admin-btn');const backBtn=document.getElementById('backToAdminBtn');if(isAdmin&&!isUserView){body.classList.add('admin-on');if(backBtn)backBtn.style.display='none';if(navAdminBtn)navAdminBtn.style.display='none';setupAdminStats();}else{body.classList.remove('admin-on');if(isAdmin&&backBtn){backBtn.style.display='block';if(navAdminBtn)navAdminBtn.style.display='none';}else{if(backBtn)backBtn.style.display='none';if(navAdminBtn)navAdminBtn.style.display='';}}if(uN)uN.style.removeProperty('display');if(aN)aN.style.removeProperty('display');updateDayExportButton();try{setupAdminNotifications();}catch{}}
-function setupAdminStats(){const wO=document.getElementById('wrapOcupado'),wA=document.getElementById('wrapAguard'),wN=document.getElementById('wrapNext');if(wO)wO.onclick=openAgendadosSheet;if(wA)wA.onclick=openHistoricoSheet;if(wN)wN.onclick=openProximoSheet;}
-function updateAdminStats(){if(!isAdmin||isUserView)return;const target=currentDay||getManausIsoDate(new Date());const recs=db.filter(r=>String(r.data).substring(0,10)===target);const[sH,sM]=srvCfg.start.split(':').map(Number);const[eH,eM]=srvCfg.end.split(':').map(Number);const totalSlots=Math.max(0,Math.ceil(((eH*60+eM)-(sH*60+sM))/30));const ocupado=recs.filter(r=>r.status==='Ocupado').length;const bloqueado=recs.filter(r=>r.status==='Bloqueado').length;const livre=Math.max(0,totalSlots-ocupado-bloqueado);const hist=getPastBookings().length;const next=getNextOccupiedBooking();const el=(id,v)=>{const n=document.getElementById(id);if(n)n.textContent=v;};el('statLivre',livre);el('statOcupado',ocupado);el('statAguard',hist);el('statPix','R$ '+(srvCfg.pix_value||'0.00'));el('statNext',next?next.horario:'—');}
+function onGearClick(){if(isAdmin&&isUserView){toggleUserView();return;}promptAdmin();}
+function updateGearState(){const gear=document.getElementById('topbarGear');if(!gear)return;const back=isAdmin&&isUserView;gear.classList.toggle('is-back',back);const lbl=back?'Voltar ao painel administrativo':'Área administrativa';gear.title=lbl;gear.setAttribute('aria-label',lbl);}
+function updateAppMode(){const body=document.body;const aN=document.getElementById('adminNav');if(isAdmin&&!isUserView){body.classList.add('admin-on');setupAdminStats();}else{body.classList.remove('admin-on');}updateGearState();if(aN)aN.style.removeProperty('display');updateDayExportButton();try{setupAdminNotifications();}catch{}}
+function setupAdminStats(){const wO=document.getElementById('wrapOcupado'),wA=document.getElementById('wrapAguard'),wN=document.getElementById('wrapNext'),wL=document.getElementById('wrapLivre');if(wO)wO.onclick=openAgendadosSheet;if(wA)wA.onclick=openHistoricoSheet;if(wN)wN.onclick=openProximoSheet;if(wL)wL.onclick=openLivresSheet;}
+/** Livres = mesma regra da grade (getAvailableSlotsForDay): respeita a duracao do
+ *  procedimento, os intervalos curtos demais entre agendamentos, as reservas expiradas
+ *  e os horarios que ja passaram. A conta antiga (total de blocos de 30min menos
+ *  ocupados) ignorava tudo isso e por isso nunca batia com a agenda. */
+function updateAdminStats(){if(!isAdmin||isUserView)return;const todayIso=getManausIsoDate(new Date());const target=currentDay||todayIso;const recs=db.filter(r=>String(r.data).substring(0,10)===target);const livres=getAvailableSlotsForDay(target);const ocupado=recs.filter(r=>r.status==='Ocupado').length;const hist=getPastBookings().length;const next=getNextOccupiedBooking();const el=(id,v)=>{const n=document.getElementById(id);if(n)n.textContent=v;};el('statLivre',livres.length);el('statLivreLbl',target===todayIso?'Livres hoje':'Livres '+formatManausLabel(target,{day:'2-digit',month:'2-digit'}));el('statOcupado',ocupado);el('statAguard',hist);el('statPix','R$ '+(srvCfg.pix_value||'0.00'));el('statNext',next?next.horario:'—');}
 
 // POST
 async function postUpdates(updates){try{await fetch(CFG.API_URL,{method:'POST',mode:'no-cors',body:JSON.stringify({updates})});await new Promise(r=>setTimeout(r,800));await syncData();return true;}catch(e){console.warn('postUpdates failed:',e);return false;}}
