@@ -304,6 +304,11 @@ body.admin-on .topbar-gear{display:none;}
 }
 .main-nav-btn.active:hover{background:var(--gradient-rose);}
 .main-nav-btn:disabled{opacity:.4;pointer-events:none;}
+.main-nav.is-4 .main-nav-btn{padding:14px 4px;gap:6px;}
+.main-nav.is-4 .nav-ico{width:36px;height:36px;font-size:16px;}
+.main-nav.is-4 .nav-copy strong{font-size:.58rem;letter-spacing:.2px;}
+.main-nav-btn.nav-adm .nav-ico{background:linear-gradient(135deg,var(--gold),#E8D6B0);}
+.main-nav-btn.nav-adm.active .nav-ico{background:rgba(255,255,255,.22);}
 .nav-ico{
   width:40px;height:40px;border-radius:50%;flex-shrink:0;
   background:linear-gradient(135deg,var(--blush),var(--cream-2));
@@ -870,66 +875,74 @@ body.admin-on .topbar-gear{display:none;}
 #gridSection{display:none;}
 #gridSection.vis{display:block;}
 .grid-head{
-  display:flex;align-items:center;justify-content:space-between;
-  gap:12px;margin-bottom:20px;flex-wrap:wrap;
+  display:flex;align-items:flex-end;justify-content:space-between;
+  gap:14px;margin-bottom:16px;flex-wrap:wrap;
 }
-.grid-date{
+.grid-date-box{display:flex;flex-direction:column;gap:3px;min-width:0;}
+.grid-weekday{
+  font-size:.56rem;font-weight:700;letter-spacing:3px;
+  text-transform:uppercase;color:var(--rose);
+}
+.grid-daynum{
   font-family:'Cormorant Garamond',serif;
-  font-size:1.4rem;font-style:italic;color:var(--ink);
+  font-size:1.75rem;line-height:1.05;color:var(--ink);
 }
-.grid-head-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
-.export-btn{
-  display:flex;align-items:center;gap:10px;
-  padding:11px 16px 11px 12px;border-radius:var(--r-md);border:none;
-  background:linear-gradient(135deg,#B85C66,#8B4F55 55%,var(--gold-deep));
-  color:#fff;cursor:pointer;font-family:'Outfit',sans-serif;
-  box-shadow:var(--sh-rose);
-  transition:all .25s var(--ease);
-  position:relative;overflow:hidden;
+.grid-resume{font-size:.62rem;color:var(--ink-lt);letter-spacing:.2px;}
+.grid-resume b{color:var(--ink-mid);font-weight:700;}
+.grid-resume .gr-sep{opacity:.45;margin:0 5px;}
+.grid-head-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.day-btn{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:10px 14px;border-radius:12px;cursor:pointer;
+  font-family:'Outfit',sans-serif;font-size:.6rem;font-weight:700;
+  letter-spacing:1.2px;text-transform:uppercase;
+  border:1px solid rgba(196,132,138,.32);background:var(--white);color:var(--rose);
+  transition:all .2s var(--ease);
 }
-.export-btn::before{
-  content:'';position:absolute;inset:0;
-  background:linear-gradient(135deg,rgba(255,255,255,.22),rgba(255,255,255,0) 42%);
-  pointer-events:none;
+.day-btn:hover:not(:disabled){background:rgba(196,132,138,.08);border-color:var(--rose);transform:translateY(-1px);}
+.day-btn:disabled{opacity:.45;cursor:default;}
+.day-btn-ico{font-size:.85rem;line-height:1;}
+.day-btn-badge{
+  min-width:21px;height:21px;padding:0 6px;border-radius:999px;
+  background:var(--gradient-rose);color:#fff;
+  display:inline-flex;align-items:center;justify-content:center;
+  font-size:.58rem;font-weight:700;letter-spacing:0;
 }
-.export-btn:hover{transform:translateY(-2px);box-shadow:0 16px 36px rgba(139,79,85,.28);}
-.export-btn:disabled{opacity:.5;pointer-events:none;}
-.export-ico{
-  width:36px;height:36px;border-radius:var(--r-sm);
-  background:rgba(255,255,255,.15);
-  display:flex;align-items:center;justify-content:center;
-  font-size:1rem;flex-shrink:0;
-}
-.export-copy{display:flex;flex-direction:column;gap:1px;position:relative;z-index:1;}
-.export-copy strong{font-size:.68rem;letter-spacing:1.5px;text-transform:uppercase;line-height:1.1;}
-.export-copy small{font-size:.62rem;color:rgba(255,255,255,.78);}
-.export-badge{
-  min-width:36px;height:36px;padding:0 8px;border-radius:var(--r-sm);
-  background:rgba(255,255,255,.9);color:var(--deep-rose);
-  display:flex;align-items:center;justify-content:center;
-  font-size:.82rem;font-weight:700;position:relative;z-index:1;
-}
-.back-btn{
-  font-size:.58rem;letter-spacing:3px;font-weight:700;
-  color:var(--rose);text-transform:uppercase;cursor:pointer;
-  background:none;border:none;font-family:'Outfit',sans-serif;
-}
+.day-btn-badge.zero{background:var(--cream-2);color:var(--ink-lt);}
+.day-btn.ghost{border-color:var(--border);color:var(--ink-mid);}
+.day-btn.ghost:hover{border-color:var(--rose);color:var(--rose);background:var(--white);}
+
+/* Barra de seleção múltipla: fica leve enquanto nada está marcado e só
+   "acende" quando há seleção — antes ela vivia escura e com Bloquear/Liberar
+   sempre acesos, mesmo sem nenhum horário escolhido. */
 #multiBar{
   display:none;align-items:center;justify-content:space-between;
-  background:var(--gradient-ink);color:#fff;
-  border-radius:var(--r-md);padding:10px 16px;margin-bottom:18px;
-  font-size:.65rem;font-weight:500;
+  gap:10px;flex-wrap:wrap;
+  background:rgba(255,255,255,.94);backdrop-filter:blur(10px);
+  border:1px solid var(--border);border-radius:var(--r-md);
+  padding:9px 10px 9px 14px;margin-bottom:16px;
   position:sticky;top:10px;z-index:100;
-  box-shadow:0 8px 24px rgba(0,0,0,.2);
+  box-shadow:var(--sh);
+  transition:border-color .25s var(--ease),box-shadow .25s var(--ease);
 }
 #multiBar.vis{display:flex;}
+#multiBar.has-sel{border-color:rgba(196,132,138,.42);box-shadow:var(--sh-md),var(--sh-rose);}
+#selCount{font-size:.62rem;font-weight:600;letter-spacing:.3px;color:var(--ink-lt);}
+#multiBar.has-sel #selCount{color:var(--rose);font-weight:700;}
+.ms-actions{display:flex;gap:6px;flex-wrap:wrap;}
 #multiBar button{
-  background:var(--rose);color:#fff;border:none;
-  border-radius:8px;padding:7px 14px;
-  font-size:.62rem;font-weight:700;cursor:pointer;
-  font-family:'Outfit',sans-serif;
+  border:1px solid var(--border);background:var(--white);color:var(--ink-mid);
+  border-radius:10px;padding:8px 12px;
+  font-family:'Outfit',sans-serif;font-size:.58rem;font-weight:700;letter-spacing:.6px;
+  cursor:pointer;transition:all .2s;
 }
-#multiBar .ms-cancel{background:transparent;color:rgba(255,255,255,.45);padding:7px;}
+#multiBar button:hover:not(:disabled){border-color:var(--rose);color:var(--rose);}
+#multiBar button:disabled{opacity:.32;cursor:default;}
+#multiBar .ms-cancel{border-color:transparent;background:transparent;color:var(--ink-lt);padding:8px;}
+#multiBar .ms-block:not(:disabled){background:rgba(154,138,138,.12);border-color:rgba(154,138,138,.3);color:#6E6363;}
+#multiBar .ms-block:not(:disabled):hover{background:rgba(154,138,138,.2);border-color:rgba(154,138,138,.5);color:var(--ink);}
+#multiBar .ms-free:not(:disabled){background:rgba(107,175,120,.13);border-color:rgba(107,175,120,.36);color:#3F7A4C;}
+#multiBar .ms-free:not(:disabled):hover{background:rgba(107,175,120,.22);border-color:rgba(107,175,120,.55);color:#2F6B3C;}
 
 .slots{display:flex;flex-direction:column;gap:10px;}
 .slot-card{
@@ -943,6 +956,27 @@ body.admin-on .topbar-gear{display:none;}
 }
 @keyframes slotIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
 .slot-card:hover{transform:translateY(-2px);box-shadow:var(--sh-md);}
+/* Hierarquia visual da agenda: bloqueio é só uma marcação de indisponibilidade,
+   então recua; quem tem cliente marcado é o que precisa saltar aos olhos. */
+.slot-card[data-status="Bloqueado"]{
+  background:var(--cream);
+  box-shadow:none;
+  border-color:var(--border);
+  opacity:.68;
+}
+.slot-card[data-status="Bloqueado"]:hover{opacity:1;transform:none;box-shadow:var(--sh);}
+.slot-card[data-status="Bloqueado"] .slot-pip{width:2px;opacity:.45;}
+.slot-card[data-status="Bloqueado"] .slot-time{font-size:1.1rem;color:var(--ink-lt);}
+.slot-card[data-status="Bloqueado"] .slot-status{opacity:.55;letter-spacing:2px;}
+.slot-card[data-status="Bloqueado"] .slot-client{font-size:.72rem;font-weight:400;color:var(--ink-lt);}
+.slot-card[data-status="Bloqueado"] .slot-dur{opacity:.5;}
+.slot-card[data-status="Ocupado"]{
+  background:linear-gradient(90deg,rgba(196,132,138,.09) 0%,var(--white) 42%);
+  border-color:rgba(196,132,138,.26);
+  box-shadow:var(--sh-md);
+}
+.slot-card[data-status="Ocupado"] .slot-pip{width:5px;}
+.slot-card[data-status="Ocupado"] .slot-client{font-weight:600;}
 .slot-card.past{opacity:.28;pointer-events:none;}
 .slot-card.selected{border-color:var(--rose);background:rgba(196,132,138,.05);}
 .slot-check{
@@ -985,8 +1019,7 @@ body.admin-on .slot-check{display:flex;opacity:.35;}
 }
 
 /* ── ADMIN PANEL ─────────────────────────────────────────── */
-#adminPanel{display:none;margin:40px 0 0;}
-body.admin-on #adminPanel{display:block;}
+#adminPanel{display:none;}
 body.admin-on{background:#fdf3f0;}
 body.admin-on::after{
   content:"✦ PAINEL ADMINISTRATIVO ATIVO ✦";
@@ -1183,9 +1216,28 @@ body.admin-on #adminNav{display:flex;}
   border-radius:28px 28px 0 0;
   padding:32px 28px 44px;
   animation:sheetUp .5s var(--ease);
-  max-height:90vh;overflow-y:auto;
+  max-height:90vh;
+  display:flex;flex-direction:column;
+  overflow:hidden;
   position:relative;
 }
+/* Só o corpo rola: assim o X e os botões continuam alcançáveis
+   mesmo em listas longas como o Histórico e os Clientes. */
+#sheetBody{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;margin:0 -28px;padding:0 28px 2px;}
+#sheetActions{flex-shrink:0;}
+#sheetActions:not(:empty){margin-top:14px;padding-top:14px;border-top:1px solid var(--border);}
+.sheet-close{
+  position:absolute;top:14px;right:16px;z-index:9;
+  width:38px;height:38px;padding:0;
+  display:flex;align-items:center;justify-content:center;
+  border:1.5px solid rgba(196,132,138,.32);border-radius:50%;
+  background:var(--white);color:var(--rose);
+  font-family:'Outfit',sans-serif;font-size:1.5rem;font-weight:400;line-height:1;
+  box-shadow:0 4px 12px rgba(139,79,85,.1);
+  cursor:pointer;transition:all .2s;
+}
+.sheet-close:hover{background:var(--cream-2);color:var(--rose);border-color:rgba(196,132,138,.4);}
+.sheet-close:focus-visible{outline:2px solid var(--rose);outline-offset:2px;}
 .sheet::before{
   content:'';position:absolute;top:0;left:14%;right:14%;height:3px;
   border-radius:0 0 3px 3px;background:var(--gradient-gold);opacity:.7;
@@ -1198,6 +1250,7 @@ body.admin-on #adminNav{display:flex;}
 .sheet-title{
   font-family:'Cormorant Garamond',serif;
   font-size:1.9rem;font-weight:300;margin-bottom:4px;
+  padding-right:44px;
 }
 .sheet-sub{font-size:.8rem;color:var(--ink-mid);margin-bottom:24px;line-height:1.6;}
 .f-label{
@@ -1696,6 +1749,10 @@ body.admin-on #logPanel{display:block;}
   .hero-desc{font-size:.84rem;}
   .main-nav{padding:5px;gap:4px;}
   .main-nav-btn{padding:12px 3px;gap:5px;}
+  .main-nav.is-4{gap:2px;padding:4px;}
+  .main-nav.is-4 .main-nav-btn{padding:11px 2px;gap:5px;}
+  .main-nav.is-4 .nav-ico{width:30px;height:30px;font-size:14px;}
+  .main-nav.is-4 .nav-copy strong{font-size:.5rem;letter-spacing:0;}
   .nav-ico{width:34px;height:34px;font-size:16px;}
   .nav-copy strong{font-size:.55rem;letter-spacing:.2px;}
   .admin-stats{grid-template-columns:repeat(3,1fr);}
@@ -1706,8 +1763,11 @@ body.admin-on #logPanel{display:block;}
   .portfolio-shot{height:200px;}
   .location-card-public{position:static;}
   .grid-head{flex-direction:column;align-items:stretch;}
-  .grid-head-right{justify-content:flex-end;}
-  .export-btn{width:100%;justify-content:flex-start;}
+  .grid-head-right{justify-content:stretch;}
+  .day-btn{flex:1;justify-content:center;padding:11px 10px;}
+  .day-btn.ghost{flex:0 0 auto;}
+  #multiBar{padding:9px 8px 9px 12px;}
+  #multiBar button{padding:8px 9px;font-size:.55rem;}
   .sig-section{padding:28px 20px;}
   .nav-float{
     left:max(10px,env(safe-area-inset-left,10px));
@@ -1962,33 +2022,30 @@ body.admin-on #logPanel{display:block;}
     </div>
     <section id="gridSection">
       <div class="grid-head">
-        <div class="grid-date" id="gridDate"></div>
+        <div class="grid-date-box">
+          <span class="grid-weekday" id="gridWeekday"></span>
+          <span class="grid-daynum" id="gridDate"></span>
+          <span class="grid-resume" id="gridResume"></span>
+        </div>
         <div class="grid-head-right">
-          <button class="export-btn" id="saveDayBtn" onclick="saveSelectedDaySlotsImage()" type="button">
-            <span class="export-ico">⬇</span>
-            <span class="export-copy">
-              <strong id="saveDayBtnTitle">Baixar imagem</strong>
-              <small id="saveDayBtnHint">Horários para WhatsApp</small>
-            </span>
-            <span class="export-badge" id="saveDayBtnBadge">0</span>
+          <button class="day-btn" id="saveDayBtn" onclick="saveSelectedDaySlotsImage()" type="button">
+            <span class="day-btn-ico">⬇</span>
+            <span id="saveDayBtnTitle">Baixar imagem</span>
+            <span class="day-btn-badge" id="saveDayBtnBadge">0</span>
           </button>
-          <button class="back-btn" onclick="closeGrid()">Voltar</button>
+          <button class="day-btn ghost" onclick="closeGrid()" type="button">← Voltar</button>
         </div>
       </div>
       <div id="multiBar">
-        <span id="selCount">0 selecionados</span>
-        <div style="display:flex;gap:6px">
-          <button class="ms-cancel" onclick="clearSelection()">Limpar</button>
-          <button onclick="selectAll()" style="background:var(--gold);">✓ Tudo</button>
-          <button onclick="blockSelected()">🔒 Bloquear</button>
-          <button onclick="freeSelected()">🔓 Liberar</button>
+        <span id="selCount">Toque nos horários para selecionar</span>
+        <div class="ms-actions">
+          <button class="ms-cancel" id="msClear" onclick="clearSelection()">Limpar</button>
+          <button class="ms-all" onclick="selectAll()">Selecionar tudo</button>
+          <button class="ms-block" id="msBlock" onclick="blockSelected()">🔒 Bloquear</button>
+          <button class="ms-free" id="msFree" onclick="freeSelected()">🔓 Liberar</button>
         </div>
       </div>
       <div class="slots" id="slotsContainer"></div>
-      <div id="logPanel">
-        <div class="log-ttl">✦ Registros do Sistema</div>
-        <div id="logEntries"></div>
-      </div>
     </section>
   </section>
 
@@ -2011,8 +2068,13 @@ body.admin-on #logPanel{display:block;}
       <div class="admin-card" onclick="openLocationAdmin()"><span class="ac-ico">📍</span><div class="ac-lbl">Localização</div><div class="ac-desc">Link do Maps e referência do studio</div></div>
       <div class="admin-card" onclick="openTextosAdmin()"><span class="ac-ico">TXT</span><div class="ac-lbl">Textos e Logo</div><div class="ac-desc">Textos da tela principal e portfólio</div></div>
     </div>
+    <div id="logPanel">
+      <div class="log-ttl">✦ Registros do Sistema</div>
+      <div id="logEntries"></div>
+    </div>
     <div style="text-align:center;margin-top:4px;">
       <button class="nav-btn" onclick="logoutAdmin()" style="color:var(--rose);font-size:.62rem;">Sair do painel</button>
+      <div style="font-size:.55rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-lt);margin-top:2px;">Versão <span id="appBuild">—</span></div>
     </div>
   </section>
 
@@ -2040,6 +2102,7 @@ body.admin-on #logPanel{display:block;}
 <!-- OVERLAY SHEET -->
 <div class="overlay" id="overlay" onclick="handleOverlayClick(event)">
   <div class="sheet" id="sheet">
+    <button type="button" class="sheet-close" onclick="closeSheet()" aria-label="Fechar" title="Fechar">&times;</button>
     <div class="sheet-handle"></div>
     <div class="sheet-title" id="sheetTitle"></div>
     <div class="sheet-sub" id="sheetSub"></div>
@@ -2327,8 +2390,9 @@ function applySiteTexts(){
 
 // EXPORT IMAGE
 function getAvailableSlotsForDay(iso){const now=new Date(),todayIso=getManausIsoDate(now),curMins=getManausMinutes(now);const[sH,sM]=srvCfg.start.split(':').map(Number),[eH,eM]=srvCfg.end.split(':').map(Number);let cur=sH*60+sM,end=eH*60+eM;const slots=[];while(cur<end){const hh=String(Math.floor(cur/60)).padStart(2,'0'),mm=String(cur%60).padStart(2,'0'),clock=`${hh}:${mm}`;const isPast=(iso<todayIso)||(iso===todayIso&&cur<curMins);const reg=db.find(r=>String(r.data).substring(0,10)===iso&&String(r.horario).substring(0,5)===clock);let st=reg?reg.status:'Livre',durMin=reg?parseInt(reg.duration||srvCfg.duration):srvCfg.duration;const reservedUntil=reg?reg.reservedUntil:null;let isExpired=false;if(st==='Aguardando Pagamento'&&reservedUntil&&new Date()>new Date(reservedUntil))isExpired=true;if(st==='Aguardando Pagamento'&&isExpired)st='Livre';if(st==='Livre'){const nextOcc=db.filter(r=>String(r.data).substring(0,10)===iso&&r.status!=='Livre').map(r=>{const[h,m]=String(r.horario).substring(0,5).split(':').map(Number);return h*60+m;}).filter(m=>m>cur).sort((a,b)=>a-b)[0];if(nextOcc!==undefined){const gap=nextOcc-cur;if(gap<durMin){cur=nextOcc;continue;}}if(!isPast)slots.push(clock);}cur+=Math.max(30,durMin||30);}return slots;}
-function updateDayExportButton(){const btn=document.getElementById('saveDayBtn');if(!btn)return;if(!isAdmin||isUserView){btn.style.display='none';return;}btn.style.display='';const title=document.getElementById('saveDayBtnTitle');const hint=document.getElementById('saveDayBtnHint');const badge=document.getElementById('saveDayBtnBadge');const enabled=!!currentDay&&typeof html2canvas==='function';const count=enabled?getAvailableSlotsForDay(currentDay).length:0;btn.disabled=!enabled;if(title)title.textContent=enabled?'Baixar imagem':'Escolha um dia';if(hint)hint.textContent=enabled?(count>0?'Horários para WhatsApp':'Sem horários livres'):'Selecione uma data';if(badge)badge.textContent=String(count);}
-function setDayExportButtonLoading(v){const btn=document.getElementById('saveDayBtn');if(!btn)return;btn.disabled=!!v;document.getElementById('saveDayBtnTitle').textContent=v?'Gerando imagem':'Baixar imagem';document.getElementById('saveDayBtnHint').textContent=v?'Preparando arte...':'Horários para WhatsApp';document.getElementById('saveDayBtnBadge').textContent=v?'...':String(currentDay?getAvailableSlotsForDay(currentDay).length:0);}
+function refreshGridHead(){if(currentDay)renderGridHead(currentDay);}
+function updateDayExportButton(){const btn=document.getElementById('saveDayBtn');if(!btn)return;if(!isAdmin||isUserView){btn.style.display='none';return;}btn.style.display='';const title=document.getElementById('saveDayBtnTitle');const badge=document.getElementById('saveDayBtnBadge');const enabled=!!currentDay&&typeof html2canvas==='function';const count=enabled?getAvailableSlotsForDay(currentDay).length:0;btn.disabled=!enabled;if(title)title.textContent=enabled?'Baixar imagem':'Escolha um dia';if(badge){badge.textContent=String(count);badge.classList.toggle('zero',count===0);}btn.title=!currentDay?'Selecione uma data no calendário':(typeof html2canvas!=='function'?'Gerador de imagem indisponível — recarregue a página':(count>0?`Gera uma imagem com os ${count} horário(s) livre(s) deste dia para enviar no WhatsApp`:'Nenhum horário livre neste dia — a imagem sairá avisando isso'));}
+function setDayExportButtonLoading(v){const btn=document.getElementById('saveDayBtn');if(!btn)return;btn.disabled=!!v;const t=document.getElementById('saveDayBtnTitle');if(t)t.textContent=v?'Gerando...':'Baixar imagem';const b=document.getElementById('saveDayBtnBadge');if(b)b.textContent=v?'…':String(currentDay?getAvailableSlotsForDay(currentDay).length:0);}
 function buildAvailableSlotsExportNode(iso,slots){const mount=document.createElement('div');mount.style.cssText='position:fixed;left:-10000px;top:0;z-index:-1;padding:0;margin:0;';const dateLabel=formatManausLabel(iso,{weekday:'long',day:'2-digit',month:'long'}).replace(/^\w/,c=>c.toUpperCase());const chips=slots.length?slots.map(clock=>`<div style="padding:24px 14px 22px;border-radius:24px;background:linear-gradient(180deg,#F7FFF8 0%,#ECF9EF 100%);border:1px solid rgba(111,181,125,.28);text-align:center;box-shadow:0 14px 28px rgba(66,134,80,.12);"><div style="font-size:12px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#5D9E68;margin-bottom:10px;">Disponivel</div><div style="font-family:'Cormorant Garamond',serif;font-size:60px;line-height:.9;color:#2F7A3D;">${clock}</div></div>`).join(''):`<div style="grid-column:1/-1;padding:38px 34px;border-radius:28px;background:#FFFFFF;border:1px solid rgba(196,132,138,.16);font-size:30px;line-height:1.45;color:#5C4F4F;text-align:center;">Sem horarios livres para este dia.</div>`;const summary=slots.length?`${slots.length} horario${slots.length>1?'s':''} disponive${slots.length>1?'is':'l'}`:'Agenda atualizada';mount.innerHTML=`<div id="daySlotsExportVisual" style="width:1080px;padding:42px;background:#F7F0E8;color:#2A2020;font-family:'Outfit',sans-serif;border-radius:36px;overflow:hidden;"><div style="padding:34px 36px 38px;border-radius:30px;background:#FFFDFB;border:1px solid rgba(196,132,138,.14);"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:24px;margin-bottom:26px;"><div><div style="font-size:16px;font-weight:700;letter-spacing:5px;text-transform:uppercase;color:#C9A86C;margin-bottom:14px;">Studio de Cilios</div><div style="font-family:'Cormorant Garamond',serif;font-size:82px;letter-spacing:4px;line-height:.88;color:#2A2020;">LOOK <span style="color:#C4848A;">DESIGNER</span></div><div style="margin-top:18px;font-size:22px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:#5D9E68;">Horarios disponiveis</div></div><div style="min-width:248px;padding:22px 24px;border-radius:24px;background:#2A2020;color:#FFFFFF;text-align:right;"><div style="font-size:13px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.68);margin-bottom:10px;">${summary}</div><div style="font-family:'Cormorant Garamond',serif;font-size:42px;line-height:1.02;">${dateLabel}</div></div></div><div style="margin-bottom:24px;border-top:1px solid rgba(196,132,138,.18);"></div><div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;">${chips}</div><div style="margin-top:24px;padding-top:18px;border-top:1px solid rgba(196,132,138,.14);display:flex;align-items:center;justify-content:space-between;gap:18px;"><div style="font-size:18px;letter-spacing:3px;text-transform:uppercase;color:#5D9E68;font-weight:700;">Agende pelo WhatsApp</div><div style="font-size:34px;font-weight:700;color:#2A2020;">(92) 9 9615-0540</div></div></div></div>`;return mount;}
 async function saveSelectedDaySlotsImage(){if(!currentDay){toast('Selecione um dia primeiro','warn');return;}if(typeof html2canvas!=='function'){toast('Gerador indisponível','err');return;}setDayExportButtonLoading(true);const exportNode=buildAvailableSlotsExportNode(currentDay,getAvailableSlotsForDay(currentDay));document.body.appendChild(exportNode);try{const visual=exportNode.querySelector('#daySlotsExportVisual');const canvas=await html2canvas(visual,{scale:2,useCORS:true,backgroundColor:'#FAF6F1',logging:false});const link=document.createElement('a');link.download=`horarios-look-designer-${currentDay.split('-').reverse().join('-')}.png`;link.href=canvas.toDataURL('image/png');document.body.appendChild(link);link.click();link.remove();toast('Imagem pronta!','ok');}catch(e){toast('Erro ao gerar imagem','err');}finally{exportNode.remove();updateDayExportButton();}}
 
@@ -2525,9 +2589,12 @@ function saveSiteTexts(obj){localStorage.setItem(SITE_TEXTS_KEY,JSON.stringify(o
 // ════════════════════════════════════════════════════
 //  SERVICES PUBLIC
 // ════════════════════════════════════════════════════
-function renderPublicMainNav(){const wrap=document.getElementById('publicMainNav');if(!wrap)return;const T=getSiteTexts();const note=document.getElementById('publicMainNote');const hasCatalogo=ABAS.length>0;const hasPortfolio=PROCS.some(p=>parseFotos(p.fotos||p.imagem).length);wrap.innerHTML=`<button class="main-nav-btn" data-tab="catalogo" onclick="setPublicMainTab('catalogo')"${hasCatalogo?'':' disabled'} title="${hasCatalogo?`${PROCS.length} ${htmlEsc(T.navCatalogSub)}`:'Em atualização'}"><span class="nav-ico">✦</span><span class="nav-copy"><strong>${htmlEsc(T.navCatalog)}</strong></span></button><button class="main-nav-btn" data-tab="portfolio" onclick="setPublicMainTab('portfolio')"${hasPortfolio?'':' disabled'} title="${hasPortfolio?htmlEsc(T.navPortfolioSub):'Sem imagens ainda'}"><span class="nav-ico">🖼</span><span class="nav-copy"><strong>${htmlEsc(T.navPortfolio)}</strong></span></button><button class="main-nav-btn" data-tab="agendamento" onclick="setPublicMainTab('agendamento')" title="${htmlEsc(T.navBookingSub)}"><span class="nav-ico">📅</span><span class="nav-copy"><strong>${htmlEsc(T.navBooking)}</strong></span></button>`;if(note)note.textContent=hasCatalogo?'':'Catálogo em atualização. O agendamento continua disponível.';}
-function refreshPublicMainSections(){const catalog=document.getElementById('servicesSection');const portfolio=document.getElementById('portfolioSection');const booking=document.getElementById('bookingSection');if(catalog)catalog.style.display=(publicMainTab==='catalogo'&&ABAS.length)?'block':'none';if(portfolio)portfolio.style.display=(publicMainTab==='portfolio')?'block':'none';if(booking)booking.style.display=publicMainTab==='agendamento'?'block':'none';}
-function setPublicMainTab(tab){const hasCatalogo=ABAS.length>0;const hasPortfolio=PROCS.some(p=>parseFotos(p.fotos||p.imagem).length);publicMainTab=['catalogo','portfolio','agendamento'].includes(tab)?tab:'catalogo';if(publicMainTab==='catalogo'&&!hasCatalogo)publicMainTab=hasPortfolio?'portfolio':'agendamento';if(publicMainTab==='portfolio'&&!hasPortfolio)publicMainTab=hasCatalogo?'catalogo':'agendamento';document.querySelectorAll('.main-nav-btn').forEach(btn=>btn.classList.toggle('active',btn.getAttribute('data-tab')===publicMainTab));refreshPublicMainSections();if(publicMainTab==='catalogo'&&ABAS.length){const alvo=ABAS.some(a=>a.nome===abaPublicaAtiva)?abaPublicaAtiva:ABAS[0].nome;if(alvo)showServico(alvo);}if(publicMainTab==='portfolio')renderPortfolioSection();applySiteTexts();}
+function renderPublicMainNav(){const wrap=document.getElementById('publicMainNav');if(!wrap)return;const T=getSiteTexts();const note=document.getElementById('publicMainNote');const hasCatalogo=ABAS.length>0;const hasPortfolio=PROCS.some(p=>parseFotos(p.fotos||p.imagem).length);wrap.innerHTML=`<button class="main-nav-btn" data-tab="catalogo" onclick="setPublicMainTab('catalogo')"${hasCatalogo?'':' disabled'} title="${hasCatalogo?`${PROCS.length} ${htmlEsc(T.navCatalogSub)}`:'Em atualização'}"><span class="nav-ico">✦</span><span class="nav-copy"><strong>${htmlEsc(T.navCatalog)}</strong></span></button><button class="main-nav-btn" data-tab="portfolio" onclick="setPublicMainTab('portfolio')"${hasPortfolio?'':' disabled'} title="${hasPortfolio?htmlEsc(T.navPortfolioSub):'Sem imagens ainda'}"><span class="nav-ico">🖼</span><span class="nav-copy"><strong>${htmlEsc(T.navPortfolio)}</strong></span></button><button class="main-nav-btn" data-tab="agendamento" onclick="setPublicMainTab('agendamento')" title="${htmlEsc(T.navBookingSub)}"><span class="nav-ico">📅</span><span class="nav-copy"><strong>${htmlEsc(T.navBooking)}</strong></span></button>${adminTabAvailable()?`<button class="main-nav-btn nav-adm" data-tab="gerencia" onclick="setPublicMainTab('gerencia')" title="Painel administrativo e configurações"><span class="nav-ico">🛠</span><span class="nav-copy"><strong>Gerência</strong></span></button>`:''}`;wrap.classList.toggle('is-4',adminTabAvailable());wrap.querySelectorAll('.main-nav-btn').forEach(b=>b.classList.toggle('active',b.getAttribute('data-tab')===publicMainTab));if(note)note.textContent=hasCatalogo?'':'Catálogo em atualização. O agendamento continua disponível.';}
+/** A Gerência é a 4ª aba: só existe pro admin e ocupa a tela sozinha,
+ *  como as outras três. */
+function adminTabAvailable(){return !!isAdmin&&!isUserView;}
+function refreshPublicMainSections(){const catalog=document.getElementById('servicesSection');const portfolio=document.getElementById('portfolioSection');const booking=document.getElementById('bookingSection');const adm=document.getElementById('adminPanel');if(catalog)catalog.style.display=(publicMainTab==='catalogo'&&ABAS.length)?'block':'none';if(portfolio)portfolio.style.display=(publicMainTab==='portfolio')?'block':'none';if(booking)booking.style.display=publicMainTab==='agendamento'?'block':'none';if(adm)adm.style.display=(publicMainTab==='gerencia'&&adminTabAvailable())?'block':'none';}
+function setPublicMainTab(tab){const hasCatalogo=ABAS.length>0;const hasPortfolio=PROCS.some(p=>parseFotos(p.fotos||p.imagem).length);const validas=['catalogo','portfolio','agendamento'];if(adminTabAvailable())validas.push('gerencia');publicMainTab=validas.includes(tab)?tab:'catalogo';if(publicMainTab!=='gerencia'){if(publicMainTab==='catalogo'&&!hasCatalogo)publicMainTab=hasPortfolio?'portfolio':'agendamento';if(publicMainTab==='portfolio'&&!hasPortfolio)publicMainTab=hasCatalogo?'catalogo':'agendamento';}document.querySelectorAll('.main-nav-btn').forEach(btn=>btn.classList.toggle('active',btn.getAttribute('data-tab')===publicMainTab));refreshPublicMainSections();if(publicMainTab==='catalogo'&&ABAS.length){const alvo=ABAS.some(a=>a.nome===abaPublicaAtiva)?abaPublicaAtiva:ABAS[0].nome;if(alvo)showServico(alvo);}if(publicMainTab==='portfolio')renderPortfolioSection();if(publicMainTab==='gerencia'){updateAdminStats();setupAdminStats();window.scrollTo({top:0,behavior:'smooth'});}applySiteTexts();}
 function renderServicesTabs(){const wrap=document.getElementById('servicesTabs');const panel=document.getElementById('srvPanel');renderPublicMainNav();renderPortfolioSection();if(!ABAS.length){if(publicMainTab==='catalogo')publicMainTab=PROCS.some(p=>parseFotos(p.fotos||p.imagem).length)?'portfolio':'agendamento';wrap.innerHTML='';panel.innerHTML=`<div class="srv-empty"><div class="srv-empty-ico">✦</div><p>Cadastre categorias para montar seu catálogo.</p></div>`;refreshPublicMainSections();return;}wrap.innerHTML=ABAS.map(a=>{const cnt=PROCS.filter(p=>p.aba===a.nome).length;return `<div class="srv-tab" data-aba="${htmlEsc(a.nome)}" onclick="showServico('${String(a.nome).replace(/'/g,"\\'")}')"><div class="srv-tab-ico">${a.emoji}</div><div class="srv-tab-name">${htmlEsc(a.nome)}</div><div class="srv-tab-cnt">${cnt} serviço${cnt!==1?'s':''}</div></div>`;}).join('');if(!ABAS.some(a=>a.nome===abaPublicaAtiva))abaPublicaAtiva=ABAS[0].nome;refreshPublicMainSections();if(publicMainTab==='catalogo'&&abaPublicaAtiva)showServico(abaPublicaAtiva);applySiteTexts();}
 function showServico(nome){abaPublicaAtiva=nome;document.querySelectorAll('.srv-tab').forEach(t=>t.classList.toggle('active',t.getAttribute('data-aba')===nome));const panel=document.getElementById('srvPanel');const procs=PROCS.filter(p=>p.aba===nome);const emoji=ABAS.find(a=>a.nome===nome)?.emoji||'✦';if(!procs.length){panel.innerHTML=`<div class="srv-panel-head">${emoji} ${nome}</div><div class="srv-rule"></div><div class="srv-empty"><div class="srv-empty-ico">${emoji}</div><p>Nenhum serviço cadastrado ainda.</p></div>`;return;}panel.innerHTML=`<div class="srv-panel-head">${emoji} ${nome}</div><div class="srv-rule"></div><div class="proc-list">`+procs.map(p=>{const idx=PROCS.indexOf(p);const posY=p.imgPosY??50;const thumb=p.imagem?`<div class="proc-thumb"><img class="img-lightbox" src="${mediaImageUrl(p.imagem,'card')}" alt="${htmlEsc(p.nome)}" style="object-position:center ${posY}%" onclick="event.stopPropagation();openImageLightbox(this.src,this.alt)"></div>`:`<div class="proc-thumb">${emoji}</div>`;return `<div class="proc-card" onclick="verProcDetalhe(${idx})">${thumb}<div class="proc-info"><div class="proc-name">${p.nome}</div><div class="proc-meta">${p.valor?formatarValor(p.valor)+' · ':''}${p.duracao||''}</div></div><span class="proc-arrow">›</span></div>`;}).join('')+'</div>';}
 function verProcDetalhe(idx){const p=PROCS[idx];const emoji=ABAS.find(a=>a.nome===p.aba)?.emoji||'✦';const posY=p.imgPosY??50;const alt=p.imgAltura??145;const fotos=(p.fotos&&p.fotos.length?p.fotos:parseFotos(p.imagem)).filter(Boolean);const galeriaHtml=fotos.length?`<div class="proc-gallery"><div class="proc-gallery-track" id="procGalTrack">${fotos.map((u,i)=>`<div class="proc-gallery-slide"><img class="img-lightbox" src="${mediaImageUrl(u,'detail')}" alt="${htmlEsc(p.nome)} — foto ${i+1}" style="height:${Math.max(alt,200)}px;object-fit:cover;object-position:center ${posY}%;" onclick="openImageLightbox(this.src,this.alt)"></div>`).join('')}</div>${fotos.length>1?`<div class="proc-gallery-dots">${fotos.map((_,i)=>`<span class="proc-gallery-dot${i===0?' active':''}"></span>`).join('')}</div>`:''}</div>`:`<div class="proc-gallery"><div class="proc-gallery-slide"><div class="proc-gallery-ph" style="height:120px;">${emoji}</div></div></div>`;const precoHtml=(p.valor||p.temManut)?`<div class="proc-price-grid">${p.valor?`<div class="proc-price-box primary"><div class="proc-price-label">Valor da sessão</div><div class="proc-price-val">${formatarValor(p.valor)}</div></div>`:''}${p.temManut?`<div class="proc-price-box secondary"><div class="proc-price-label">Manutenção</div><div class="proc-price-val">${p.manutValor?formatarValor(p.manutValor):'Consultar'}</div>${p.manutPrazo?`<div style="font-size:.58rem;color:var(--ink-lt);margin-top:2px;">🔄 ${p.manutPrazo}</div>`:''}</div>`:''}</div>`:'';const tags=(p.tags||parseProcTags(p.indicado||'')).map(normalizeProcTag).filter(Boolean);const badgeTags=tags.filter(t=>t.tipo==='marcador');const infoTags=tags.filter(t=>t.tipo!=='marcador').map(t=>({icon:t.tipo==='real'?'💰':'✦',label:getProcTagLabel(t),val:getProcTagValue(t)}));const infos=[p.duracao?{icon:'⏱',label:'Duração',val:p.duracao}:null,p.fixacao?{icon:'📅',label:'Duração do efeito',val:p.fixacao}:null,...infoTags].filter(Boolean);const infosHtml=infos.length?`<div class="proc-info-table">${infos.map(info=>`<div class="proc-info-row"><span class="proc-info-ico">${info.icon}</span><span class="proc-info-lbl">${info.label}</span><span class="proc-info-val">${info.val}</span></div>`).join('')}</div>`:'';const badgesHtml=badgeTags.length?`<div class="proc-badges">${badgeTags.map(tag=>`<div class="proc-badge">${tag.label?tag.label+': ':''}${tag.valor}</div>`).join('')}</div>`:'';const panel=document.getElementById('srvPanel');panel.innerHTML=`${galeriaHtml}<div class="proc-detail-name">${p.nome}</div><div class="proc-detail-cat"><div style="width:22px;height:1px;background:var(--rose);"></div><span>${p.aba}</span></div><p class="proc-detail-text">${p.descricao}</p>${badgesHtml}${precoHtml}${infosHtml}<button class="btn-back-proc" onclick="showServico('${p.aba}')">← Voltar</button>`;ativarGaleriaProc();setTimeout(()=>panel.scrollIntoView({behavior:'smooth',block:'start'}),50);}
@@ -2628,7 +2695,22 @@ function getNextOccupiedBooking(){const curIso=getManausIsoDate(new Date());cons
 function getFutureBookings(){const curIso=getManausIsoDate(new Date());const curMins=getManausMinutes(new Date());return db.filter(r=>r.status==='Ocupado').map(r=>{const[h,m]=String(r.horario||'00:00').split(':').map(Number);return{...r,mins:h*60+m};}).filter(r=>r.data>curIso||(r.data===curIso&&r.mins>=curMins)).sort((a,b)=>a.data===b.data?a.mins-b.mins:a.data.localeCompare(b.data));}
 function getPastBookings(){const curIso=getManausIsoDate(new Date());const curMins=getManausMinutes(new Date());return db.filter(r=>r.status==='Ocupado').map(r=>{const[h,m]=String(r.horario||'00:00').split(':').map(Number);return{...r,mins:h*60+m};}).filter(r=>r.data<curIso||(r.data===curIso&&r.mins<curMins)).sort((a,b)=>b.data===a.data?b.mins-a.mins:b.data.localeCompare(a.data));}
 function renderDays(){const c=document.getElementById('dayScroller');c.innerHTML='';const base=parseIsoDateLocal(getManausIsoDate(new Date()));for(let i=0;i<14;i++){const d=new Date(base);d.setDate(base.getDate()+i);const iso=formatLocalIsoDate(d);const el=document.createElement('div');el.className='day-pill'+(iso===currentDay?' active':'');el.onclick=()=>selectDay(iso);const dw=new Intl.DateTimeFormat('pt-BR',{timeZone:APP_TIME_ZONE,weekday:'short'}).format(d).replace('.','').toUpperCase();const dm=new Intl.DateTimeFormat('pt-BR',{timeZone:APP_TIME_ZONE,month:'short'}).format(d).replace('.','').toUpperCase();el.innerHTML=`<div class="dp-w">${dw}</div><div class="dp-n">${d.getDate()}</div><div class="dp-m">${dm}</div>`;c.appendChild(el);}}
-function selectDay(iso){currentDay=iso;clearSelection();renderDays();document.getElementById('gridDate').textContent=formatManausLabel(iso,{weekday:'long',day:'2-digit',month:'long'}).replace(/^\w/,c=>c.toUpperCase());document.getElementById('gridSection').classList.add('vis');renderGrid(iso);updateDayExportButton();}
+function renderGridHead(iso){
+  const wd=formatManausLabel(iso,{weekday:'long'});
+  const el=(id,v)=>{const n=document.getElementById(id);if(n)n.innerHTML=v;};
+  el('gridWeekday',htmlEsc(wd.charAt(0).toUpperCase()+wd.slice(1)));
+  el('gridDate',htmlEsc(formatManausLabel(iso,{day:'2-digit',month:'long'})));
+  const recs=db.filter(r=>String(r.data).substring(0,10)===iso);
+  const livres=getAvailableSlotsForDay(iso).length;
+  const ocup=recs.filter(r=>r.status==='Ocupado').length;
+  const aguard=recs.filter(r=>r.status==='Aguardando Pagamento').length;
+  const bloq=recs.filter(r=>r.status==='Bloqueado').length;
+  const partes=[`<b>${livres}</b> livre${livres===1?'':'s'}`,`<b>${ocup}</b> agendado${ocup===1?'':'s'}`];
+  if(aguard)partes.push(`<b>${aguard}</b> aguardando`);
+  if(bloq)partes.push(`<b>${bloq}</b> bloqueado${bloq===1?'':'s'}`);
+  el('gridResume',partes.join('<span class="gr-sep">·</span>'));
+}
+function selectDay(iso){currentDay=iso;clearSelection();renderDays();renderGridHead(iso);document.getElementById('gridSection').classList.add('vis');renderGrid(iso);updateDayExportButton();}
 function closeGrid(){currentDay='';clearSelection();document.getElementById('gridSection').classList.remove('vis');renderDays();updateDayExportButton();}
 function renderGrid(iso){
   const container=document.getElementById('slotsContainer');
@@ -2690,6 +2772,7 @@ function renderGrid(iso){
   }
   if(isAdmin&&logs.length){logs.forEach(l=>{const e=document.createElement('div');e.className='log-entry';e.innerHTML=`<strong>⏱ ${l.time} — Reserva Registrada</strong>${l.msg}<div class="log-meta">Token: ${l.token} · ${l.phone}</div>`;logContainer.appendChild(e);});}
   updateDayExportButton();
+  refreshGridHead();
 }
 function handleSlotClick(event,card,iso,clock,st,rUntil,reg){
   if(isAdmin){
@@ -2709,7 +2792,7 @@ function handleSlotClick(event,card,iso,clock,st,rUntil,reg){
   }
   showBookingSheet(iso,clock);
 }
-function updateMultiBar(){const n=selectedSlots.size;const bar=document.getElementById('multiBar');if(isAdmin){bar.classList.add('vis');document.getElementById('selCount').textContent=n>0?`${n} horário(s) selecionado(s)`:'Seleção Ativa';}else{bar.classList.remove('vis');}}
+function updateMultiBar(){const n=selectedSlots.size;const bar=document.getElementById('multiBar');if(!bar)return;if(!isAdmin||isUserView){bar.classList.remove('vis','has-sel');return;}bar.classList.add('vis');bar.classList.toggle('has-sel',n>0);const lbl=document.getElementById('selCount');if(lbl)lbl.textContent=n>0?`${n} horário${n>1?'s':''} selecionado${n>1?'s':''}`:'Toque nos horários para selecionar';['msClear','msBlock','msFree'].forEach(id=>{const b=document.getElementById(id);if(b)b.disabled=n===0;});}
 function selectAll(){document.querySelectorAll('.slot-card:not(.past)').forEach(c=>{const key=`${currentDay}|${c.dataset.time}`;selectedSlots.add(key);c.classList.add('selected');});updateMultiBar();}
 function clearSelection(){selectedSlots.clear();document.querySelectorAll('.slot-card.selected').forEach(c=>c.classList.remove('selected'));updateMultiBar();}
 async function blockSelected(){if(!selectedSlots.size)return;if(!confirm(`Bloquear ${selectedSlots.size} horário(s)?`))return;const updates=[...selectedSlots].map(k=>{const[d,t]=k.split('|');return{data:d,horario:t,status:'Bloqueado',cliente:'INDISPONÍVEL',password:adminPass};});clearSelection();await postUpdates(updates);}
@@ -3149,7 +3232,17 @@ function logoutAdmin(){if(!confirm('Sair e remover senha salva?'))return;adminPa
 function toggleUserView(){isUserView=!isUserView;updateAppMode();if(currentDay)renderGrid(currentDay);renderMyBookingBanner();}
 function onGearClick(){if(isAdmin&&isUserView){toggleUserView();return;}promptAdmin();}
 function updateGearState(){const gear=document.getElementById('topbarGear');if(!gear)return;const back=isAdmin&&isUserView;gear.classList.toggle('is-back',back);const lbl=back?'Voltar ao painel administrativo':'Área administrativa';gear.title=lbl;gear.setAttribute('aria-label',lbl);}
-function updateAppMode(){const body=document.body;const aN=document.getElementById('adminNav');if(isAdmin&&!isUserView){body.classList.add('admin-on');setupAdminStats();}else{body.classList.remove('admin-on');}updateGearState();if(aN)aN.style.removeProperty('display');updateDayExportButton();try{setupAdminNotifications();}catch{}}
+let lastAppMode=null;
+function updateAppMode(){const body=document.body;const aN=document.getElementById('adminNav');const modo=adminTabAvailable()?'adm':'pub';if(modo==='adm'){body.classList.add('admin-on');setupAdminStats();}else{body.classList.remove('admin-on');}updateGearState();if(aN)aN.style.removeProperty('display');renderPublicMainNav();
+  /* Só troca de aba quando o modo muda — senão cada sync jogaria a gerente
+     de volta pra Gerência enquanto ela mexe na agenda. Nunca chamamos
+     setPublicMainTab à toa: o catálogo ainda pode estar carregando e a
+     função rebaixaria a aba pra 'agendamento' achando que está vazio. */
+  const trocouModo=modo!==lastAppMode;lastAppMode=modo;
+  if(modo==='adm'&&trocouModo)setPublicMainTab('gerencia');
+  else if(modo!=='adm'&&publicMainTab==='gerencia')setPublicMainTab('agendamento');
+  else refreshPublicMainSections();
+  updateDayExportButton();try{setupAdminNotifications();}catch{}}
 function setupAdminStats(){const wO=document.getElementById('wrapOcupado'),wA=document.getElementById('wrapAguard'),wN=document.getElementById('wrapNext'),wL=document.getElementById('wrapLivre');if(wO)wO.onclick=openAgendadosSheet;if(wA)wA.onclick=openHistoricoSheet;if(wN)wN.onclick=openProximoSheet;if(wL)wL.onclick=openLivresSheet;}
 /** Livres = mesma regra da grade (getAvailableSlotsForDay): respeita a duracao do
  *  procedimento, os intervalos curtos demais entre agendamentos, as reservas expiradas
@@ -3184,7 +3277,11 @@ function initWebNotifications(){if(notifInit)return;try{window.OneSignalDeferred
 // ════════════════════════════════════════════════════
 //  BOOT
 // ════════════════════════════════════════════════════
+/* Marcador de versão: serve pra conferir, dentro do app publicado, se a
+   implantação do Apps Script já está com o arquivo mais novo. */
+const APP_BUILD='22/08/2026 · 9';
 window.onload=()=>{
+  const bs=document.getElementById('appBuild');if(bs)bs.textContent=APP_BUILD;
   calcExperience();
   initSigWa();
   initApp().then(()=>{
