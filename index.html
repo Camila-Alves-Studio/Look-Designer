@@ -1844,6 +1844,67 @@ body.admin-on #logPanel{display:block;}
   #adminNav{width:auto;}
   .nav-btn{flex:none;min-width:0;}
 }
+
+/* ── AGENDA DE DEZEMBRO ─────────────────────────────── */
+#decemberSection{display:none;}
+.main-nav.is-5 .main-nav-btn{padding:12px 2px;gap:5px;}
+.main-nav.is-5 .nav-ico{width:32px;height:32px;font-size:14px;}
+.main-nav.is-5 .nav-copy strong{font-size:.52rem;letter-spacing:0;}
+.dez-intro{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:14px 16px;margin-bottom:14px;font-size:.78rem;color:var(--ink-lt);line-height:1.5;text-align:center;}
+.dez-intro strong{color:var(--ink);}
+.dez-month-title{font-family:'Cormorant Garamond',serif;font-size:1.5rem;color:var(--ink);text-align:center;margin:4px 0 12px;}
+.dez-cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;}
+.dez-wd{font-size:.55rem;letter-spacing:1px;text-transform:uppercase;color:var(--ink-lt);text-align:center;padding:2px 0 4px;}
+.dez-blank{min-height:58px;}
+.dez-day{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:58px;padding:6px 2px;border-radius:14px;border:1px solid var(--border);background:var(--white);color:var(--ink);cursor:pointer;font-family:inherit;transition:transform .2s var(--ease),background .2s,border-color .2s;}
+.dez-day:hover{border-color:var(--rose);}
+.dez-day:active{transform:scale(.96);}
+.dez-day.fee{border-color:var(--gold);background:linear-gradient(180deg,#fffdf8,#f7efe1);}
+.dez-day.active{background:var(--gradient-rose);border-color:transparent;color:#fff;}
+.dez-day.past{opacity:.35;cursor:default;}
+.dez-day.locked{cursor:default;}
+.dez-dn{font-family:'Cormorant Garamond',serif;font-size:1.15rem;line-height:1;}
+.dez-dc{font-size:.52rem;color:var(--ink-lt);}
+.dez-day.active .dez-dc{color:rgba(255,255,255,.85);}
+.dez-fee{font-size:.5rem;font-weight:700;letter-spacing:.3px;color:#9a7a3c;}
+.dez-day.active .dez-fee{color:#fff;}
+.dez-legend{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;font-size:.6rem;color:var(--ink-lt);margin:12px 0 4px;}
+.dez-legend span{display:inline-flex;align-items:center;gap:6px;}
+.dez-sw{display:inline-block;width:12px;height:12px;border-radius:4px;border:1px solid var(--border);background:var(--white);}
+.dez-sw.fee{border-color:var(--gold);background:#f7efe1;}
+#dezDayWrap{display:none;margin-top:18px;}
+.dez-day-note{font-size:.7rem;color:var(--ink-lt);margin:8px 2px 12px;}
+.dez-pix-qr{display:flex;justify-content:center;margin:6px 0 12px;}
+.dez-pix-qr img{width:200px;height:200px;max-width:70vw;max-height:70vw;border-radius:14px;border:1px solid var(--border);background:#fff;padding:8px;}
+.dez-pix-code{font-size:.68rem;word-break:break-all;margin-bottom:8px;}
+.dez-pix-status{margin-top:12px;font-size:.74rem;color:var(--ink-lt);text-align:center;}
+.dez-pix-status.err{color:#C94848;}
+.dez-list-row{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);font-size:.7rem;}
+.dez-list-main{display:flex;flex-direction:column;gap:2px;min-width:0;}
+.dez-list-main span{color:var(--ink-lt);word-break:break-all;}
+.dez-list-side{display:flex;flex-direction:column;align-items:flex-end;gap:2px;font-size:.62rem;font-weight:600;white-space:nowrap;}
+.dez-list-side small{color:var(--ink-lt);font-weight:400;}
+@media (max-width:760px){
+  .main-nav.is-5 .main-nav-btn{padding:11px 2px;gap:4px;}
+  .main-nav.is-5 .nav-ico{width:28px;height:28px;font-size:13px;}
+  .main-nav.is-5 .nav-copy strong{font-size:.46rem;}
+  .dez-cal{gap:4px;}
+  .dez-day{min-height:52px;}
+  .dez-blank{min-height:52px;}
+}
+
+/* ── OCUPAR HORÁRIO (cliente presencial) ─────────────── */
+.walkin-box{background:rgba(201,168,108,.07);border:1px solid var(--gold);border-radius:14px;padding:12px 14px 6px;margin:10px 0 6px;}
+.walkin-title{font-size:.8rem;font-weight:600;color:var(--ink);margin-bottom:2px;}
+.walkin-sub{font-size:.66rem;color:var(--ink-lt);line-height:1.4;margin-bottom:6px;}
+
+/* ── ABA DEZEMBRO OCULTA (vista do admin) ── */
+.main-nav-btn.is-off .nav-ico{opacity:.5;}
+.main-nav-btn.is-off .nav-copy strong{opacity:.6;}
+
+/* ── TAXA DO MÊS NO AGENDAMENTO ─────────────────────── */
+.grid-taxa{display:block;font-size:.66rem;color:#9a7a3c;margin-top:4px;line-height:1.4;}
+.grid-taxa:empty{display:none;}
 </style>
 </head>
 <body>
@@ -2026,6 +2087,7 @@ body.admin-on #logPanel{display:block;}
           <span class="grid-weekday" id="gridWeekday"></span>
           <span class="grid-daynum" id="gridDate"></span>
           <span class="grid-resume" id="gridResume"></span>
+          <span class="grid-taxa" id="gridTaxa"></span>
         </div>
         <div class="grid-head-right">
           <button class="day-btn" id="saveDayBtn" onclick="saveSelectedDaySlotsImage()" type="button">
@@ -2049,6 +2111,30 @@ body.admin-on #logPanel{display:block;}
     </section>
   </section>
 
+  <!-- AGENDA DE DEZEMBRO -->
+  <section id="decemberSection">
+    <div class="sec-hdr">
+      <div class="sec-hdr-line"></div>
+      <div class="sec-hdr-label">✦ Agenda de Dezembro ✦</div>
+      <div class="sec-hdr-line"></div>
+    </div>
+    <div class="dez-intro" id="dezIntro"></div>
+    <div class="dez-month-title" id="dezMonthTitle">Dezembro</div>
+    <div class="dez-cal" id="dezCalGrid"></div>
+    <div class="dez-legend">
+      <span><i class="dez-sw fee"></i> Dia com taxa de reserva</span>
+      <span><i class="dez-sw"></i> Sem taxa</span>
+    </div>
+    <section id="dezDayWrap">
+      <div class="grid-date-box" style="margin:6px 2px 4px;">
+        <span class="grid-weekday" id="dezDayWeekday"></span>
+        <span class="grid-daynum" id="dezDayDate"></span>
+      </div>
+      <div class="dez-day-note" id="dezDayNote"></div>
+      <div class="slots" id="dezSlots"></div>
+    </section>
+  </section>
+
   <!-- ADMIN -->
   <section id="adminPanel">
     <div class="admin-title">✦ Painel Administrativo ✦</div>
@@ -2061,6 +2147,8 @@ body.admin-on #logPanel{display:block;}
     </div>
     <div class="admin-cards">
       <div class="admin-card" onclick="openClientesSheet()"><span class="ac-ico">👥</span><div class="ac-lbl">Clientes</div><div class="ac-desc">Ranking de frequência e contato</div></div>
+      <div class="admin-card" onclick="openTaxaMesAdmin()"><span class="ac-ico">🧾</span><div class="ac-lbl">Taxa do mês</div><div class="ac-desc">Cobrança obrigatória no agendamento</div></div>
+      <div class="admin-card" onclick="openDezAdmin()"><span class="ac-ico">🎄</span><div class="ac-lbl">Agenda de Dezembro</div><div class="ac-desc">Taxa de reserva e dias com cobrança</div></div>
       <div class="admin-card" onclick="openConfig()"><span class="ac-ico">⚙️</span><div class="ac-lbl">Configurações</div><div class="ac-desc">Expediente e Valor da Reserva</div></div>
       <div class="admin-card" onclick="openServicosAdmin()"><span class="ac-ico">💅</span><div class="ac-lbl">Serviços</div><div class="ac-desc">Abas e procedimentos do studio</div></div>
       <div class="admin-card" onclick="openMidiaAdmin()"><span class="ac-ico">🖼️</span><div class="ac-lbl">Tela Principal</div><div class="ac-desc">Foto ou vídeo de apresentação</div></div>
@@ -2217,6 +2305,13 @@ const DEFAULT_SITE_TEXTS={
 //  ESTADO
 // ════════════════════════════════════════════════════
 let db=[], srvCfg={start:'08:00',end:'20:00',duration:60,pix_value:'0.00'};
+let DEZ={valor:0,mes_inteiro:false,dias:[],mes:''};
+let TAXA={valor:0,mes_inteiro:false,dias:[],mes:'',ativo:false};
+let taxaAdminDias=new Set();
+let dezSelDay='';
+let dezAdminDias=new Set();
+let dezPollTimer=null;
+const DEZ_WD=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 let systemLogs=[];
 let adminPass=localStorage.getItem('look_admin_pass')||"";
 let isAdmin=false,isUserView=false;
@@ -2436,7 +2531,7 @@ async function syncData(){
       s.src=`${CFG.API_URL}?pass=${encodeURIComponent(adminPass)}${tokenParam}&_t=${Date.now()}&callback=${cb}`;
       s.onerror=rej;document.body.appendChild(s);setTimeout(rej,10000);
     }).then(r=>{
-      db=r.agenda||[];systemLogs=r.logs||[];srvCfg=r.config||srvCfg;isAdmin=!!r.isAdmin;
+      db=r.agenda||[];systemLogs=r.logs||[];srvCfg=r.config||srvCfg;DEZ=r.dez||DEZ;TAXA=r.taxa||TAXA;isAdmin=!!r.isAdmin;
       if(!isAdmin){
         const saved=localStorage.getItem('last_booking_v3');
         if(saved){
@@ -2449,7 +2544,7 @@ async function syncData(){
           if(!still||!isBookingUpcoming(bIso,bClock,still?.duration))clearClientBlock();
         }
       }
-      updateAppMode();renderDays();
+      updateAppMode();renderDays();if(publicMainTab==='dezembro'&&!dezVisivel())setPublicMainTab('catalogo');renderDezSection();
       if(currentDay)renderGrid(currentDay);
       updateAdminStats();
       renderMyBookingBanner(); // atualiza o banner da cliente
@@ -2589,12 +2684,12 @@ function saveSiteTexts(obj){localStorage.setItem(SITE_TEXTS_KEY,JSON.stringify(o
 // ════════════════════════════════════════════════════
 //  SERVICES PUBLIC
 // ════════════════════════════════════════════════════
-function renderPublicMainNav(){const wrap=document.getElementById('publicMainNav');if(!wrap)return;const T=getSiteTexts();const note=document.getElementById('publicMainNote');const hasCatalogo=ABAS.length>0;const hasPortfolio=PROCS.some(p=>parseFotos(p.fotos||p.imagem).length);wrap.innerHTML=`<button class="main-nav-btn" data-tab="catalogo" onclick="setPublicMainTab('catalogo')"${hasCatalogo?'':' disabled'} title="${hasCatalogo?`${PROCS.length} ${htmlEsc(T.navCatalogSub)}`:'Em atualização'}"><span class="nav-ico">✦</span><span class="nav-copy"><strong>${htmlEsc(T.navCatalog)}</strong></span></button><button class="main-nav-btn" data-tab="portfolio" onclick="setPublicMainTab('portfolio')"${hasPortfolio?'':' disabled'} title="${hasPortfolio?htmlEsc(T.navPortfolioSub):'Sem imagens ainda'}"><span class="nav-ico">🖼</span><span class="nav-copy"><strong>${htmlEsc(T.navPortfolio)}</strong></span></button><button class="main-nav-btn" data-tab="agendamento" onclick="setPublicMainTab('agendamento')" title="${htmlEsc(T.navBookingSub)}"><span class="nav-ico">📅</span><span class="nav-copy"><strong>${htmlEsc(T.navBooking)}</strong></span></button>${adminTabAvailable()?`<button class="main-nav-btn nav-adm" data-tab="gerencia" onclick="setPublicMainTab('gerencia')" title="Painel administrativo e configurações"><span class="nav-ico">🛠</span><span class="nav-copy"><strong>Gerência</strong></span></button>`:''}`;wrap.classList.toggle('is-4',adminTabAvailable());wrap.querySelectorAll('.main-nav-btn').forEach(b=>b.classList.toggle('active',b.getAttribute('data-tab')===publicMainTab));if(note)note.textContent=hasCatalogo?'':'Catálogo em atualização. O agendamento continua disponível.';}
+function renderPublicMainNav(){const wrap=document.getElementById('publicMainNav');if(!wrap)return;const T=getSiteTexts();const note=document.getElementById('publicMainNote');const hasCatalogo=ABAS.length>0;const hasPortfolio=PROCS.some(p=>parseFotos(p.fotos||p.imagem).length);wrap.innerHTML=`<button class="main-nav-btn" data-tab="catalogo" onclick="setPublicMainTab('catalogo')"${hasCatalogo?'':' disabled'} title="${hasCatalogo?`${PROCS.length} ${htmlEsc(T.navCatalogSub)}`:'Em atualização'}"><span class="nav-ico">✦</span><span class="nav-copy"><strong>${htmlEsc(T.navCatalog)}</strong></span></button><button class="main-nav-btn" data-tab="portfolio" onclick="setPublicMainTab('portfolio')"${hasPortfolio?'':' disabled'} title="${hasPortfolio?htmlEsc(T.navPortfolioSub):'Sem imagens ainda'}"><span class="nav-ico">🖼</span><span class="nav-copy"><strong>${htmlEsc(T.navPortfolio)}</strong></span></button><button class="main-nav-btn" data-tab="agendamento" onclick="setPublicMainTab('agendamento')" title="${htmlEsc(T.navBookingSub)}"><span class="nav-ico">📅</span><span class="nav-copy"><strong>${htmlEsc(T.navBooking)}</strong></span></button>${dezVisivel()?`<button class="main-nav-btn${DEZ.ativo?'':' is-off'}" data-tab="dezembro" onclick="setPublicMainTab('dezembro')" title="${DEZ.ativo?'Agenda de dezembro com taxa de reserva':'Oculta para os clientes. Ative no painel.'}"><span class="nav-ico">🎄</span><span class="nav-copy"><strong>Dezembro</strong></span></button>`:''}${adminTabAvailable()?`<button class="main-nav-btn nav-adm" data-tab="gerencia" onclick="setPublicMainTab('gerencia')" title="Painel administrativo e configurações"><span class="nav-ico">🛠</span><span class="nav-copy"><strong>Gerência</strong></span></button>`:''}`;wrap.classList.toggle('is-4',!adminTabAvailable()&&!!DEZ.ativo);wrap.classList.toggle('is-5',adminTabAvailable());wrap.querySelectorAll('.main-nav-btn').forEach(b=>b.classList.toggle('active',b.getAttribute('data-tab')===publicMainTab));if(note)note.textContent=hasCatalogo?'':'Catálogo em atualização. O agendamento continua disponível.';}
 /** A Gerência é a 4ª aba: só existe pro admin e ocupa a tela sozinha,
  *  como as outras três. */
 function adminTabAvailable(){return !!isAdmin&&!isUserView;}
-function refreshPublicMainSections(){const catalog=document.getElementById('servicesSection');const portfolio=document.getElementById('portfolioSection');const booking=document.getElementById('bookingSection');const adm=document.getElementById('adminPanel');if(catalog)catalog.style.display=(publicMainTab==='catalogo'&&ABAS.length)?'block':'none';if(portfolio)portfolio.style.display=(publicMainTab==='portfolio')?'block':'none';if(booking)booking.style.display=publicMainTab==='agendamento'?'block':'none';if(adm)adm.style.display=(publicMainTab==='gerencia'&&adminTabAvailable())?'block':'none';}
-function setPublicMainTab(tab){const hasCatalogo=ABAS.length>0;const hasPortfolio=PROCS.some(p=>parseFotos(p.fotos||p.imagem).length);const validas=['catalogo','portfolio','agendamento'];if(adminTabAvailable())validas.push('gerencia');publicMainTab=validas.includes(tab)?tab:'catalogo';if(publicMainTab!=='gerencia'){if(publicMainTab==='catalogo'&&!hasCatalogo)publicMainTab=hasPortfolio?'portfolio':'agendamento';if(publicMainTab==='portfolio'&&!hasPortfolio)publicMainTab=hasCatalogo?'catalogo':'agendamento';}document.querySelectorAll('.main-nav-btn').forEach(btn=>btn.classList.toggle('active',btn.getAttribute('data-tab')===publicMainTab));refreshPublicMainSections();if(publicMainTab==='catalogo'&&ABAS.length){const alvo=ABAS.some(a=>a.nome===abaPublicaAtiva)?abaPublicaAtiva:ABAS[0].nome;if(alvo)showServico(alvo);}if(publicMainTab==='portfolio')renderPortfolioSection();if(publicMainTab==='gerencia'){updateAdminStats();setupAdminStats();window.scrollTo({top:0,behavior:'smooth'});}applySiteTexts();}
+function refreshPublicMainSections(){const catalog=document.getElementById('servicesSection');const portfolio=document.getElementById('portfolioSection');const booking=document.getElementById('bookingSection');const adm=document.getElementById('adminPanel');if(catalog)catalog.style.display=(publicMainTab==='catalogo'&&ABAS.length)?'block':'none';if(portfolio)portfolio.style.display=(publicMainTab==='portfolio')?'block':'none';if(booking)booking.style.display=publicMainTab==='agendamento'?'block':'none';if(adm)adm.style.display=(publicMainTab==='gerencia'&&adminTabAvailable())?'block':'none';const dez=document.getElementById('decemberSection');if(dez)dez.style.display=publicMainTab==='dezembro'&&dezVisivel()?'block':'none';}
+function setPublicMainTab(tab){const hasCatalogo=ABAS.length>0;const hasPortfolio=PROCS.some(p=>parseFotos(p.fotos||p.imagem).length);const validas=['catalogo','portfolio','agendamento'];if(dezVisivel())validas.push('dezembro');if(adminTabAvailable())validas.push('gerencia');publicMainTab=validas.includes(tab)?tab:'catalogo';if(publicMainTab!=='gerencia'){if(publicMainTab==='catalogo'&&!hasCatalogo)publicMainTab=hasPortfolio?'portfolio':'agendamento';if(publicMainTab==='portfolio'&&!hasPortfolio)publicMainTab=hasCatalogo?'catalogo':'agendamento';}document.querySelectorAll('.main-nav-btn').forEach(btn=>btn.classList.toggle('active',btn.getAttribute('data-tab')===publicMainTab));refreshPublicMainSections();if(publicMainTab==='catalogo'&&ABAS.length){const alvo=ABAS.some(a=>a.nome===abaPublicaAtiva)?abaPublicaAtiva:ABAS[0].nome;if(alvo)showServico(alvo);}if(publicMainTab==='portfolio')renderPortfolioSection();if(publicMainTab==='dezembro')renderDezSection();if(publicMainTab==='gerencia'){updateAdminStats();setupAdminStats();window.scrollTo({top:0,behavior:'smooth'});}applySiteTexts();}
 function renderServicesTabs(){const wrap=document.getElementById('servicesTabs');const panel=document.getElementById('srvPanel');renderPublicMainNav();renderPortfolioSection();if(!ABAS.length){if(publicMainTab==='catalogo')publicMainTab=PROCS.some(p=>parseFotos(p.fotos||p.imagem).length)?'portfolio':'agendamento';wrap.innerHTML='';panel.innerHTML=`<div class="srv-empty"><div class="srv-empty-ico">✦</div><p>Cadastre categorias para montar seu catálogo.</p></div>`;refreshPublicMainSections();return;}wrap.innerHTML=ABAS.map(a=>{const cnt=PROCS.filter(p=>p.aba===a.nome).length;return `<div class="srv-tab" data-aba="${htmlEsc(a.nome)}" onclick="showServico('${String(a.nome).replace(/'/g,"\\'")}')"><div class="srv-tab-ico">${a.emoji}</div><div class="srv-tab-name">${htmlEsc(a.nome)}</div><div class="srv-tab-cnt">${cnt} serviço${cnt!==1?'s':''}</div></div>`;}).join('');if(!ABAS.some(a=>a.nome===abaPublicaAtiva))abaPublicaAtiva=ABAS[0].nome;refreshPublicMainSections();if(publicMainTab==='catalogo'&&abaPublicaAtiva)showServico(abaPublicaAtiva);applySiteTexts();}
 function showServico(nome){abaPublicaAtiva=nome;document.querySelectorAll('.srv-tab').forEach(t=>t.classList.toggle('active',t.getAttribute('data-aba')===nome));const panel=document.getElementById('srvPanel');const procs=PROCS.filter(p=>p.aba===nome);const emoji=ABAS.find(a=>a.nome===nome)?.emoji||'✦';if(!procs.length){panel.innerHTML=`<div class="srv-panel-head">${emoji} ${nome}</div><div class="srv-rule"></div><div class="srv-empty"><div class="srv-empty-ico">${emoji}</div><p>Nenhum serviço cadastrado ainda.</p></div>`;return;}panel.innerHTML=`<div class="srv-panel-head">${emoji} ${nome}</div><div class="srv-rule"></div><div class="proc-list">`+procs.map(p=>{const idx=PROCS.indexOf(p);const posY=p.imgPosY??50;const thumb=p.imagem?`<div class="proc-thumb"><img class="img-lightbox" src="${mediaImageUrl(p.imagem,'card')}" alt="${htmlEsc(p.nome)}" style="object-position:center ${posY}%" onclick="event.stopPropagation();openImageLightbox(this.src,this.alt)"></div>`:`<div class="proc-thumb">${emoji}</div>`;return `<div class="proc-card" onclick="verProcDetalhe(${idx})">${thumb}<div class="proc-info"><div class="proc-name">${p.nome}</div><div class="proc-meta">${p.valor?formatarValor(p.valor)+' · ':''}${p.duracao||''}</div></div><span class="proc-arrow">›</span></div>`;}).join('')+'</div>';}
 function verProcDetalhe(idx){const p=PROCS[idx];const emoji=ABAS.find(a=>a.nome===p.aba)?.emoji||'✦';const posY=p.imgPosY??50;const alt=p.imgAltura??145;const fotos=(p.fotos&&p.fotos.length?p.fotos:parseFotos(p.imagem)).filter(Boolean);const galeriaHtml=fotos.length?`<div class="proc-gallery"><div class="proc-gallery-track" id="procGalTrack">${fotos.map((u,i)=>`<div class="proc-gallery-slide"><img class="img-lightbox" src="${mediaImageUrl(u,'detail')}" alt="${htmlEsc(p.nome)} — foto ${i+1}" style="height:${Math.max(alt,200)}px;object-fit:cover;object-position:center ${posY}%;" onclick="openImageLightbox(this.src,this.alt)"></div>`).join('')}</div>${fotos.length>1?`<div class="proc-gallery-dots">${fotos.map((_,i)=>`<span class="proc-gallery-dot${i===0?' active':''}"></span>`).join('')}</div>`:''}</div>`:`<div class="proc-gallery"><div class="proc-gallery-slide"><div class="proc-gallery-ph" style="height:120px;">${emoji}</div></div></div>`;const precoHtml=(p.valor||p.temManut)?`<div class="proc-price-grid">${p.valor?`<div class="proc-price-box primary"><div class="proc-price-label">Valor da sessão</div><div class="proc-price-val">${formatarValor(p.valor)}</div></div>`:''}${p.temManut?`<div class="proc-price-box secondary"><div class="proc-price-label">Manutenção</div><div class="proc-price-val">${p.manutValor?formatarValor(p.manutValor):'Consultar'}</div>${p.manutPrazo?`<div style="font-size:.58rem;color:var(--ink-lt);margin-top:2px;">🔄 ${p.manutPrazo}</div>`:''}</div>`:''}</div>`:'';const tags=(p.tags||parseProcTags(p.indicado||'')).map(normalizeProcTag).filter(Boolean);const badgeTags=tags.filter(t=>t.tipo==='marcador');const infoTags=tags.filter(t=>t.tipo!=='marcador').map(t=>({icon:t.tipo==='real'?'💰':'✦',label:getProcTagLabel(t),val:getProcTagValue(t)}));const infos=[p.duracao?{icon:'⏱',label:'Duração',val:p.duracao}:null,p.fixacao?{icon:'📅',label:'Duração do efeito',val:p.fixacao}:null,...infoTags].filter(Boolean);const infosHtml=infos.length?`<div class="proc-info-table">${infos.map(info=>`<div class="proc-info-row"><span class="proc-info-ico">${info.icon}</span><span class="proc-info-lbl">${info.label}</span><span class="proc-info-val">${info.val}</span></div>`).join('')}</div>`:'';const badgesHtml=badgeTags.length?`<div class="proc-badges">${badgeTags.map(tag=>`<div class="proc-badge">${tag.label?tag.label+': ':''}${tag.valor}</div>`).join('')}</div>`:'';const panel=document.getElementById('srvPanel');panel.innerHTML=`${galeriaHtml}<div class="proc-detail-name">${p.nome}</div><div class="proc-detail-cat"><div style="width:22px;height:1px;background:var(--rose);"></div><span>${p.aba}</span></div><p class="proc-detail-text">${p.descricao}</p>${badgesHtml}${precoHtml}${infosHtml}<button class="btn-back-proc" onclick="showServico('${p.aba}')">← Voltar</button>`;ativarGaleriaProc();setTimeout(()=>panel.scrollIntoView({behavior:'smooth',block:'start'}),50);}
@@ -2700,6 +2795,7 @@ function renderGridHead(iso){
   const el=(id,v)=>{const n=document.getElementById(id);if(n)n.innerHTML=v;};
   el('gridWeekday',htmlEsc(wd.charAt(0).toUpperCase()+wd.slice(1)));
   el('gridDate',htmlEsc(formatManausLabel(iso,{day:'2-digit',month:'long'})));
+  const tx=document.getElementById('gridTaxa');if(tx){const v=taxaDia(iso);tx.innerHTML=v>0?`💳 Taxa obrigatória <b>${dezValorLabel(v)}</b> · pague o PIX para confirmar o horário`:'';}
   /* O resumo é informação de gestão (agendados, aguardando, bloqueados) e
      não pode aparecer pra cliente — some por completo fora do modo admin. */
   const resumo=document.getElementById('gridResume');
@@ -2718,11 +2814,11 @@ function renderGridHead(iso){
 }
 function selectDay(iso){currentDay=iso;clearSelection();renderDays();renderGridHead(iso);document.getElementById('gridSection').classList.add('vis');renderGrid(iso);updateDayExportButton();}
 function closeGrid(){currentDay='';clearSelection();document.getElementById('gridSection').classList.remove('vis');renderDays();updateDayExportButton();}
-function renderGrid(iso){
-  const container=document.getElementById('slotsContainer');
+function renderGrid(iso,targetId){
+  const container=document.getElementById(targetId||'slotsContainer');
   container.innerHTML='';
   const logContainer=document.getElementById('logEntries');
-  logContainer.innerHTML='';
+  if(!targetId)logContainer.innerHTML='';
   const now=new Date(),todayIso=formatLocalIsoDate(now),curMins=now.getHours()*60+now.getMinutes();
   const lastBooking=JSON.parse(localStorage.getItem('last_booking_v3')||'null');
   // Só considera a reserva salva como "ativa" (bloqueando a grade) se ela ainda estiver
@@ -2776,14 +2872,14 @@ function renderGrid(iso){
     container.appendChild(card);
     cur+=Math.max(30,durMin);idx++;
   }
-  if(isAdmin&&logs.length){logs.forEach(l=>{const e=document.createElement('div');e.className='log-entry';e.innerHTML=`<strong>⏱ ${l.time} — Reserva Registrada</strong>${l.msg}<div class="log-meta">Token: ${l.token} · ${l.phone}</div>`;logContainer.appendChild(e);});}
+  if(isAdmin&&logs.length&&!targetId){logs.forEach(l=>{const e=document.createElement('div');e.className='log-entry';e.innerHTML=`<strong>⏱ ${l.time} — Reserva Registrada</strong>${l.msg}<div class="log-meta">Token: ${l.token} · ${l.phone}</div>`;logContainer.appendChild(e);});}
   updateDayExportButton();
   refreshGridHead();
 }
 function handleSlotClick(event,card,iso,clock,st,rUntil,reg){
   if(isAdmin){
     const isCheck=event.target.getAttribute('data-chk')==='true'||event.target.closest('[data-chk="true"]');
-    if(isCheck){const key=`${iso}|${clock}`;if(selectedSlots.has(key)){selectedSlots.delete(key);card.classList.remove('selected');}else{selectedSlots.add(key);card.classList.add('selected');}updateMultiBar();return;}
+    if(isCheck&&!card.closest('#dezSlots')){const key=`${iso}|${clock}`;if(selectedSlots.has(key)){selectedSlots.delete(key);card.classList.remove('selected');}else{selectedSlots.add(key);card.classList.add('selected');}updateMultiBar();return;}
     showAdminSlotSheet(iso,clock,st,reg);return;
   }
   if(st!=='Livre'){
@@ -2796,6 +2892,7 @@ function handleSlotClick(event,card,iso,clock,st,rUntil,reg){
     }
     return;
   }
+  if(taxaDia(iso)>0){showDezPaymentSheet(iso,clock);return;}
   showBookingSheet(iso,clock);
 }
 function updateMultiBar(){const n=selectedSlots.size;const bar=document.getElementById('multiBar');if(!bar)return;if(!isAdmin||isUserView){bar.classList.remove('vis','has-sel');return;}bar.classList.add('vis');bar.classList.toggle('has-sel',n>0);const lbl=document.getElementById('selCount');if(lbl)lbl.textContent=n>0?`${n} horário${n>1?'s':''} selecionado${n>1?'s':''}`:'Toque nos horários para selecionar';['msClear','msBlock','msFree'].forEach(id=>{const b=document.getElementById(id);if(b)b.disabled=n===0;});}
@@ -2886,7 +2983,8 @@ async function confirmBooking(iso,clock,df){
 //  isNewBooking=false → exibida ao tocar no banner de retorno
 // ════════════════════════════════════════════════════
 function showConfirmationSheet(name,phone,iso,clock,df,token,isNewBooking){
-  const pixValue=srvCfg.pix_value&&parseFloat(srvCfg.pix_value)>0?srvCfg.pix_value:null;
+  const pago=dezPagoLocal(token);
+  const pixValue=!pago&&srvCfg.pix_value&&parseFloat(srvCfg.pix_value)>0?srvCfg.pix_value:null;
   const waText=encodeURIComponent(
     `Olá, Camila! 💗\n\nMeu horário está confirmado no sistema.\n\n`+
     `📌 *Detalhes:*\n• Nome: ${name}\n• Data: ${df}\n• Horário: ${clock}\n• Código: *${token}*\n\n`+
@@ -2954,6 +3052,7 @@ function showConfirmationSheet(name,phone,iso,clock,df,token,isNewBooking){
     <a href="https://wa.me/${CFG.WA}?text=${waText}" target="_blank" class="wa-link">
       💬 Avisar pelo WhatsApp
     </a>`;
+  if(pago){const pb=document.querySelector('#sheetBody .pix-info-block');if(pb)pb.outerHTML='<div class="info-box" style="background:rgba(107,175,120,.07);border-color:var(--green);">✅ <strong>Pagamento aprovado via PIX.</strong> Seu horário está garantido.</div>';}
 
   document.getElementById('sheetActions').innerHTML=`
     <button class="btn btn-secondary" onclick="closeSheet()">Fechar</button>`;
@@ -2989,11 +3088,53 @@ function showAdminSlotSheet(iso,clock,st,reg){
   const gapNoticeHtml=next
     ?`<div class="gap-notice${gap<curDur?' warn':''}">⏱ <strong>${fmtDur(gap)} livres</strong> até ${next.clock} — depois disso, <strong>${htmlEsc(next.cliente||'outro horário')}</strong> ocupa a agenda (${fmtDur(next.duration)}).</div>`
     :`<div class="gap-notice">⏱ <strong>${fmtDur(gap)} livres</strong> até o fechamento (${srvCfg.end}) — sem outros compromissos hoje.</div>`;
+  const durBlock=`<label class="f-label">Duração do procedimento</label>${gapNoticeHtml}<div class="dur-grid" id="durGrid">${durOpts}</div><div class="dur-custom-row"><label class="f-lbl" style="display:block;margin-bottom:6px;">Duração personalizada (min) — aproveite todo o espaço livre</label><div style="display:flex;gap:8px;"><input id="durCustom" class="f-inp" style="margin-bottom:0;" type="number" min="5" step="5" placeholder="até ${gap} min"><button type="button" class="btn-sm-secondary" onclick="useMaxDur()" style="white-space:nowrap;">Usar máx. (${fmtDur(gap)})</button></div><div id="durCustomMsg" class="dur-custom-msg"></div></div>`;
+  const blockBtn=(st!=='Bloqueado'&&st!=='Aguardando Pagamento')
+    ?`<button class="btn btn-danger" onclick="adminAction('${iso}','${clock}','block')">🔒 Bloquear este horário</button>`:'';
+  const freeBtn=(st==='Bloqueado'||st==='Ocupado'||st==='Aguardando Pagamento')
+    ?`<button class="btn btn-gold" onclick="adminAction('${iso}','${clock}','free')">🔓 Liberar horário</button>`:'';
+  const actGrid=`<div class="admin-act-grid">${blockBtn}${freeBtn}</div>`;
+
   openSheet(`Gestão · ${clock}`,`Status atual: ${st}`);
-  document.getElementById('sheetBody').innerHTML=`<div class="admin-act-grid">${st!=='Bloqueado'&&st!=='Aguardando Pagamento'?`<button class="btn btn-danger" onclick="adminAction('${iso}','${clock}','block')">🔒 Bloquear este horário</button>`:''}${st==='Bloqueado'||st==='Ocupado'||st==='Aguardando Pagamento'?`<button class="btn btn-gold" onclick="adminAction('${iso}','${clock}','free')">🔓 Liberar horário</button>`:''}</div><label class="f-label">${st==='Ocupado'?'Dados do Cliente':'Agendar manualmente'}</label><input id="aName" class="f-inp" placeholder="Nome do cliente" value="${reg?reg.cliente:''}"><input id="aPhone" class="f-inp" placeholder="(92) 9 0000-0000" type="tel" value="${reg&&reg.telefone?reg.telefone:''}" oninput="handlePhoneInput(this)"><label class="f-label">Duração do procedimento</label>${gapNoticeHtml}<div class="dur-grid" id="durGrid">${durOpts}</div><div class="dur-custom-row"><label class="f-lbl" style="display:block;margin-bottom:6px;">Duração personalizada (min) — aproveite todo o espaço livre</label><div style="display:flex;gap:8px;"><input id="durCustom" class="f-inp" style="margin-bottom:0;" type="number" min="5" step="5" placeholder="até ${gap} min"><button type="button" class="btn-sm-secondary" onclick="useMaxDur()" style="white-space:nowrap;">Usar máx. (${fmtDur(gap)})</button></div><div id="durCustomMsg" class="dur-custom-msg"></div></div>`;
+  let body,acts;
+  if(st==='Livre'){
+    // Horário livre: admin ocupa para cliente atendida na hora (pagamento recebido no local)
+    body=`<div class="walkin-box">
+        <div class="walkin-title">🧾 Cliente presencial</div>
+        <div class="walkin-sub">Use quando a cliente chegou e pagou aqui. O horário fica ocupado na hora, sem PIX.</div>
+        <label class="f-label">Nome da cliente</label>
+        <input id="aName" class="f-inp" placeholder="Nome da cliente" autocomplete="off">
+        <label class="f-label">WhatsApp (opcional)</label>
+        <input id="aPhone" class="f-inp" placeholder="(92) 9 0000-0000" type="tel" oninput="handlePhoneInput(this)">
+        <label class="f-label">Forma de pagamento</label>
+        <select id="aForma" class="f-inp">
+          <option value="">Escolha…</option>
+          <option>Dinheiro</option>
+          <option>Cartão</option>
+          <option>PIX presencial</option>
+          <option>Outro</option>
+        </select>
+        <label class="f-label">Valor recebido (R$, opcional)</label>
+        <input id="aValor" class="f-inp" placeholder="ex.: 50,00" inputmode="decimal" autocomplete="off">
+      </div>
+      ${durBlock}${actGrid}`;
+    acts=`<button id="btnOcupar" class="btn btn-primary" onclick="adminOcupar('${iso}','${clock}')">✓ Confirmar e ocupar horário</button><button class="btn btn-secondary" onclick="closeSheet()">Voltar</button>`;
+  } else if(st==='Ocupado'){
+    // Horário já ocupado: edição dos dados da reserva existente
+    body=`${actGrid}<label class="f-label">Dados do Cliente</label><input id="aName" class="f-inp" placeholder="Nome do cliente" value="${reg?htmlEsc(reg.cliente):''}"><input id="aPhone" class="f-inp" placeholder="(92) 9 0000-0000" type="tel" value="${reg&&reg.telefone?htmlEsc(reg.telefone):''}" oninput="handlePhoneInput(this)">${durBlock}`;
+    acts=`<button class="btn btn-primary" onclick="adminManual('${iso}','${clock}')">✓ Salvar agendamento</button><button class="btn btn-secondary" onclick="closeSheet()">Voltar</button>`;
+  } else {
+    // Bloqueado ou aguardando PIX: sem formulário de agendamento, para não sobrescrever a vaga
+    const msg=st==='Bloqueado'
+      ?'Horário bloqueado. Libere o horário para poder agendar.'
+      :'Há uma reserva por PIX aguardando pagamento neste horário.';
+    body=`${actGrid}<div class="info-box">${msg}</div>`;
+    acts=`<button class="btn btn-secondary" onclick="closeSheet()">Voltar</button>`;
+  }
+  document.getElementById('sheetBody').innerHTML=body;
   const custIn=document.getElementById('durCustom');
   if(custIn)custIn.oninput=onCustomDurInput;
-  document.getElementById('sheetActions').innerHTML=`<button class="btn btn-primary" onclick="adminManual('${iso}','${clock}')">✓ Salvar agendamento</button><button class="btn btn-secondary" onclick="closeSheet()">Voltar</button>`;
+  document.getElementById('sheetActions').innerHTML=acts;
 }
 function selectDur(el,val){
   if(el.classList.contains('disabled')){
@@ -3043,6 +3184,42 @@ async function adminManual(iso,clock){
   }
   closeSheet();
   await postUpdates([{data:iso,horario:clock,status:'Ocupado',cliente:name,telefone:phone,duration:dur,password:adminPass}]);
+}
+
+/** Admin ocupa um horário livre para cliente presencial (já pagou no local). Resposta síncrona do servidor. */
+async function adminOcupar(iso,clock){
+  const nome=document.getElementById('aName').value.trim();
+  const tel=document.getElementById('aPhone').value.trim();
+  const forma=document.getElementById('aForma').value;
+  const valorTxt=document.getElementById('aValor').value.trim().replace(',','.');
+  const dur=selectedDur||0;
+  const gi=currentGapInfo||getScheduleGapInfo(iso,clock);
+  if(!nome){toast('Informe o nome da cliente.','err');return;}
+  if(!forma){toast('Escolha a forma de pagamento.','err');return;}
+  if(valorTxt!==''&&!(parseFloat(valorTxt)>=0)){toast('Valor recebido inválido.','err');return;}
+  if(!dur){toast('Escolha uma duração dentro do espaço livre.','err');return;}
+  if(dur>gi.gap){toast(`Só há ${fmtDur(gi.gap)} livres neste horário.`,'err');return;}
+
+  const btn=document.getElementById('btnOcupar');
+  const resetBtn=()=>{if(btn){btn.disabled=false;btn.textContent='✓ Confirmar e ocupar horário';}};
+  if(btn){btn.disabled=true;btn.textContent='⏱ Salvando...';}
+  try{
+    const r=await gasCall({action:'admin_ocupar',data:iso,horario:clock,nome,telefone:tel,duration:dur,forma,valor_recebido:valorTxt});
+    if(r&&r.status==='OK'){
+      closeSheet();
+      toast(`${clock} ocupado para ${nome}.`,'ok');
+      await syncData();
+      return;
+    }
+    toast((r&&r.message)||'Não foi possível ocupar o horário.','err');
+    if(r&&r.code==='SLOT_TAKEN'){closeSheet();await syncData();return;}
+    resetBtn();
+  }catch(e){
+    // Sem resposta: pode ter sido gravado. Recarrega a agenda para o admin conferir.
+    toast('Sem resposta da agenda. Conferindo…','err');
+    resetBtn();
+    syncData();
+  }
 }
 
 // CONFIG
@@ -3297,8 +3474,335 @@ window.onload=()=>{
     renderMyBookingBanner(); // banner de consulta da cliente
   });
   try{initWebNotifications();}catch{}
-  setInterval(()=>{if(currentDay)renderGrid(currentDay);renderMyBookingBanner();},60000);
+  setInterval(()=>{if(currentDay)renderGrid(currentDay);if(publicMainTab==='dezembro')renderDezSection();renderMyBookingBanner();},60000);
 };
+
+// ════════════════════════════════════════════════════
+//  AGENDA DE DEZEMBRO — calendário, taxa de reserva e PIX (Mercado Pago)
+//  A vaga só vira "Ocupado" quando o servidor recebe a aprovação do PIX.
+// ════════════════════════════════════════════════════
+function dezMesRef(){return DEZ.mes||(getManausIsoDate(new Date()).slice(0,4)+'-12');}
+/* ── TAXA OBRIGATÓRIA DO MÊS (AGENDAMENTO NORMAL) ───────────────────────── */
+/** Dia do mês corrente com taxa obrigatória no agendamento normal. */
+function taxaFeeDay(iso){const s=String(iso||'').substring(0,10);if(!TAXA.ativo||!(Number(TAXA.valor)>0)||!TAXA.mes||s.indexOf(TAXA.mes+'-')!==0)return false;return !!TAXA.mes_inteiro||(TAXA.dias||[]).includes(s);}
+/** Valor (R$) que vale para o dia no agendamento; 0 = dia normal. Dezembro com a Agenda ativa tem prioridade. */
+function taxaDia(iso){if(dezFeeDay(iso))return Number(DEZ.valor)||0;if(taxaFeeDay(iso))return Number(TAXA.valor)||0;return 0;}
+function taxaMesRef(){return TAXA.mes||getManausIsoDate(new Date()).slice(0,7);}
+
+/* ── ADMIN: taxa do mês corrente ── */
+function openTaxaMesAdmin(){
+  if(!isAdmin||isUserView){toast('Acesso restrito ao administrador','warn');return;}
+  taxaAdminDias=new Set(TAXA.dias||[]);
+  const mes=taxaMesRef();
+  const nomeMes=formatManausLabel(mes+'-01',{month:'long',year:'numeric'}).replace(/^\w/,c=>c.toUpperCase());
+  const valorIni=Number(TAXA.valor)>0?Number(TAXA.valor):(Number(srvCfg.pix_value)||0);
+  const valorTxt=valorIni>0?valorIni.toFixed(2).replace('.',','):'';
+  openSheet('Taxa do mês',`${nomeMes} · agendamento normal`);
+  document.getElementById('sheetBody').innerHTML=`
+    <div class="toggle-row">
+      <div><div class="toggle-title">Cobrar taxa neste mês</div><div class="toggle-sub">Nos dias escolhidos o cliente paga o PIX antes de confirmar. Os demais dias seguem como antes.</div></div>
+      <label class="toggle-sw"><input type="checkbox" id="taxaAtivoSw"${TAXA.ativo?' checked':''}><span class="toggle-sl"></span></label>
+    </div>
+    <div class="f-row"><label class="f-lbl">Valor da taxa (R$)</label><input class="f-inp" id="taxaValor" inputmode="decimal" placeholder="Ex: 50,00" value="${valorTxt}"></div>
+    <div class="toggle-row">
+      <div><div class="toggle-title">Mês inteiro</div><div class="toggle-sub">Todos os dias de ${htmlEsc(nomeMes)} passam a cobrar a taxa</div></div>
+      <label class="toggle-sw"><input type="checkbox" id="taxaMesInteiro"${TAXA.mes_inteiro?' checked':''} onchange="renderTaxaMesCal()"><span class="toggle-sl"></span></label>
+    </div>
+    <div class="f-divider">Ou escolha dias específicos</div>
+    <div class="dez-cal" id="taxaAdminCal"></div>
+    <div class="info-box">A taxa vale só para o mês corrente e volta ao padrão (sem cobrança) quando o mês muda. Em dezembro, a Agenda de Dezembro tem prioridade sobre esta taxa.</div>`;
+  document.getElementById('sheetActions').innerHTML=`<button class="btn btn-primary" id="btnTaxaSalvar" onclick="salvarTaxaMes()">Salvar taxa do mês</button><button class="btn btn-secondary" onclick="closeSheet()">Cancelar</button>`;
+  renderTaxaMesCal();
+}
+
+function renderTaxaMesCal(){
+  const el=document.getElementById('taxaAdminCal');if(!el)return;
+  const mes=taxaMesRef();
+  const[y,m]=mes.split('-').map(Number);
+  const todos=!!document.getElementById('taxaMesInteiro')?.checked;
+  const hoje=getManausIsoDate(new Date());
+  const primeiro=new Date(y,m-1,1).getDay(), total=new Date(y,m,0).getDate();
+  let html=DEZ_WD.map(d=>`<span class="dez-wd">${d}</span>`).join('');
+  for(let i=0;i<primeiro;i++)html+='<span class="dez-blank"></span>';
+  for(let d=1;d<=total;d++){
+    const iso=`${mes}-${pad2(d)}`;
+    const passado=iso<hoje, on=todos||taxaAdminDias.has(iso);
+    const cls=['dez-day',on?'fee':'',passado?'past':'',todos?'locked':''].filter(Boolean).join(' ');
+    html+=`<button type="button" class="${cls}"${(passado||todos)?' disabled':''} onclick="toggleTaxaMesDia('${iso}')"><span class="dez-dn">${d}</span>${on?'<span class="dez-fee">taxa</span>':''}</button>`;
+  }
+  el.innerHTML=html;
+}
+function toggleTaxaMesDia(iso){if(taxaAdminDias.has(iso))taxaAdminDias.delete(iso);else taxaAdminDias.add(iso);renderTaxaMesCal();}
+
+async function salvarTaxaMes(){
+  const ativo=!!document.getElementById('taxaAtivoSw')?.checked;
+  const valor=parseFloat(String(document.getElementById('taxaValor')?.value||'0').replace(',','.'))||0;
+  const mesInteiro=!!document.getElementById('taxaMesInteiro')?.checked;
+  const dias=[...taxaAdminDias].sort();
+  if(ativo&&!(valor>0)){toast('Informe o valor da taxa.','warn');return;}
+  if(valor>10000){toast('Valor máximo: R$ 10.000','warn');return;}
+  if(ativo&&!mesInteiro&&!dias.length){toast('Escolha os dias ou o mês inteiro.','warn');return;}
+  const btn=document.getElementById('btnTaxaSalvar');
+  if(btn){btn.innerHTML='<span class="spinner"></span> Salvando...';btn.disabled=true;}
+  let r=null;
+  try{r=await gasCall({action:'taxa_mes_save',ativo:ativo?'1':'0',valor:(valor>0?valor:0).toFixed(2),mes_inteiro:mesInteiro?'1':'0',dias:JSON.stringify(dias)});}catch(e){r=null;}
+  if(!r||r.status!=='OK'){
+    toast(r?.message||'Erro ao salvar. Tente novamente.','err');
+    if(btn){btn.innerHTML='Salvar taxa do mês';btn.disabled=false;}
+    return;
+  }
+  TAXA=r.taxa;
+  if(currentDay){renderGridHead(currentDay);renderGrid(currentDay);}
+  toast(TAXA.ativo?'Taxa do mês salva.':'Taxa do mês desligada.','ok');
+  closeSheet();
+}
+
+function dezValorLabel(v){return 'R$ '+Number(v||0).toFixed(2).replace('.',',');}
+function dezFeeDay(iso){const s=String(iso||'').substring(0,10);if(!DEZ.ativo||!(Number(DEZ.valor)>0)||!DEZ.mes||s.indexOf(DEZ.mes+'-')!==0)return false;return !!DEZ.mes_inteiro||(DEZ.dias||[]).includes(s);}
+/** Mostra "Pago via PIX" (sem o PIX manual antigo) quando a reserva veio do Mercado Pago. */
+function dezPagoLocal(token){try{const lb=JSON.parse(localStorage.getItem('last_booking_v3')||'null');return !!(lb&&lb.pago&&String(lb.token)===String(token));}catch{return false;}}
+
+function renderDezSection(){
+  const grid=document.getElementById('dezCalGrid');if(!grid)return;
+  const mes=dezMesRef();
+  const[y,m]=mes.split('-').map(Number);
+  const title=document.getElementById('dezMonthTitle');
+  if(title)title.textContent=formatManausLabel(mes+'-01',{month:'long',year:'numeric'}).replace(/^\w/,c=>c.toUpperCase());
+  const intro=document.getElementById('dezIntro');
+  if(intro)intro.innerHTML=Number(DEZ.valor)>0
+    ?`Reservas em dezembro têm <strong>taxa de ${dezValorLabel(DEZ.valor)}</strong> ${DEZ.mes_inteiro?'em todos os dias do mês':'nos dias marcados no calendário'}. Pague o PIX e seu horário é confirmado automaticamente.`
+    :'Veja todos os dias de dezembro. Os horários são reservados normalmente, sem taxa.';
+  if(intro&&!DEZ.ativo&&adminTabAvailable())intro.innerHTML='<strong>Oculta para os clientes.</strong> Ative em Gerência, Agenda de Dezembro.<br>'+intro.innerHTML;
+  const hoje=getManausIsoDate(new Date());
+  const primeiro=new Date(y,m-1,1).getDay(), total=new Date(y,m,0).getDate();
+  let html=DEZ_WD.map(d=>`<span class="dez-wd">${d}</span>`).join('');
+  for(let i=0;i<primeiro;i++)html+='<span class="dez-blank"></span>';
+  for(let d=1;d<=total;d++){
+    const iso=`${mes}-${pad2(d)}`;
+    const passado=iso<hoje, taxa=dezFeeDay(iso);
+    const livres=passado?0:getAvailableSlotsForDay(iso).length;
+    const cls=['dez-day',taxa?'fee':'',passado?'past':'',iso===dezSelDay?'active':''].filter(Boolean).join(' ');
+    html+=`<button type="button" class="${cls}"${passado?' disabled':''} onclick="selectDezDay('${iso}')"><span class="dez-dn">${d}</span><span class="dez-dc">${passado?'—':livres+(livres===1?' livre':' livres')}</span>${taxa?`<span class="dez-fee">${dezValorLabel(DEZ.valor)}</span>`:''}</button>`;
+  }
+  grid.innerHTML=html;
+  renderDezDay();
+}
+
+function selectDezDay(iso){
+  dezSelDay=iso;
+  renderDezSection();
+  document.getElementById('dezDayWrap')?.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function renderDezDay(){
+  const wrap=document.getElementById('dezDayWrap');if(!wrap)return;
+  if(!dezSelDay){wrap.style.display='none';return;}
+  wrap.style.display='block';
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  const wd=formatManausLabel(dezSelDay,{weekday:'long'});
+  set('dezDayWeekday',wd.charAt(0).toUpperCase()+wd.slice(1));
+  set('dezDayDate',formatManausLabel(dezSelDay,{day:'2-digit',month:'long'}));
+  const note=document.getElementById('dezDayNote');
+  if(note)note.innerHTML=dezFeeDay(dezSelDay)
+    ?`Taxa de reserva: <strong>${dezValorLabel(DEZ.valor)}</strong> · toque em um horário livre e pague o PIX para confirmar.`
+    :'Sem taxa neste dia · toque em um horário livre para agendar.';
+  renderGrid(dezSelDay,'dezSlots');
+}
+
+/* ── Passo 1: dados da cliente ── */
+function showDezPaymentSheet(iso,clock){
+  if(!isAdmin&&isClientBlocked()){showBlockedScreen();return;}
+  const df=formatManausLabel(iso,{weekday:'long',day:'2-digit',month:'long'}).replace(/^\w/,c=>c.toUpperCase());
+  let lb=null;try{lb=JSON.parse(localStorage.getItem('last_booking_v3')||'null');}catch{}
+  openSheet('Reserva com taxa',`${df} às ${clock}`);
+  document.getElementById('sheetBody').innerHTML=`
+    <div class="info-box" style="background:rgba(201,168,108,.1);border-color:var(--gold);">
+      💳 <strong>Taxa de reserva: ${dezValorLabel(taxaDia(iso))}</strong><br>
+      Pague pelo PIX e seu horário fica confirmado automaticamente assim que o pagamento for aprovado.
+    </div>
+    <label class="f-label">Seu nome</label>
+    <input id="bName" class="f-inp" placeholder="Nome completo" value="${htmlEsc(lb?.name||'')}">
+    <label class="f-label">WhatsApp</label>
+    <input id="bPhone" class="f-inp" placeholder="(92) 9 0000-0000" type="tel" oninput="handlePhoneInput(this)" value="${htmlEsc(lb?.phone||'')}">`;
+  document.getElementById('sheetActions').innerHTML=`
+    <button class="btn btn-primary" id="btnDezPix" onclick="gerarPixDez('${iso}','${clock}')">Gerar PIX de ${dezValorLabel(taxaDia(iso))}</button>
+    <button class="btn btn-secondary" onclick="closeSheet()">Voltar</button>`;
+}
+
+/* ── Passo 2: cria a cobrança no servidor (vaga fica aguardando) ── */
+async function gerarPixDez(iso,clock){
+  if(!isAdmin&&isClientBlocked()){showBlockedScreen();return;}
+  const name=(document.getElementById('bName')?.value||'').trim();
+  const phone=(document.getElementById('bPhone')?.value||'').trim();
+  if(!name||!phone){toast('Preencha nome e WhatsApp','warn');return;}
+  const btn=document.getElementById('btnDezPix');
+  const restaurar=()=>{if(btn){btn.innerHTML=`Gerar PIX de ${dezValorLabel(taxaDia(iso))}`;btn.disabled=false;}};
+  if(btn){btn.innerHTML='<span class="spinner"></span> Gerando PIX...';btn.disabled=true;}
+  let r=null;
+  try{r=await gasCall({action:'dez_pix',data:iso,horario:clock,nome:name,telefone:phone});}catch(e){r=null;}
+  if(!r||r.status!=='OK'||!r.pix){
+    toast(r?.message||'Não foi possível gerar o PIX. Tente novamente.','err',4500);
+    if(r?.code==='SLOT_TAKEN')syncData();
+    restaurar();return;
+  }
+  mostrarPixDez(r,{iso,clock,name,phone});
+}
+
+/* ── Passo 3: QR Code + copia e cola, aguardando o pagamento ── */
+function mostrarPixDez(r,info){
+  const p=r.pix;
+  const df=formatManausLabel(info.iso,{weekday:'long',day:'2-digit',month:'long'}).replace(/^\w/,c=>c.toUpperCase());
+  const ate=new Date(p.expira_em);
+  const ateTxt=isNaN(ate.getTime())?'':ate.toLocaleTimeString('pt-BR',{timeZone:APP_TIME_ZONE,hour:'2-digit',minute:'2-digit'});
+  openSheet('Pague o PIX para confirmar',`${df} às ${info.clock} · ${dezValorLabel(p.valor)}`);
+  document.getElementById('sheetBody').innerHTML=`
+    ${p.qr_base64?`<div class="dez-pix-qr"><img src="data:image/png;base64,${p.qr_base64}" alt="QR Code PIX"></div>`:''}
+    <label class="f-label">PIX Copia e Cola</label>
+    <textarea id="dezPixCode" class="f-inp dez-pix-code" readonly rows="3">${htmlEsc(p.copia_cola||'')}</textarea>
+    <button class="btn btn-secondary" type="button" onclick="copiarPixDez()">Copiar código PIX</button>
+    <div id="dezPixStatus" class="dez-pix-status">⏳ Aguardando o pagamento${ateTxt?` · válido até ${ateTxt}`:''}</div>`;
+  document.getElementById('sheetActions').innerHTML=`<button class="btn btn-secondary" onclick="closeSheet()">Fechar e continuar depois</button>`;
+  iniciarVerificacaoDez(r.ref,info,p.expira_em);
+}
+
+function copiarPixDez(){
+  const t=document.getElementById('dezPixCode');if(!t)return;
+  const manual=()=>{t.select();toast('Código selecionado. Copie manualmente.','info');};
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(t.value).then(()=>toast('Código PIX copiado!','ok')).catch(manual);
+  }else manual();
+}
+
+function pararVerificacaoDez(){if(dezPollTimer){clearTimeout(dezPollTimer);dezPollTimer=null;}}
+function setDezStatus(msg,erro){const el=document.getElementById('dezPixStatus');if(!el)return;el.textContent=msg;el.classList.toggle('err',!!erro);}
+
+/* ── Passo 4: verifica o servidor até o pagamento ser aprovado ── */
+function iniciarVerificacaoDez(ref,info,expiraEm){
+  pararVerificacaoDez();
+  const limite=new Date(expiraEm).getTime()+2*60*1000;
+  const tick=async()=>{
+    dezPollTimer=null;
+    if(Date.now()>limite){setDezStatus('⌛ O tempo deste PIX acabou. Escolha o horário de novo para gerar outro.',true);return;}
+    let s=null;
+    try{s=await gasCall({action:'dez_status',ref});}catch(e){s=null;}
+    if(s&&s.status==='OK'){
+      if(s.estado==='CONFIRMADO'){confirmarPagamentoDez(info,s.codigo);return;}
+      if(s.estado==='PAGO_SEM_VAGA'){setDezStatus('⚠️ Pagamento recebido, mas este horário já foi ocupado. Fale com o studio pelo WhatsApp para o reembolso.',true);return;}
+      if(s.estado==='CANCELADO'||s.estado==='EXPIRADO'){setDezStatus('❌ Este PIX não foi pago e expirou. Escolha o horário novamente.',true);return;}
+    }
+    dezPollTimer=setTimeout(tick,6000);
+  };
+  dezPollTimer=setTimeout(tick,5000);
+}
+
+/* ── Passo 5: pagamento aprovado → horário confirmado ── */
+function confirmarPagamentoDez(info,token){
+  pararVerificacaoDez();
+  localStorage.setItem('last_booking_v3',JSON.stringify({token,iso:info.iso,clock:info.clock,phone:normalizePhone(info.phone),name:info.name,pago:true}));
+  localStorage.setItem('last_booking_timestamp',Date.now().toString());
+  const df=formatManausLabel(info.iso,{weekday:'long',day:'2-digit',month:'long'}).replace(/^\w/,c=>c.toUpperCase());
+  toast('Pagamento aprovado! Seu horário está confirmado ✨','ok',4000);
+  showConfirmationSheet(info.name,info.phone,info.iso,info.clock,df,token,true);
+  syncData();
+}
+
+/* ── ADMIN: taxa, dias ou mês inteiro, e cobranças recentes ── */
+function openDezAdmin(){
+  if(!isAdmin||isUserView){toast('Acesso restrito ao administrador','warn');return;}
+  dezAdminDias=new Set(DEZ.dias||[]);
+  const valorIni=Number(DEZ.valor)>0?Number(DEZ.valor).toFixed(2).replace('.',','):'';
+  openSheet('Agenda de Dezembro','Taxa de reserva e dias que pedem pagamento antecipado.');
+  document.getElementById('sheetBody').innerHTML=`
+    <div class="toggle-row"><div><div class="toggle-title">Aba Dezembro</div><div class="toggle-sub" id="dezAtivoSub">${dezAtivoSubTxt(DEZ.ativo)}</div></div><label class="toggle-sw"><input type="checkbox" id="dezAtivoSw"${DEZ.ativo?' checked':''} onchange="toggleDezAtivo(this)"><span class="toggle-sl"></span></label></div><div class="f-row"><label class="f-lbl">Valor da taxa de reserva (R$)</label><input class="f-inp" id="dezValor" inputmode="decimal" placeholder="Ex: 50,00" value="${valorIni}"></div>
+    <div class="toggle-row">
+      <div><div class="toggle-title">Mês inteiro com taxa</div><div class="toggle-sub">Todos os dias de dezembro passam a cobrar a taxa</div></div>
+      <label class="toggle-sw"><input type="checkbox" id="dezMesInteiro"${DEZ.mes_inteiro?' checked':''} onchange="renderDezAdminCal()"><span class="toggle-sl"></span></label>
+    </div>
+    <div class="f-divider">Ou escolha dias específicos</div>
+    <div class="dez-cal" id="dezAdminCal"></div>
+    <div class="info-box">Com taxa definida, cada cliente que escolher um horário nesses dias recebe uma cobrança PIX automática pelo Mercado Pago. A vaga só é confirmada após a aprovação do pagamento.</div>
+    <div class="f-divider">Cobranças recentes</div>
+    <div id="dezAdminList"><div class="srv-empty"><p>Carregando...</p></div></div>`;
+  document.getElementById('sheetActions').innerHTML=`<button class="btn btn-primary" onclick="salvarDezAdmin()">Salvar agenda de dezembro</button><button class="btn btn-secondary" onclick="closeSheet()">Cancelar</button>`;
+  renderDezAdminCal();
+  carregarDezListaAdmin();
+}
+
+function renderDezAdminCal(){
+  const el=document.getElementById('dezAdminCal');if(!el)return;
+  const mes=dezMesRef();
+  const[y,m]=mes.split('-').map(Number);
+  const todos=!!document.getElementById('dezMesInteiro')?.checked;
+  const hoje=getManausIsoDate(new Date());
+  const primeiro=new Date(y,m-1,1).getDay(), total=new Date(y,m,0).getDate();
+  let html=DEZ_WD.map(d=>`<span class="dez-wd">${d}</span>`).join('');
+  for(let i=0;i<primeiro;i++)html+='<span class="dez-blank"></span>';
+  for(let d=1;d<=total;d++){
+    const iso=`${mes}-${pad2(d)}`;
+    const passado=iso<hoje, on=todos||dezAdminDias.has(iso);
+    const cls=['dez-day',on?'fee':'',passado?'past':'',todos?'locked':''].filter(Boolean).join(' ');
+    html+=`<button type="button" class="${cls}"${(passado||todos)?' disabled':''} onclick="toggleDezAdminDia('${iso}')"><span class="dez-dn">${d}</span>${on?'<span class="dez-fee">taxa</span>':''}</button>`;
+  }
+  el.innerHTML=html;
+}
+function toggleDezAdminDia(iso){if(dezAdminDias.has(iso))dezAdminDias.delete(iso);else dezAdminDias.add(iso);renderDezAdminCal();}
+
+async function salvarDezAdmin(){
+  const btn=document.querySelector('#sheetActions .btn-primary');
+  const valor=parseFloat(String(document.getElementById('dezValor')?.value||'0').replace(',','.'))||0;
+  if(valor<0||valor>10000){toast('Informe um valor entre R$ 0 e R$ 10.000','warn');return;}
+  const mesInteiro=!!document.getElementById('dezMesInteiro')?.checked;
+  const dias=[...dezAdminDias].sort();
+  if(btn){btn.innerHTML='<span class="spinner"></span> Salvando...';btn.disabled=true;}
+  let r=null;
+  try{r=await gasCall({action:'dez_config_save',valor:valor.toFixed(2),mes_inteiro:mesInteiro?'1':'0',dias:JSON.stringify(dias)});}catch(e){r=null;}
+  if(!r||r.status!=='OK'){
+    toast(r?.message||'Erro ao salvar. Tente novamente.','err');
+    if(btn){btn.innerHTML='Salvar agenda de dezembro';btn.disabled=false;}
+    return;
+  }
+  DEZ=r.dez;
+  renderDezSection();
+  toast(valor>0?'Agenda de dezembro atualizada!':'Taxa removida: dezembro sem cobrança.','ok');
+  closeSheet();
+}
+
+/** A aba Dezembro aparece para o cliente só quando o admin a ativa. O admin sempre a vê. */
+function dezVisivel(){return !!DEZ.ativo||adminTabAvailable();}
+function dezAtivoSubTxt(ativo){return ativo?'Visível para os clientes. Desative quando o mês especial terminar.':'Oculta para os clientes. Ative para liberar o mês especial.';}
+
+/** Liga/desliga a aba Dezembro para os clientes. Salva na hora; não mexe na taxa nem nos dias. */
+async function toggleDezAtivo(el){
+  const quer=!!el.checked;
+  if(!quer&&!confirm('Ocultar a agenda de dezembro para os clientes? Enquanto estiver oculta, o mês volta a ser agendado normalmente, sem taxa.')){
+    el.checked=true;return;
+  }
+  el.disabled=true;
+  let r=null;
+  try{r=await gasCall({action:'dez_ativo_set',ativo:quer?'1':'0'});}catch(e){r=null;}
+  el.disabled=false;
+  if(!r||r.status!=='OK'){
+    el.checked=!quer;
+    toast(r?.message||'Não foi possível alterar agora. Tente novamente.','err');
+    return;
+  }
+  DEZ=r.dez;
+  const sub=document.getElementById('dezAtivoSub');if(sub)sub.textContent=dezAtivoSubTxt(DEZ.ativo);
+  renderPublicMainNav();refreshPublicMainSections();renderDezSection();
+  toast(quer?'Aba Dezembro ativada para os clientes.':'Aba Dezembro oculta para os clientes.','ok');
+}
+
+async function carregarDezListaAdmin(){
+  const el=document.getElementById('dezAdminList');if(!el)return;
+  let r=null;try{r=await gasCall({action:'dez_list'});}catch(e){r=null;}
+  if(!r||r.status!=='OK'){el.innerHTML='<div class="srv-empty"><p>Não foi possível carregar as cobranças.</p></div>';return;}
+  const rows=r.pagamentos||[];
+  if(!rows.length){el.innerHTML='<div class="srv-empty"><p>Nenhuma cobrança gerada ainda.</p></div>';return;}
+  const cores={AGUARDANDO:'#9a7a3c',CONFIRMADO:'#5D9E68',EXPIRADO:'#8a8a8a',CANCELADO:'#8a8a8a',PAGO_SEM_VAGA:'#C94848'};
+  const rotulos={AGUARDANDO:'Aguardando PIX',CONFIRMADO:'Pago · confirmado',EXPIRADO:'Expirado',CANCELADO:'Cancelado',PAGO_SEM_VAGA:'Pago sem vaga · reembolsar'};
+  el.innerHTML=rows.slice(0,40).map(p=>`<div class="dez-list-row"><div class="dez-list-main"><strong>${htmlEsc((p.data||'').split('-').reverse().join('/'))} · ${htmlEsc(p.horario||'')}</strong><span>${htmlEsc(p.cliente||'')} · ${htmlEsc(p.telefone||'')}</span></div><div class="dez-list-side"><span style="color:${cores[p.estado]||'#8a8a8a'}">${rotulos[p.estado]||htmlEsc(p.estado)}</span><small>${dezValorLabel(p.valor)}</small></div></div>`).join('');
+}
+
 </script>
 </body>
 </html>
