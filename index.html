@@ -1897,6 +1897,10 @@ body.admin-on #logPanel{display:block;}
 .dez-sw.ok{border-color:#A9D3B2;background:#E3F2E6;}
 .dez-sw.low{border-color:#E8903A;background:#FFD9A8;}
 .dez-sw.full{border-color:#D3D3D3;background:#EFEFEF;}
+/* ── ADMIN: botão de imagem da agenda de dezembro (só no modo admin) ── */
+#dezAdminBar{display:none;justify-content:center;margin:4px 0 14px;}
+body.admin-on #dezAdminBar{display:flex;}
+#dezAdminBar .day-btn{background:var(--white);}
 #dezDayWrap{display:none;margin-top:18px;}
 .dez-day-note{font-size:.7rem;color:var(--ink-lt);margin:8px 2px 12px;}
 .dez-pix-qr{display:flex;justify-content:center;margin:6px 0 12px;}
@@ -2154,6 +2158,12 @@ body.admin-on #logPanel{display:block;}
       <span><i class="dez-sw ok"></i> Disponível</span>
       <span><i class="dez-sw low"></i> Últimos 5 horários</span>
       <span><i class="dez-sw full"></i> Esgotado</span>
+    </div>
+    <div id="dezAdminBar">
+      <button type="button" class="day-btn" id="saveDezMonthBtn" onclick="saveDezMonthImage()">
+        <span class="day-btn-ico">⬇</span>
+        <span id="saveDezMonthBtnTitle">Baixar imagem do mês</span>
+      </button>
     </div>
     <section id="dezDayWrap">
       <div class="grid-date-box" style="margin:6px 2px 4px;">
@@ -2537,6 +2547,68 @@ async function saveSelectedDaySlotsImage(){if(!currentDay){toast('Selecione um d
 // ════════════════════════════════════════════════════
 //  GAS
 // ════════════════════════════════════════════════════
+/* ── ADMIN: imagem da visão geral do mês (datas + horários livres por dia) ── */
+function buildDezMonthExportNode(mes){
+  const[y,m]=mes.split('-').map(Number);
+  const hoje=getManausIsoDate(new Date());
+  const primeiro=new Date(y,m-1,1).getDay(), total=new Date(y,m,0).getDate();
+  const tituloMes=formatManausLabel(mes+'-01',{month:'long',year:'numeric'}).replace(/^\w/,c=>c.toUpperCase());
+  const atualizado=new Intl.DateTimeFormat('pt-BR',{timeZone:APP_TIME_ZONE,day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}).format(new Date()).replace(',',' às');
+  const waDigits=String(CFG.WA||'').replace(/^55/,'');
+  const waFmt=waDigits.length===11?`(${waDigits.slice(0,2)}) ${waDigits.slice(2,3)} ${waDigits.slice(3,7)}-${waDigits.slice(7)}`:waDigits;
+  let totalLivres=0;
+  const celulas=[];
+  for(let d=1;d<=total;d++){
+    const iso=`${mes}-${pad2(d)}`;
+    const passado=iso<hoje;
+    const livres=passado?0:getAvailableSlotsForDay(iso).length;
+    if(!passado)totalLivres+=livres;
+    let bg='#FFFFFF',bd='rgba(196,132,138,.18)',num='#2A2020',qtd='',qtdCol='#2E6B3C',rot='&nbsp;',rotCol='#5D9E68';
+    if(passado){bg='#F6F3F1';bd='rgba(0,0,0,.04)';num='#BDB4B4';qtd='—';qtdCol='#BDB4B4';}
+    else if(livres===0){bg='#F0F0F0';bd='#D3D3D3';num='#8F8F8F';qtd='0';qtdCol='#8F8F8F';rot='Esgotado';rotCol='#8F8F8F';}
+    else if(livres<=5){bg='linear-gradient(180deg,#FFF3E4,#FFD9A8)';bd='#E8903A';num='#7A3D0C';qtd=String(livres);qtdCol='#9A4A0F';rot=livres===1?'livre':'livres';rotCol='#9A4A0F';}
+    else{bg='linear-gradient(180deg,#F7FFF8,#ECF9EF)';bd='rgba(111,181,125,.45)';qtd=String(livres);rot=livres===1?'livre':'livres';}
+    celulas.push(`<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:118px;padding:12px 4px;border-radius:20px;background:${bg};border:1px solid ${bd};"><div style="font-family:'Cormorant Garamond',serif;font-size:30px;line-height:1;color:${num};">${d}</div><div style="font-size:40px;font-weight:700;line-height:1;margin-top:10px;color:${qtdCol};">${qtd}</div><div style="font-size:13px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-top:8px;color:${rotCol};">${rot}</div></div>`);
+  }
+  const cabecalho=DEZ_WD.map(w=>`<div style="text-align:center;font-size:14px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#9A8A8A;padding-bottom:4px;">${w}</div>`).join('');
+  const vazios='<div></div>'.repeat(primeiro);
+  const legendaItem=(bg,bd,txt)=>`<span style="display:inline-flex;align-items:center;gap:8px;"><i style="display:inline-block;width:18px;height:18px;border-radius:6px;background:${bg};border:1px solid ${bd};"></i>${txt}</span>`;
+  const resumoMes=`${totalLivres} ${totalLivres===1?'horário livre':'horários livres'} no mês`;
+  const mount=document.createElement('div');
+  mount.style.cssText='position:fixed;left:-10000px;top:0;z-index:-1;padding:0;margin:0;';
+  mount.innerHTML=`<div id="dezMonthExportVisual" style="width:1080px;padding:42px;background:#F7F0E8;color:#2A2020;font-family:'Outfit',sans-serif;border-radius:36px;overflow:hidden;"><div style="padding:34px 36px 38px;border-radius:30px;background:#FFFDFB;border:1px solid rgba(196,132,138,.14);"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:24px;margin-bottom:26px;"><div><div style="font-size:16px;font-weight:700;letter-spacing:5px;text-transform:uppercase;color:#C9A86C;margin-bottom:14px;">Studio de Cílios</div><div style="font-family:'Cormorant Garamond',serif;font-size:82px;letter-spacing:4px;line-height:.88;color:#2A2020;">LOOK <span style="color:#C4848A;">DESIGNER</span></div><div style="margin-top:18px;font-size:22px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:#5D9E68;">Horários livres por dia</div></div><div style="min-width:340px;padding:22px 26px;border-radius:24px;background:#2A2020;color:#FFFFFF;text-align:right;"><div style="font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.68);margin-bottom:10px;white-space:nowrap;">${resumoMes}</div><div style="font-family:'Cormorant Garamond',serif;font-size:40px;line-height:1.02;white-space:nowrap;">${tituloMes}</div></div></div><div style="margin-bottom:24px;border-top:1px solid rgba(196,132,138,.18);"></div><div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px;">${cabecalho}${vazios}${celulas.join('')}</div><div style="display:flex;gap:26px;justify-content:center;flex-wrap:wrap;margin-top:22px;font-size:16px;color:#5C4F4F;">${legendaItem('#ECF9EF','rgba(111,181,125,.6)','Disponível')}${legendaItem('#FFD9A8','#E8903A','Últimos 5 horários')}${legendaItem('#F0F0F0','#D3D3D3','Esgotado')}</div><div style="margin-top:24px;padding-top:18px;border-top:1px solid rgba(196,132,138,.14);display:flex;align-items:center;justify-content:space-between;gap:18px;"><div><div style="font-size:18px;letter-spacing:3px;text-transform:uppercase;color:#5D9E68;font-weight:700;">Agende pelo WhatsApp</div><div style="font-size:14px;color:#9A8A8A;margin-top:6px;">Atualizado em ${atualizado}</div></div><div style="font-size:34px;font-weight:700;color:#2A2020;">${waFmt}</div></div></div></div>`;
+  return mount;
+}
+async function saveDezMonthImage(){
+  if(!adminTabAvailable()){toast('Acesso restrito ao administrador','warn');return;}
+  if(typeof html2canvas!=='function'){toast('Gerador de imagem indisponível — recarregue a página','err');return;}
+  const btn=document.getElementById('saveDezMonthBtn');
+  const titulo=document.getElementById('saveDezMonthBtnTitle');
+  const mes=dezMesRef();
+  if(btn)btn.disabled=true;
+  if(titulo)titulo.textContent='Gerando...';
+  const node=buildDezMonthExportNode(mes);
+  document.body.appendChild(node);
+  try{
+    const visual=node.querySelector('#dezMonthExportVisual');
+    if(document.fonts&&document.fonts.ready)await document.fonts.ready;
+    const canvas=await html2canvas(visual,{scale:2,useCORS:true,backgroundColor:'#F7F0E8',logging:false});
+    const link=document.createElement('a');
+    link.download=`agenda-${mes}-look-designer.png`;
+    link.href=canvas.toDataURL('image/png');
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    toast('Imagem pronta!','ok');
+  }catch(e){
+    toast('Erro ao gerar imagem','err');
+  }finally{
+    node.remove();
+    if(btn)btn.disabled=false;
+    if(titulo)titulo.textContent='Baixar imagem do mês';
+  }
+}
+
 function gasCall(p){return new Promise((res,rej)=>{const cb='gc_'+Date.now()+'_'+Math.random().toString(36).slice(2);const params={...p,callback:cb};if(adminPass&&!params.pass)params.pass=adminPass;const qs=Object.entries(params).map(([k,v])=>`${encodeURIComponent(k)}=${encodeURIComponent(v)}`).join('&');const s=document.createElement('script');s.src=CFG.API_URL+'?'+qs;s.onerror=()=>{rej(new Error('network'));s.remove();};window[cb]=d=>{res(d);s.remove();delete window[cb];};document.body.appendChild(s);setTimeout(()=>{if(window[cb]){rej(new Error('timeout'));s.remove();delete window[cb];}},14000);});}
 async function gasPost(action,payload){const body={action,password:adminPass,...payload};try{await fetch(CFG.API_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify([body])});await new Promise(r=>setTimeout(r,1000));return{ok:true};}catch(e){console.error('gasPost error:',e);throw e;}}
 function cloudUpload(file,type,onProg=null){return new Promise((res,rej)=>{const fd=new FormData();fd.append('file',file);fd.append('upload_preset',CFG.CLOUD_PRESET);const url=`https://api.cloudinary.com/v1_1/${CFG.CLOUD_NAME}/${type}/upload`;const xhr=new XMLHttpRequest();xhr.open('POST',url);if(onProg)xhr.upload.addEventListener('progress',e=>{if(e.lengthComputable)onProg(Math.round(e.loaded/e.total*100));});xhr.onload=()=>{if(xhr.status===200){res(JSON.parse(xhr.responseText).secure_url);}else{let msg='Erro Cloudinary '+xhr.status;try{msg=JSON.parse(xhr.responseText).error?.message||msg;}catch{}rej(new Error(msg));}};xhr.onerror=()=>rej(new Error('Falha de rede no upload'));xhr.send(fd);});}
