@@ -624,6 +624,10 @@ body.admin-on .topbar-gear{display:none;}
   animation:pulse-dot 2s ease-in-out infinite;
 }
 @keyframes pulse-dot{0%,100%{opacity:.6;transform:scale(.9);}50%{opacity:1;transform:scale(1.1);}}
+.my-booking-banner-status.pend{color:var(--st-aguard);}
+.my-booking-banner-status.pend::before{background:var(--st-aguard);box-shadow:0 0 6px var(--st-aguard);}
+.expira-cd{font-variant-numeric:tabular-nums;font-weight:700;}
+.slot-expira{font-size:.62rem;color:var(--ink-mid);margin-top:4px;}
 .my-booking-banner-body{
   display:grid;grid-template-columns:auto 1fr auto;
   gap:16px;align-items:center;
@@ -2311,6 +2315,9 @@ let taxaAdminDias=new Set();
 let dezSelDay='';
 let dezAdminDias=new Set();
 let dezPollTimer=null;
+let dezPollRef='';
+let agendaCarregada=false;
+let pendenteExpirando=false;
 const DEZ_WD=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 let systemLogs=[];
 let adminPass=localStorage.getItem('look_admin_pass')||"";
@@ -2531,19 +2538,8 @@ async function syncData(){
       s.src=`${CFG.API_URL}?pass=${encodeURIComponent(adminPass)}${tokenParam}&_t=${Date.now()}&callback=${cb}`;
       s.onerror=rej;document.body.appendChild(s);setTimeout(rej,10000);
     }).then(r=>{
-      db=r.agenda||[];systemLogs=r.logs||[];srvCfg=r.config||srvCfg;DEZ=r.dez||DEZ;TAXA=r.taxa||TAXA;isAdmin=!!r.isAdmin;
-      if(!isAdmin){
-        const saved=localStorage.getItem('last_booking_v3');
-        if(saved){
-          const bk=JSON.parse(saved);
-          const still=db.find(x=>String(x.codigo||'')===String(bk.token||'')&&x.status==='Ocupado');
-          const bIso=String(still?.data||bk.iso||'').substring(0,10);
-          const bClock=String(still?.horario||bk.clock||'').substring(0,5);
-          // Limpa o bloqueio local se o agendamento não existe mais OU se a data/hora já passou —
-          // assim a cliente não fica presa eternamente a uma reserva que já aconteceu.
-          if(!still||!isBookingUpcoming(bIso,bClock,still?.duration))clearClientBlock();
-        }
-      }
+      db=r.agenda||[];agendaCarregada=true;systemLogs=r.logs||[];srvCfg=r.config||srvCfg;DEZ=r.dez||DEZ;TAXA=r.taxa||TAXA;isAdmin=!!r.isAdmin;
+      if(!isAdmin)reconciliarBookingLocal();
       updateAppMode();renderDays();if(publicMainTab==='dezembro'&&!dezVisivel())setPublicMainTab('catalogo');renderDezSection();
       if(currentDay)renderGrid(currentDay);
       updateAdminStats();
@@ -2568,22 +2564,62 @@ async function initApp(){
 //  Mostra o agendamento ativo da cliente no topo
 //  da seção de agendamento para consulta rápida
 // ════════════════════════════════════════════════════
+/* ── Reserva da cliente guardada no aparelho ───────────────────────────
+   last_booking_v3 guarda o código da reserva. Enquanto o PIX não é pago,
+   pendente:true + expiraEm (validade do PIX) + copia/qr permitem reabrir o pagamento. */
+function getLocalBk(){try{return JSON.parse(localStorage.getItem('last_booking_v3')||'null');}catch{return null;}}
+/** true enquanto o PIX pendente ainda está dentro do prazo (a vaga segue reservada). */
+function localPendenteAtivo(){const bk=getLocalBk();return !!(bk&&bk.pendente&&bk.expiraEm&&Date.now()<new Date(bk.expiraEm).getTime());}
+function fmtMMSS(ms){const s=Math.max(0,Math.floor(ms/1000));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');}
+
 function getActiveClientBooking(){
   if(isAdmin&&!isUserView)return null;
-  const saved=localStorage.getItem('last_booking_v3');
-  if(!saved)return null;
-  const bk=JSON.parse(saved);
-  const rec=db.find(r=>r.codigo===bk.token&&r.status==='Ocupado');
-  if(!rec)return null;
-  // Se o horário reservado (com a duração do serviço) já passou, a reserva deixou de ser
-  // "ativa" — não deve mais bloquear nem aparecer no banner. Libera a cliente para agendar de novo.
-  const iso=String(rec.data||bk.iso||'').substring(0,10);
-  const clock=String(rec.horario||bk.clock||'').substring(0,5);
-  if(!isBookingUpcoming(iso,clock,rec.duration)){
-    clearClientBlock();
-    return null;
+  const bk=getLocalBk();
+  if(!bk)return null;
+  // Vale tanto a vaga já paga (Ocupado) quanto a que ainda aguarda o PIX
+  const rec=db.find(r=>String(r.codigo||'')===String(bk.token||'')&&(r.status==='Ocupado'||r.status==='Aguardando Pagamento'));
+  if(rec&&rec.status==='Aguardando Pagamento'){
+    // PIX não pago no prazo: a reserva deixa de valer e o horário volta a ficar livre
+    if(!rec.reservedUntil||new Date(rec.reservedUntil).getTime()<=Date.now())return null;
+    return{...bk,...rec};
   }
-  return{...bk,...rec};
+  if(rec){
+    // Se o horário (com a duração do serviço) já passou, deixa de ser "ativa"
+    const iso=String(rec.data||bk.iso||'').substring(0,10);
+    const clock=String(rec.horario||bk.clock||'').substring(0,5);
+    if(!isBookingUpcoming(iso,clock,rec.duration)){clearClientBlock();return null;}
+    return{...bk,...rec};
+  }
+  // Logo após gerar o PIX, antes da agenda recarregar, usa o que ficou salvo no aparelho
+  if(!agendaCarregada&&bk.pendente&&localPendenteAtivo())return{...bk,status:'Aguardando Pagamento',reservedUntil:bk.expiraEm};
+  return null;
+}
+/** Data (YYYY-MM-DD) da reserva ativa da cliente; '' se não há reserva ativa. */
+function clientLockIso(){const b=getActiveClientBooking();return b?String(b.data||b.iso||'').substring(0,10):'';}
+
+/** Compara a reserva do aparelho com a agenda do servidor a cada sync. */
+function reconciliarBookingLocal(){
+  const bk=getLocalBk();
+  if(!bk)return;
+  const rec=db.find(x=>String(x.codigo||'')===String(bk.token||'')&&(x.status==='Ocupado'||x.status==='Aguardando Pagamento'));
+  if(bk.pendente){
+    if(rec&&rec.status==='Ocupado'){
+      // PIX aprovado enquanto a cliente estava fora da tela
+      localStorage.setItem('last_booking_v3',JSON.stringify({token:bk.token,iso:bk.iso,clock:bk.clock,phone:bk.phone,name:bk.name,pago:true}));
+      localStorage.setItem('last_booking_timestamp',Date.now().toString());
+      toast('Pagamento aprovado! Seu horário está confirmado ✨','ok',4000);
+      return;
+    }
+    const aindaReservada=!!(rec&&rec.status==='Aguardando Pagamento'&&rec.reservedUntil&&new Date(rec.reservedUntil).getTime()>Date.now());
+    if(!aindaReservada){clearClientBlock();return;}
+    if(dezPollRef!==bk.ref)iniciarVerificacaoDez(bk.ref,{iso:bk.iso,clock:bk.clock,name:bk.name,phone:bk.phone},bk.expiraEm);
+    return;
+  }
+  const still=db.find(x=>String(x.codigo||'')===String(bk.token||'')&&x.status==='Ocupado');
+  const bIso=String(still?.data||bk.iso||'').substring(0,10);
+  const bClock=String(still?.horario||bk.clock||'').substring(0,5);
+  // Limpa o bloqueio local se o agendamento não existe mais OU se a data/hora já passou
+  if(!still||!isBookingUpcoming(bIso,bClock,still?.duration))clearClientBlock();
 }
 
 function renderMyBookingBanner(){
@@ -2595,34 +2631,43 @@ function renderMyBookingBanner(){
     wrap.innerHTML='';
     return;
   }
-  const dateLabel=formatManausLabel(booking.data||booking.iso,{weekday:'long',day:'2-digit',month:'long'}).replace(/^\w/,c=>c.toUpperCase());
+  const iso=String(booking.data||booking.iso||'').substring(0,10);
+  const dateLabel=formatManausLabel(iso,{weekday:'long',day:'2-digit',month:'long'}).replace(/^\w/,c=>c.toUpperCase());
   const clock=booking.horario||booking.clock||'';
   const clientName=booking.cliente||booking.name||'';
+  const pendente=booking.status==='Aguardando Pagamento';
+  const pago=!pendente&&(!!booking.pago||dezFeeDay(iso));
+  const statusTxt=pendente?'Aguardando pagamento':(pago?'PIX confirmado':'Confirmado');
+  const expiraIso=booking.expiraEm||booking.reservedUntil||'';
   wrap.style.display='block';
   wrap.innerHTML=`
-    <div class="my-booking-banner" onclick="openMyBookingDetail()">
+    <div class="my-booking-banner" onclick="${pendente?'abrirPixPendente()':'openMyBookingDetail()'}">
       <div class="my-booking-banner-top">
         <div class="my-booking-banner-badge">Seu agendamento</div>
-        <div class="my-booking-banner-status">Confirmado</div>
+        <div class="my-booking-banner-status${pendente?' pend':''}">${statusTxt}</div>
       </div>
       <div class="my-booking-banner-body">
         <div class="my-booking-banner-time">${clock}</div>
         <div class="my-booking-banner-divider"></div>
         <div class="my-booking-banner-details">
           <div class="my-booking-banner-date">${dateLabel}</div>
-          <div class="my-booking-banner-name">${clientName}</div>
+          <div class="my-booking-banner-name">${htmlEsc(clientName)}</div>
         </div>
         <div class="my-booking-banner-arrow">›</div>
       </div>
       <div class="my-booking-banner-footer">
-        Toque para ver detalhes e informações de pagamento
+        ${pendente
+          ?`Expira em <strong class="expira-cd" data-expira="${htmlEsc(expiraIso)}">--:--</strong> · toque para ver o PIX`
+          :'Toque para ver detalhes e informações de pagamento'}
       </div>
     </div>`;
+  atualizarContagemDez();
 }
 
 function openMyBookingDetail(){
   const booking=getActiveClientBooking();
   if(!booking)return;
+  if(booking.status==='Aguardando Pagamento'){abrirPixPendente();return;}
   const iso=booking.data||booking.iso;
   const clock=booking.horario||booking.clock||'';
   const name=booking.cliente||booking.name||'';
@@ -2630,6 +2675,58 @@ function openMyBookingDetail(){
   const token=booking.codigo||booking.token||'';
   const df=formatManausLabel(iso,{weekday:'long',day:'2-digit',month:'long'}).replace(/^\w/,c=>c.toUpperCase());
   showConfirmationSheet(name,phone,iso,clock,df,token,false);
+}
+
+/** Reabre a tela do PIX pendente (QR + copia e cola) com a contagem até expirar. */
+function abrirPixPendente(){
+  const bk=getLocalBk();
+  if(!bk||!bk.pendente)return;
+  if(!localPendenteAtivo()){vigiarPixPendente();return;}
+  montarSheetPix({copia_cola:bk.copia,qr_base64:bk.qr,valor:bk.valor,expira_em:bk.expiraEm},{iso:bk.iso,clock:bk.clock,name:bk.name,phone:bk.phone},bk.ref);
+}
+
+/** Atualiza todos os "Expira em MM:SS" da tela. */
+function atualizarContagemDez(){
+  document.querySelectorAll('.expira-cd[data-expira]').forEach(el=>{
+    const fim=new Date(el.getAttribute('data-expira')).getTime();
+    if(isNaN(fim))return;
+    el.textContent=fmtMMSS(fim-Date.now());
+  });
+}
+
+/** Quando a contagem do PIX chega a zero: confere no servidor e libera a vaga se não foi pago. */
+function vigiarPixPendente(){
+  const bk=getLocalBk();
+  if(!bk||!bk.pendente||pendenteExpirando||!bk.expiraEm)return;
+  if(Date.now()<new Date(bk.expiraEm).getTime())return;
+  pendenteExpirando=true;
+  onPendenteExpirou().finally(()=>{pendenteExpirando=false;});
+}
+async function onPendenteExpirou(){
+  const bk=getLocalBk();
+  if(!bk||!bk.pendente)return;
+  pararVerificacaoDez();
+  let s=null;
+  try{s=await gasCall({action:'dez_status',ref:bk.ref});}catch(e){s=null;}
+  const info={iso:bk.iso,clock:bk.clock,name:bk.name,phone:bk.phone};
+  if(s&&s.status==='OK'&&s.estado==='CONFIRMADO'){confirmarPagamentoDez(info,s.codigo||bk.token);return;}
+  clearClientBlock();
+  setDezStatus('❌ O tempo deste PIX acabou e o horário voltou a ficar livre. Escolha de novo se quiser.',true);
+  toast('O tempo do PIX acabou. O horário voltou a ficar livre.','warn',4500);
+  syncData();
+}
+
+/** Dezembro com reserva ativa: só o dia reservado aparece, as outras datas ficam fechadas. */
+function dezLockedView(lockIso){
+  const intro=document.getElementById('dezIntro');
+  const grid=document.getElementById('dezCalGrid');
+  const bk=getActiveClientBooking()||{};
+  const dataTxt=formatManausLabel(lockIso,{weekday:'long',day:'2-digit',month:'long'});
+  const pend=bk.status==='Aguardando Pagamento';
+  if(intro)intro.innerHTML=`Você já tem um horário reservado para <strong>${htmlEsc(dataTxt)} às ${htmlEsc(bk.horario||bk.clock||'')}</strong>${pend?', aguardando o pagamento do PIX':''}. Enquanto essa reserva estiver ativa, as outras datas ficam indisponíveis.`;
+  if(grid)grid.innerHTML='';
+  dezSelDay=lockIso;
+  renderDezDay();
 }
 
 // ════════════════════════════════════════════════════
@@ -2784,12 +2881,21 @@ async function uploadCmsFoto(){if(!cmsMediaPend)return;const btn=document.getEle
 // ════════════════════════════════════════════════════
 //  DAYS & GRID
 // ════════════════════════════════════════════════════
-function isClientBlocked(){const ts=Number(localStorage.getItem('last_booking_timestamp')||'0');return ts>0&&(Date.now()-ts)<12*60*60*1000;}
+function isClientBlocked(){const bk=getLocalBk();if(bk&&bk.pendente)return localPendenteAtivo();const ts=Number(localStorage.getItem('last_booking_timestamp')||'0');return ts>0&&(Date.now()-ts)<12*60*60*1000;}
 function clearClientBlock(){localStorage.removeItem('last_booking_timestamp');localStorage.removeItem('last_booking_v3');}
 function getNextOccupiedBooking(){const curIso=getManausIsoDate(new Date());const curMins=getManausMinutes(new Date());return db.filter(r=>r.status==='Ocupado').map(r=>{const[h,m]=String(r.horario||'00:00').split(':').map(Number);return{...r,mins:h*60+m};}).filter(r=>r.data>curIso||(r.data===curIso&&r.mins>=curMins)).sort((a,b)=>a.data===b.data?a.mins-b.mins:a.data.localeCompare(b.data))[0]||null;}
 function getFutureBookings(){const curIso=getManausIsoDate(new Date());const curMins=getManausMinutes(new Date());return db.filter(r=>r.status==='Ocupado').map(r=>{const[h,m]=String(r.horario||'00:00').split(':').map(Number);return{...r,mins:h*60+m};}).filter(r=>r.data>curIso||(r.data===curIso&&r.mins>=curMins)).sort((a,b)=>a.data===b.data?a.mins-b.mins:a.data.localeCompare(b.data));}
 function getPastBookings(){const curIso=getManausIsoDate(new Date());const curMins=getManausMinutes(new Date());return db.filter(r=>r.status==='Ocupado').map(r=>{const[h,m]=String(r.horario||'00:00').split(':').map(Number);return{...r,mins:h*60+m};}).filter(r=>r.data<curIso||(r.data===curIso&&r.mins<curMins)).sort((a,b)=>b.data===a.data?b.mins-a.mins:b.data.localeCompare(a.data));}
-function renderDays(){const c=document.getElementById('dayScroller');c.innerHTML='';const base=parseIsoDateLocal(getManausIsoDate(new Date()));for(let i=0;i<14;i++){const d=new Date(base);d.setDate(base.getDate()+i);const iso=formatLocalIsoDate(d);const el=document.createElement('div');el.className='day-pill'+(iso===currentDay?' active':'');el.onclick=()=>selectDay(iso);const dw=new Intl.DateTimeFormat('pt-BR',{timeZone:APP_TIME_ZONE,weekday:'short'}).format(d).replace('.','').toUpperCase();const dm=new Intl.DateTimeFormat('pt-BR',{timeZone:APP_TIME_ZONE,month:'short'}).format(d).replace('.','').toUpperCase();el.innerHTML=`<div class="dp-w">${dw}</div><div class="dp-n">${d.getDate()}</div><div class="dp-m">${dm}</div>`;c.appendChild(el);}}
+function renderDays(){
+  const c=document.getElementById('dayScroller');c.innerHTML='';
+  // Com reserva ativa (PIX pendente ou pago), a cliente só vê o dia reservado
+  const lock=clientLockIso();
+  if(lock&&currentDay!==lock){currentDay='';document.getElementById('gridSection')?.classList.remove('vis');}
+  const dias=[];
+  if(lock)dias.push(parseIsoDateLocal(lock));
+  else{const base=parseIsoDateLocal(getManausIsoDate(new Date()));for(let i=0;i<14;i++){const d=new Date(base);d.setDate(base.getDate()+i);dias.push(d);}}
+  dias.forEach(d=>{const iso=formatLocalIsoDate(d);const el=document.createElement('div');el.className='day-pill'+(iso===currentDay?' active':'');el.onclick=()=>selectDay(iso);const dw=new Intl.DateTimeFormat('pt-BR',{timeZone:APP_TIME_ZONE,weekday:'short'}).format(d).replace('.','').toUpperCase();const dm=new Intl.DateTimeFormat('pt-BR',{timeZone:APP_TIME_ZONE,month:'short'}).format(d).replace('.','').toUpperCase();el.innerHTML=`<div class="dp-w">${dw}</div><div class="dp-n">${d.getDate()}</div><div class="dp-m">${dm}</div>`;c.appendChild(el);});
+}
 function renderGridHead(iso){
   const wd=formatManausLabel(iso,{weekday:'long'});
   const el=(id,v)=>{const n=document.getElementById(id);if(n)n.innerHTML=v;};
@@ -2844,6 +2950,7 @@ function renderGrid(iso,targetId){
     if(st==='Livre'){const nextOcc=db.filter(r=>String(r.data).substring(0,10)===iso&&r.status!=='Livre').map(r=>{const[h,m]=r.horario.split(':').map(Number);return h*60+m;}).filter(m=>m>cur).sort((a,b)=>a-b)[0];if(nextOcc!==undefined){const gap=nextOcc-cur;if(gap<durMin){cur=nextOcc;continue;}}}
     const pipColor={'Livre':'var(--st-livre)','Aguardando Pagamento':'var(--st-aguard)','Ocupado':'var(--st-ocupado)','Bloqueado':'var(--st-block)'}[st]||'var(--st-block)';
     let expiredHtml='';
+    if(isMyBooking&&!isAdmin&&st==='Aguardando Pagamento'&&reservedUntil)expiredHtml=`<div class="slot-expira">Expira em <strong class="expira-cd" data-expira="${htmlEsc(reservedUntil)}">--:--</strong> · toque para ver o PIX</div>`;
     if(isAdmin&&logMsg)logs.push({time:clock,msg:logMsg,client:reg.cliente,phone:reg.telefone,token:reg.codigo});
     const durLabel=durMin>=60?`${Math.floor(durMin/60)}h${durMin%60>0?' '+durMin%60+'min':''}`:durMin+' min';
     const stLabels={'Livre':'DISPONÍVEL','Aguardando Pagamento':'AGUARDANDO','Ocupado':'OCUPADO','Bloqueado':'BLOQUEADO'};
@@ -2887,6 +2994,7 @@ function handleSlotClick(event,card,iso,clock,st,rUntil,reg){
     const lb=JSON.parse(localStorage.getItem('last_booking_v3')||'null');
     const isMy=lb&&lb.iso===iso&&lb.clock===clock;
     if(isMy){
+      if(lb.pendente){abrirPixPendente();return;}
       const df=formatManausLabel(iso,{weekday:'long',day:'2-digit',month:'long'}).replace(/^\w/,c=>c.toUpperCase());
       showConfirmationSheet(lb.name||reg?.cliente||'',reg?.telefone||lb.phone||'',iso,clock,df,reg?.codigo||lb.token,false);
     }
@@ -3059,6 +3167,15 @@ function showConfirmationSheet(name,phone,iso,clock,df,token,isNewBooking){
 }
 
 function showBlockedScreen(){
+  const pb=getLocalBk();
+  if(pb&&pb.pendente&&localPendenteAtivo()){
+    const dfp=formatManausLabel(pb.iso,{weekday:'long',day:'2-digit',month:'long'}).replace(/^\w/,c=>c.toUpperCase());
+    openSheet('PIX aguardando pagamento','Enquanto ele não for pago ou expirar, as outras datas ficam indisponíveis.');
+    document.getElementById('sheetBody').innerHTML=`<div class="info-box" style="border-color:var(--gold);background:rgba(201,168,108,.08);">Sua reserva para <strong>${htmlEsc(dfp)} às ${htmlEsc(pb.clock)}</strong> está aguardando o pagamento do PIX.<br><br>Expira em <strong class="expira-cd" data-expira="${htmlEsc(pb.expiraEm)}">--:--</strong></div>`;
+    document.getElementById('sheetActions').innerHTML=`<button class="btn btn-primary" onclick="abrirPixPendente()">Ver PIX</button><button class="btn btn-secondary" onclick="closeSheet()">Fechar</button>`;
+    atualizarContagemDez();
+    return;
+  }
   const ts=Number(localStorage.getItem('last_booking_timestamp')||'0');
   const rem=Math.max(0,(ts+12*60*60*1000)-Date.now());
   const rH=Math.floor(rem/3600000),rM=Math.floor((rem%3600000)/60000);
@@ -3475,6 +3592,7 @@ window.onload=()=>{
   });
   try{initWebNotifications();}catch{}
   setInterval(()=>{if(currentDay)renderGrid(currentDay);if(publicMainTab==='dezembro')renderDezSection();renderMyBookingBanner();},60000);
+  setInterval(()=>{atualizarContagemDez();vigiarPixPendente();},1000);
 };
 
 // ════════════════════════════════════════════════════
@@ -3564,6 +3682,8 @@ function dezPagoLocal(token){try{const lb=JSON.parse(localStorage.getItem('last_
 
 function renderDezSection(){
   const grid=document.getElementById('dezCalGrid');if(!grid)return;
+  const lockIso=clientLockIso();
+  if(lockIso){dezLockedView(lockIso);return;}
   const mes=dezMesRef();
   const[y,m]=mes.split('-').map(Number);
   const title=document.getElementById('dezMonthTitle');
@@ -3603,7 +3723,8 @@ function renderDezDay(){
   set('dezDayWeekday',wd.charAt(0).toUpperCase()+wd.slice(1));
   set('dezDayDate',formatManausLabel(dezSelDay,{day:'2-digit',month:'long'}));
   const note=document.getElementById('dezDayNote');
-  if(note)note.innerHTML=dezFeeDay(dezSelDay)
+  if(note&&clientLockIso()===dezSelDay)note.innerHTML='Este é o seu horário reservado. Toque no cartão para ver o PIX ou o status.';
+  else if(note)note.innerHTML=dezFeeDay(dezSelDay)
     ?`Taxa de reserva: <strong>${dezValorLabel(DEZ.valor)}</strong> · toque em um horário livre e pague o PIX para confirmar.`
     :'Sem taxa neste dia · toque em um horário livre para agendar.';
   renderGrid(dezSelDay,'dezSlots');
@@ -3649,20 +3770,34 @@ async function gerarPixDez(iso,clock){
 }
 
 /* ── Passo 3: QR Code + copia e cola, aguardando o pagamento ── */
-function mostrarPixDez(r,info){
+function salvarPendentePix(r,info){
   const p=r.pix;
+  try{
+    localStorage.setItem('last_booking_v3',JSON.stringify({token:r.codigo||'',ref:r.ref||'',iso:info.iso,clock:info.clock,phone:normalizePhone(info.phone),name:info.name,pago:false,pendente:true,expiraEm:p.expira_em,valor:p.valor,copia:p.copia_cola||'',qr:p.qr_base64||''}));
+    localStorage.setItem('last_booking_timestamp',Date.now().toString());
+  }catch{}
+}
+
+/* Tela do PIX (QR + copia e cola) com status e contagem até expirar */
+function montarSheetPix(pix,info,ref){
   const df=formatManausLabel(info.iso,{weekday:'long',day:'2-digit',month:'long'}).replace(/^\w/,c=>c.toUpperCase());
-  const ate=new Date(p.expira_em);
-  const ateTxt=isNaN(ate.getTime())?'':ate.toLocaleTimeString('pt-BR',{timeZone:APP_TIME_ZONE,hour:'2-digit',minute:'2-digit'});
-  openSheet('Pague o PIX para confirmar',`${df} às ${info.clock} · ${dezValorLabel(p.valor)}`);
+  openSheet('Pague o PIX para confirmar',`${df} às ${info.clock} · ${dezValorLabel(pix.valor)}`);
   document.getElementById('sheetBody').innerHTML=`
-    ${p.qr_base64?`<div class="dez-pix-qr"><img src="data:image/png;base64,${p.qr_base64}" alt="QR Code PIX"></div>`:''}
+    ${pix.qr_base64?`<div class="dez-pix-qr"><img src="data:image/png;base64,${pix.qr_base64}" alt="QR Code PIX"></div>`:''}
     <label class="f-label">PIX Copia e Cola</label>
-    <textarea id="dezPixCode" class="f-inp dez-pix-code" readonly rows="3">${htmlEsc(p.copia_cola||'')}</textarea>
+    <textarea id="dezPixCode" class="f-inp dez-pix-code" readonly rows="3">${htmlEsc(pix.copia_cola||'')}</textarea>
     <button class="btn btn-secondary" type="button" onclick="copiarPixDez()">Copiar código PIX</button>
-    <div id="dezPixStatus" class="dez-pix-status">⏳ Aguardando o pagamento${ateTxt?` · válido até ${ateTxt}`:''}</div>`;
+    <div id="dezPixStatus" class="dez-pix-status">⏳ Aguardando o pagamento · expira em <strong class="expira-cd" data-expira="${htmlEsc(pix.expira_em||'')}">--:--</strong></div>`;
   document.getElementById('sheetActions').innerHTML=`<button class="btn btn-secondary" onclick="closeSheet()">Fechar e continuar depois</button>`;
-  iniciarVerificacaoDez(r.ref,info,p.expira_em);
+  atualizarContagemDez();
+  if(ref)iniciarVerificacaoDez(ref,info,pix.expira_em);
+}
+
+/* ── Passo 3: QR Code + copia e cola, aguardando o pagamento ── */
+function mostrarPixDez(r,info){
+  salvarPendentePix(r,info);
+  montarSheetPix(r.pix,info,r.ref);
+  syncData(); // a vaga aparece como aguardando e o cartão da cliente é exibido
 }
 
 function copiarPixDez(){
@@ -3673,22 +3808,25 @@ function copiarPixDez(){
   }else manual();
 }
 
-function pararVerificacaoDez(){if(dezPollTimer){clearTimeout(dezPollTimer);dezPollTimer=null;}}
+function pararVerificacaoDez(){if(dezPollTimer){clearTimeout(dezPollTimer);dezPollTimer=null;}dezPollRef='';}
 function setDezStatus(msg,erro){const el=document.getElementById('dezPixStatus');if(!el)return;el.textContent=msg;el.classList.toggle('err',!!erro);}
 
 /* ── Passo 4: verifica o servidor até o pagamento ser aprovado ── */
 function iniciarVerificacaoDez(ref,info,expiraEm){
   pararVerificacaoDez();
+  dezPollRef=ref;
   const limite=new Date(expiraEm).getTime()+2*60*1000;
   const tick=async()=>{
     dezPollTimer=null;
-    if(Date.now()>limite){setDezStatus('⌛ O tempo deste PIX acabou. Escolha o horário de novo para gerar outro.',true);return;}
+    if(dezPollRef!==ref)return;
+    if(Date.now()>limite){dezPollRef='';setDezStatus('⌛ O tempo deste PIX acabou. Escolha o horário de novo para gerar outro.',true);return;}
     let s=null;
     try{s=await gasCall({action:'dez_status',ref});}catch(e){s=null;}
+    if(dezPollRef!==ref)return;
     if(s&&s.status==='OK'){
       if(s.estado==='CONFIRMADO'){confirmarPagamentoDez(info,s.codigo);return;}
-      if(s.estado==='PAGO_SEM_VAGA'){setDezStatus('⚠️ Pagamento recebido, mas este horário já foi ocupado. Fale com o studio pelo WhatsApp para o reembolso.',true);return;}
-      if(s.estado==='CANCELADO'||s.estado==='EXPIRADO'){setDezStatus('❌ Este PIX não foi pago e expirou. Escolha o horário novamente.',true);return;}
+      if(s.estado==='PAGO_SEM_VAGA'){dezPollRef='';clearClientBlock();setDezStatus('⚠️ Pagamento recebido, mas este horário já foi ocupado. Fale com o studio pelo WhatsApp para o reembolso.',true);syncData();return;}
+      if(s.estado==='CANCELADO'||s.estado==='EXPIRADO'){dezPollRef='';clearClientBlock();setDezStatus('❌ Este PIX não foi pago e expirou. Escolha o horário novamente.',true);syncData();return;}
     }
     dezPollTimer=setTimeout(tick,6000);
   };
