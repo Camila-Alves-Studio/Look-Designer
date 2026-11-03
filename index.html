@@ -919,7 +919,7 @@ body.admin-on .topbar-gear{display:none;}
 /* Barra de seleção múltipla: fica leve enquanto nada está marcado e só
    "acende" quando há seleção — antes ela vivia escura e com Bloquear/Liberar
    sempre acesos, mesmo sem nenhum horário escolhido. */
-#multiBar{
+.multi-bar{
   display:none;align-items:center;justify-content:space-between;
   gap:10px;flex-wrap:wrap;
   background:rgba(255,255,255,.94);backdrop-filter:blur(10px);
@@ -929,24 +929,26 @@ body.admin-on .topbar-gear{display:none;}
   box-shadow:var(--sh);
   transition:border-color .25s var(--ease),box-shadow .25s var(--ease);
 }
-#multiBar.vis{display:flex;}
-#multiBar.has-sel{border-color:rgba(196,132,138,.42);box-shadow:var(--sh-md),var(--sh-rose);}
-#selCount{font-size:.62rem;font-weight:600;letter-spacing:.3px;color:var(--ink-lt);}
-#multiBar.has-sel #selCount{color:var(--rose);font-weight:700;}
+.multi-bar.vis{display:flex;}
+.multi-bar.has-sel{border-color:rgba(196,132,138,.42);box-shadow:var(--sh-md),var(--sh-rose);}
+.multi-bar .sel-count{font-size:.62rem;font-weight:600;letter-spacing:.3px;color:var(--ink-lt);}
+.multi-bar.has-sel .sel-count{color:var(--rose);font-weight:700;}
 .ms-actions{display:flex;gap:6px;flex-wrap:wrap;}
-#multiBar button{
+.multi-bar button{
   border:1px solid var(--border);background:var(--white);color:var(--ink-mid);
   border-radius:10px;padding:8px 12px;
   font-family:'Outfit',sans-serif;font-size:.58rem;font-weight:700;letter-spacing:.6px;
   cursor:pointer;transition:all .2s;
 }
-#multiBar button:hover:not(:disabled){border-color:var(--rose);color:var(--rose);}
-#multiBar button:disabled{opacity:.32;cursor:default;}
-#multiBar .ms-cancel{border-color:transparent;background:transparent;color:var(--ink-lt);padding:8px;}
-#multiBar .ms-block:not(:disabled){background:rgba(154,138,138,.12);border-color:rgba(154,138,138,.3);color:#6E6363;}
-#multiBar .ms-block:not(:disabled):hover{background:rgba(154,138,138,.2);border-color:rgba(154,138,138,.5);color:var(--ink);}
-#multiBar .ms-free:not(:disabled){background:rgba(107,175,120,.13);border-color:rgba(107,175,120,.36);color:#3F7A4C;}
-#multiBar .ms-free:not(:disabled):hover{background:rgba(107,175,120,.22);border-color:rgba(107,175,120,.55);color:#2F6B3C;}
+.multi-bar button:hover:not(:disabled){border-color:var(--rose);color:var(--rose);}
+.multi-bar button:disabled{opacity:.32;cursor:default;}
+.multi-bar .ms-cancel{border-color:transparent;background:transparent;color:var(--ink-lt);padding:8px;}
+.multi-bar .ms-block:not(:disabled){background:rgba(154,138,138,.12);border-color:rgba(154,138,138,.3);color:#6E6363;}
+.multi-bar .ms-block:not(:disabled):hover{background:rgba(154,138,138,.2);border-color:rgba(154,138,138,.5);color:var(--ink);}
+.multi-bar .ms-block-day:not(:disabled){background:#6E6363;border-color:#6E6363;color:#fff;}
+.multi-bar .ms-block-day:not(:disabled):hover{background:var(--ink-mid);border-color:var(--ink-mid);color:#fff;}
+.multi-bar .ms-free:not(:disabled){background:rgba(107,175,120,.13);border-color:rgba(107,175,120,.36);color:#3F7A4C;}
+.multi-bar .ms-free:not(:disabled):hover{background:rgba(107,175,120,.22);border-color:rgba(107,175,120,.55);color:#2F6B3C;}
 
 .slots{display:flex;flex-direction:column;gap:10px;}
 .slot-card{
@@ -1770,8 +1772,8 @@ body.admin-on #logPanel{display:block;}
   .grid-head-right{justify-content:stretch;}
   .day-btn{flex:1;justify-content:center;padding:11px 10px;}
   .day-btn.ghost{flex:0 0 auto;}
-  #multiBar{padding:9px 8px 9px 12px;}
-  #multiBar button{padding:8px 9px;font-size:.55rem;}
+  .multi-bar{padding:9px 8px 9px 12px;}
+  .multi-bar button{padding:8px 9px;font-size:.55rem;}
   .sig-section{padding:28px 20px;}
   .nav-float{
     left:max(10px,env(safe-area-inset-left,10px));
@@ -1856,6 +1858,7 @@ body.admin-on #logPanel{display:block;}
 .main-nav.is-5 .nav-copy strong{font-size:.52rem;letter-spacing:0;}
 .dez-intro{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:14px 16px;margin-bottom:14px;font-size:.78rem;color:var(--ink-lt);line-height:1.5;text-align:center;}
 .dez-intro strong{color:var(--ink);}
+.dez-intro .dez-destaque{color:var(--deep-rose);font-weight:700;letter-spacing:.3px;text-transform:uppercase;font-size:.84rem;}
 .dez-month-title{font-family:'Cormorant Garamond',serif;font-size:1.5rem;color:var(--ink);text-align:center;margin:4px 0 12px;}
 .dez-cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;}
 .dez-wd{font-size:.55rem;letter-spacing:1px;text-transform:uppercase;color:var(--ink-lt);text-align:center;padding:2px 0 4px;}
@@ -1868,14 +1871,32 @@ body.admin-on #logPanel{display:block;}
 .dez-day.past{opacity:.35;cursor:default;}
 .dez-day.locked{cursor:default;}
 .dez-dn{font-family:'Cormorant Garamond',serif;font-size:1.15rem;line-height:1;}
-.dez-dc{font-size:.52rem;color:var(--ink-lt);}
+.dez-dc{font-size:.72rem;line-height:1.2;text-align:center;color:var(--ink-lt);}
+.dez-txt-short{display:none;}
+/* Tag de taxa ao lado de cada horário livre do dia com taxa */
+.dez-taxa-tag{flex-shrink:0;font-size:.62rem;font-weight:700;letter-spacing:.3px;white-space:nowrap;color:#7A5A1E;background:linear-gradient(135deg,#FBF3E2,#F1DFB8);border:1px solid var(--gold);border-radius:999px;padding:4px 10px;}
 .dez-day.active .dez-dc{color:rgba(255,255,255,.85);}
 .dez-fee{font-size:.5rem;font-weight:700;letter-spacing:.3px;color:#9a7a3c;}
 .dez-day.active .dez-fee{color:#fff;}
+/* Calendário do cliente: verde = disponível, laranja piscando = últimos 5 horários, cinza = esgotado */
+.dez-day.cli-dia{background:linear-gradient(180deg,#F1F8F2,#DCEFE0);border-color:#A9D3B2;color:#23452C;}
+.dez-day.cli-dia:hover{border-color:var(--green);}
+.dez-day.cli-dia .dez-dc{color:#2E6B3C;font-weight:600;}
+.dez-day.cli-dia.poucos{background:linear-gradient(180deg,#FFF3E4,#FFD9A8);border-color:#E8903A;color:#7A3D0C;animation:dezPisca 1.3s ease-in-out infinite;}
+.dez-day.cli-dia.poucos .dez-dc{color:#9A4A0F;font-weight:700;}
+.dez-day.cli-dia.esgotado{background:#EFEFEF;border-color:#D3D3D3;color:#9A9A9A;}
+.dez-day.cli-dia.esgotado .dez-dc{color:#9A9A9A;font-weight:500;}
+.dez-day.cli-dia.active{background:var(--gradient-rose);border-color:transparent;color:#fff;animation:none;}
+.dez-day.cli-dia.active .dez-dc{color:rgba(255,255,255,.85);}
+@keyframes dezPisca{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(232,144,58,0);}50%{opacity:.7;box-shadow:0 0 0 4px rgba(232,144,58,.28);}}
+@media (prefers-reduced-motion:reduce){.dez-day.cli-dia.poucos{animation:none;}}
 .dez-legend{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;font-size:.6rem;color:var(--ink-lt);margin:12px 0 4px;}
 .dez-legend span{display:inline-flex;align-items:center;gap:6px;}
 .dez-sw{display:inline-block;width:12px;height:12px;border-radius:4px;border:1px solid var(--border);background:var(--white);}
 .dez-sw.fee{border-color:var(--gold);background:#f7efe1;}
+.dez-sw.ok{border-color:#A9D3B2;background:#E3F2E6;}
+.dez-sw.low{border-color:#E8903A;background:#FFD9A8;}
+.dez-sw.full{border-color:#D3D3D3;background:#EFEFEF;}
 #dezDayWrap{display:none;margin-top:18px;}
 .dez-day-note{font-size:.7rem;color:var(--ink-lt);margin:8px 2px 12px;}
 .dez-pix-qr{display:flex;justify-content:center;margin:6px 0 12px;}
@@ -1895,6 +1916,9 @@ body.admin-on #logPanel{display:block;}
   .dez-cal{gap:4px;}
   .dez-day{min-height:52px;}
   .dez-blank{min-height:52px;}
+  .dez-dc{font-size:.6rem;}
+  .dez-txt-full{display:none;}
+  .dez-txt-short{display:inline;}
 }
 
 /* ── OCUPAR HORÁRIO (cliente presencial) ─────────────── */
@@ -2102,13 +2126,14 @@ body.admin-on #logPanel{display:block;}
           <button class="day-btn ghost" onclick="closeGrid()" type="button">← Voltar</button>
         </div>
       </div>
-      <div id="multiBar">
-        <span id="selCount">Toque nos horários para selecionar</span>
+      <div class="multi-bar" data-scope="slotsContainer">
+        <span class="sel-count">Toque nos horários para selecionar</span>
         <div class="ms-actions">
-          <button class="ms-cancel" id="msClear" onclick="clearSelection()">Limpar</button>
-          <button class="ms-all" onclick="selectAll()">Selecionar tudo</button>
-          <button class="ms-block" id="msBlock" onclick="blockSelected()">🔒 Bloquear</button>
-          <button class="ms-free" id="msFree" onclick="freeSelected()">🔓 Liberar</button>
+          <button class="ms-cancel ms-clear" onclick="clearSelection()">Limpar</button>
+          <button class="ms-all" onclick="selectAll('slotsContainer')">Selecionar tudo</button>
+          <button class="ms-block" onclick="blockSelected()">🔒 Bloquear</button>
+          <button class="ms-block-day" onclick="blockDay('slotsContainer')">🔒 Bloquear dia inteiro</button>
+          <button class="ms-free" onclick="freeSelected()">🔓 Liberar</button>
         </div>
       </div>
       <div class="slots" id="slotsContainer"></div>
@@ -2126,8 +2151,9 @@ body.admin-on #logPanel{display:block;}
     <div class="dez-month-title" id="dezMonthTitle">Dezembro</div>
     <div class="dez-cal" id="dezCalGrid"></div>
     <div class="dez-legend">
-      <span><i class="dez-sw fee"></i> Dia com taxa de reserva</span>
-      <span><i class="dez-sw"></i> Sem taxa</span>
+      <span><i class="dez-sw ok"></i> Disponível</span>
+      <span><i class="dez-sw low"></i> Últimos 5 horários</span>
+      <span><i class="dez-sw full"></i> Esgotado</span>
     </div>
     <section id="dezDayWrap">
       <div class="grid-date-box" style="margin:6px 2px 4px;">
@@ -2135,6 +2161,16 @@ body.admin-on #logPanel{display:block;}
         <span class="grid-daynum" id="dezDayDate"></span>
       </div>
       <div class="dez-day-note" id="dezDayNote"></div>
+      <div class="multi-bar" data-scope="dezSlots">
+        <span class="sel-count">Toque nos horários para selecionar</span>
+        <div class="ms-actions">
+          <button class="ms-cancel ms-clear" onclick="clearSelection()">Limpar</button>
+          <button class="ms-all" onclick="selectAll('dezSlots')">Selecionar tudo</button>
+          <button class="ms-block" onclick="blockSelected()">🔒 Bloquear</button>
+          <button class="ms-block-day" onclick="blockDay('dezSlots')">🔒 Bloquear dia inteiro</button>
+          <button class="ms-free" onclick="freeSelected()">🔓 Liberar</button>
+        </div>
+      </div>
       <div class="slots" id="dezSlots"></div>
     </section>
   </section>
@@ -2437,7 +2473,7 @@ function handlePhoneInput(el){let v=el.value.replace(/\D/g,'');if(v.length>11)v=
 function scrollToTop(){window.scrollTo({top:0,behavior:'smooth'});}
 function scrollDays(dir){const s=document.getElementById('dayScroller');s.scrollBy({left:dir*240,behavior:'smooth'});}
 function toast(msg,type='ok',dur=3000){const w=document.getElementById('toastWrap');const t=document.createElement('div');t.className='toast '+type;t.textContent=msg;w.appendChild(t);setTimeout(()=>t.remove(),dur);}
-function focusPublicSection(tab){setPublicMainTab(tab);const id=tab==='agendamento'?'bookingSection':'servicesSection';setTimeout(()=>{document.getElementById(id)?.scrollIntoView({behavior:'smooth',block:'start'});},120);}
+function focusPublicSection(tab){setPublicMainTab(tab);const id=publicMainTab==='agendamento'?'bookingSection':publicMainTab==='dezembro'?'decemberSection':'servicesSection';setTimeout(()=>{document.getElementById(id)?.scrollIntoView({behavior:'smooth',block:'start'});},120);}
 function focusCatalog(){focusPublicSection('catalogo');}
 function focusBooking(){focusPublicSection('agendamento');}
 function htmlEsc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
@@ -2781,12 +2817,17 @@ function saveSiteTexts(obj){localStorage.setItem(SITE_TEXTS_KEY,JSON.stringify(o
 // ════════════════════════════════════════════════════
 //  SERVICES PUBLIC
 // ════════════════════════════════════════════════════
-function renderPublicMainNav(){const wrap=document.getElementById('publicMainNav');if(!wrap)return;const T=getSiteTexts();const note=document.getElementById('publicMainNote');const hasCatalogo=ABAS.length>0;const hasPortfolio=PROCS.some(p=>parseFotos(p.fotos||p.imagem).length);wrap.innerHTML=`<button class="main-nav-btn" data-tab="catalogo" onclick="setPublicMainTab('catalogo')"${hasCatalogo?'':' disabled'} title="${hasCatalogo?`${PROCS.length} ${htmlEsc(T.navCatalogSub)}`:'Em atualização'}"><span class="nav-ico">✦</span><span class="nav-copy"><strong>${htmlEsc(T.navCatalog)}</strong></span></button><button class="main-nav-btn" data-tab="portfolio" onclick="setPublicMainTab('portfolio')"${hasPortfolio?'':' disabled'} title="${hasPortfolio?htmlEsc(T.navPortfolioSub):'Sem imagens ainda'}"><span class="nav-ico">🖼</span><span class="nav-copy"><strong>${htmlEsc(T.navPortfolio)}</strong></span></button><button class="main-nav-btn" data-tab="agendamento" onclick="setPublicMainTab('agendamento')" title="${htmlEsc(T.navBookingSub)}"><span class="nav-ico">📅</span><span class="nav-copy"><strong>${htmlEsc(T.navBooking)}</strong></span></button>${dezVisivel()?`<button class="main-nav-btn${DEZ.ativo?'':' is-off'}" data-tab="dezembro" onclick="setPublicMainTab('dezembro')" title="${DEZ.ativo?'Agenda de dezembro com taxa de reserva':'Oculta para os clientes. Ative no painel.'}"><span class="nav-ico">🎄</span><span class="nav-copy"><strong>Dezembro</strong></span></button>`:''}${adminTabAvailable()?`<button class="main-nav-btn nav-adm" data-tab="gerencia" onclick="setPublicMainTab('gerencia')" title="Painel administrativo e configurações"><span class="nav-ico">🛠</span><span class="nav-copy"><strong>Gerência</strong></span></button>`:''}`;wrap.classList.toggle('is-4',!adminTabAvailable()&&!!DEZ.ativo);wrap.classList.toggle('is-5',adminTabAvailable());wrap.querySelectorAll('.main-nav-btn').forEach(b=>b.classList.toggle('active',b.getAttribute('data-tab')===publicMainTab));if(note)note.textContent=hasCatalogo?'':'Catálogo em atualização. O agendamento continua disponível.';}
+/** Nome do mês atual (fuso de Manaus), em pt-BR. Ex.: "novembro". */
+function mesAtualNome(){return formatManausLabel(getManausIsoDate(),{month:'long'});}
+/** Em dezembro o agendamento deixa de aparecer na barra, porque a aba Dezembro já cumpre esse papel.
+ *  Se a aba Dezembro estiver oculta para o cliente, o agendamento continua disponível para não travar a reserva. */
+function agendamentoOculto(){return getManausParts().month==='12'&&dezVisivel();}
+function renderPublicMainNav(){const wrap=document.getElementById('publicMainNav');if(!wrap)return;const T=getSiteTexts();const note=document.getElementById('publicMainNote');const hasCatalogo=ABAS.length>0;const hasPortfolio=PROCS.some(p=>parseFotos(p.fotos||p.imagem).length);const dezBtn=dezVisivel()?`<button class="main-nav-btn${DEZ.ativo?'':' is-off'}" data-tab="dezembro" onclick="setPublicMainTab('dezembro')" title="${DEZ.ativo?'Agenda de dezembro com taxa de reserva':'Oculta para os clientes. Ative no painel.'}"><span class="nav-ico">🎄</span><span class="nav-copy"><strong>Dezembro</strong></span></button>`:'';const agBtn=agendamentoOculto()?'':`<button class="main-nav-btn" data-tab="agendamento" onclick="setPublicMainTab('agendamento')" title="${htmlEsc(T.navBookingSub)}"><span class="nav-ico">📅</span><span class="nav-copy"><strong>${htmlEsc(T.navBooking)} - ${htmlEsc(mesAtualNome())}</strong></span></button>`;wrap.dataset.mes=getManausIsoDate().slice(0,7);wrap.innerHTML=`${dezBtn}<button class="main-nav-btn" data-tab="catalogo" onclick="setPublicMainTab('catalogo')"${hasCatalogo?'':' disabled'} title="${hasCatalogo?`${PROCS.length} ${htmlEsc(T.navCatalogSub)}`:'Em atualização'}"><span class="nav-ico">✦</span><span class="nav-copy"><strong>${htmlEsc(T.navCatalog)}</strong></span></button><button class="main-nav-btn" data-tab="portfolio" onclick="setPublicMainTab('portfolio')"${hasPortfolio?'':' disabled'} title="${hasPortfolio?htmlEsc(T.navPortfolioSub):'Sem imagens ainda'}"><span class="nav-ico">🖼</span><span class="nav-copy"><strong>${htmlEsc(T.navPortfolio)}</strong></span></button>${agBtn}${adminTabAvailable()?`<button class="main-nav-btn nav-adm" data-tab="gerencia" onclick="setPublicMainTab('gerencia')" title="Painel administrativo e configurações"><span class="nav-ico">🛠</span><span class="nav-copy"><strong>Gerência</strong></span></button>`:''}`;wrap.classList.toggle('is-4',!adminTabAvailable()&&!!DEZ.ativo);wrap.classList.toggle('is-5',adminTabAvailable());wrap.querySelectorAll('.main-nav-btn').forEach(b=>b.classList.toggle('active',b.getAttribute('data-tab')===publicMainTab));if(note)note.textContent=hasCatalogo?'':'Catálogo em atualização. O agendamento continua disponível.';}
 /** A Gerência é a 4ª aba: só existe pro admin e ocupa a tela sozinha,
  *  como as outras três. */
 function adminTabAvailable(){return !!isAdmin&&!isUserView;}
 function refreshPublicMainSections(){const catalog=document.getElementById('servicesSection');const portfolio=document.getElementById('portfolioSection');const booking=document.getElementById('bookingSection');const adm=document.getElementById('adminPanel');if(catalog)catalog.style.display=(publicMainTab==='catalogo'&&ABAS.length)?'block':'none';if(portfolio)portfolio.style.display=(publicMainTab==='portfolio')?'block':'none';if(booking)booking.style.display=publicMainTab==='agendamento'?'block':'none';if(adm)adm.style.display=(publicMainTab==='gerencia'&&adminTabAvailable())?'block':'none';const dez=document.getElementById('decemberSection');if(dez)dez.style.display=publicMainTab==='dezembro'&&dezVisivel()?'block':'none';}
-function setPublicMainTab(tab){const hasCatalogo=ABAS.length>0;const hasPortfolio=PROCS.some(p=>parseFotos(p.fotos||p.imagem).length);const validas=['catalogo','portfolio','agendamento'];if(dezVisivel())validas.push('dezembro');if(adminTabAvailable())validas.push('gerencia');publicMainTab=validas.includes(tab)?tab:'catalogo';if(publicMainTab!=='gerencia'){if(publicMainTab==='catalogo'&&!hasCatalogo)publicMainTab=hasPortfolio?'portfolio':'agendamento';if(publicMainTab==='portfolio'&&!hasPortfolio)publicMainTab=hasCatalogo?'catalogo':'agendamento';}document.querySelectorAll('.main-nav-btn').forEach(btn=>btn.classList.toggle('active',btn.getAttribute('data-tab')===publicMainTab));refreshPublicMainSections();if(publicMainTab==='catalogo'&&ABAS.length){const alvo=ABAS.some(a=>a.nome===abaPublicaAtiva)?abaPublicaAtiva:ABAS[0].nome;if(alvo)showServico(alvo);}if(publicMainTab==='portfolio')renderPortfolioSection();if(publicMainTab==='dezembro')renderDezSection();if(publicMainTab==='gerencia'){updateAdminStats();setupAdminStats();window.scrollTo({top:0,behavior:'smooth'});}applySiteTexts();}
+function setPublicMainTab(tab){const hasCatalogo=ABAS.length>0;const hasPortfolio=PROCS.some(p=>parseFotos(p.fotos||p.imagem).length);const validas=['catalogo','portfolio','agendamento'];if(dezVisivel())validas.push('dezembro');if(adminTabAvailable())validas.push('gerencia');publicMainTab=validas.includes(tab)?tab:'catalogo';if(publicMainTab!=='gerencia'){if(publicMainTab==='catalogo'&&!hasCatalogo)publicMainTab=hasPortfolio?'portfolio':'agendamento';if(publicMainTab==='portfolio'&&!hasPortfolio)publicMainTab=hasCatalogo?'catalogo':'agendamento';}if(publicMainTab==='agendamento'&&agendamentoOculto())publicMainTab='dezembro';document.querySelectorAll('.main-nav-btn').forEach(btn=>btn.classList.toggle('active',btn.getAttribute('data-tab')===publicMainTab));refreshPublicMainSections();if(publicMainTab==='catalogo'&&ABAS.length){const alvo=ABAS.some(a=>a.nome===abaPublicaAtiva)?abaPublicaAtiva:ABAS[0].nome;if(alvo)showServico(alvo);}if(publicMainTab==='portfolio')renderPortfolioSection();if(publicMainTab==='dezembro')renderDezSection();if(publicMainTab==='gerencia'){updateAdminStats();setupAdminStats();window.scrollTo({top:0,behavior:'smooth'});}applySiteTexts();}
 function renderServicesTabs(){const wrap=document.getElementById('servicesTabs');const panel=document.getElementById('srvPanel');renderPublicMainNav();renderPortfolioSection();if(!ABAS.length){if(publicMainTab==='catalogo')publicMainTab=PROCS.some(p=>parseFotos(p.fotos||p.imagem).length)?'portfolio':'agendamento';wrap.innerHTML='';panel.innerHTML=`<div class="srv-empty"><div class="srv-empty-ico">✦</div><p>Cadastre categorias para montar seu catálogo.</p></div>`;refreshPublicMainSections();return;}wrap.innerHTML=ABAS.map(a=>{const cnt=PROCS.filter(p=>p.aba===a.nome).length;return `<div class="srv-tab" data-aba="${htmlEsc(a.nome)}" onclick="showServico('${String(a.nome).replace(/'/g,"\\'")}')"><div class="srv-tab-ico">${a.emoji}</div><div class="srv-tab-name">${htmlEsc(a.nome)}</div><div class="srv-tab-cnt">${cnt} serviço${cnt!==1?'s':''}</div></div>`;}).join('');if(!ABAS.some(a=>a.nome===abaPublicaAtiva))abaPublicaAtiva=ABAS[0].nome;refreshPublicMainSections();if(publicMainTab==='catalogo'&&abaPublicaAtiva)showServico(abaPublicaAtiva);applySiteTexts();}
 function showServico(nome){abaPublicaAtiva=nome;document.querySelectorAll('.srv-tab').forEach(t=>t.classList.toggle('active',t.getAttribute('data-aba')===nome));const panel=document.getElementById('srvPanel');const procs=PROCS.filter(p=>p.aba===nome);const emoji=ABAS.find(a=>a.nome===nome)?.emoji||'✦';if(!procs.length){panel.innerHTML=`<div class="srv-panel-head">${emoji} ${nome}</div><div class="srv-rule"></div><div class="srv-empty"><div class="srv-empty-ico">${emoji}</div><p>Nenhum serviço cadastrado ainda.</p></div>`;return;}panel.innerHTML=`<div class="srv-panel-head">${emoji} ${nome}</div><div class="srv-rule"></div><div class="proc-list">`+procs.map(p=>{const idx=PROCS.indexOf(p);const posY=p.imgPosY??50;const thumb=p.imagem?`<div class="proc-thumb"><img class="img-lightbox" src="${mediaImageUrl(p.imagem,'card')}" alt="${htmlEsc(p.nome)}" style="object-position:center ${posY}%" onclick="event.stopPropagation();openImageLightbox(this.src,this.alt)"></div>`:`<div class="proc-thumb">${emoji}</div>`;return `<div class="proc-card" onclick="verProcDetalhe(${idx})">${thumb}<div class="proc-info"><div class="proc-name">${p.nome}</div><div class="proc-meta">${p.valor?formatarValor(p.valor)+' · ':''}${p.duracao||''}</div></div><span class="proc-arrow">›</span></div>`;}).join('')+'</div>';}
 function verProcDetalhe(idx){const p=PROCS[idx];const emoji=ABAS.find(a=>a.nome===p.aba)?.emoji||'✦';const posY=p.imgPosY??50;const alt=p.imgAltura??145;const fotos=(p.fotos&&p.fotos.length?p.fotos:parseFotos(p.imagem)).filter(Boolean);const galeriaHtml=fotos.length?`<div class="proc-gallery"><div class="proc-gallery-track" id="procGalTrack">${fotos.map((u,i)=>`<div class="proc-gallery-slide"><img class="img-lightbox" src="${mediaImageUrl(u,'detail')}" alt="${htmlEsc(p.nome)} — foto ${i+1}" style="height:${Math.max(alt,200)}px;object-fit:cover;object-position:center ${posY}%;" onclick="openImageLightbox(this.src,this.alt)"></div>`).join('')}</div>${fotos.length>1?`<div class="proc-gallery-dots">${fotos.map((_,i)=>`<span class="proc-gallery-dot${i===0?' active':''}"></span>`).join('')}</div>`:''}</div>`:`<div class="proc-gallery"><div class="proc-gallery-slide"><div class="proc-gallery-ph" style="height:120px;">${emoji}</div></div></div>`;const precoHtml=(p.valor||p.temManut)?`<div class="proc-price-grid">${p.valor?`<div class="proc-price-box primary"><div class="proc-price-label">Valor da sessão</div><div class="proc-price-val">${formatarValor(p.valor)}</div></div>`:''}${p.temManut?`<div class="proc-price-box secondary"><div class="proc-price-label">Manutenção</div><div class="proc-price-val">${p.manutValor?formatarValor(p.manutValor):'Consultar'}</div>${p.manutPrazo?`<div style="font-size:.58rem;color:var(--ink-lt);margin-top:2px;">🔄 ${p.manutPrazo}</div>`:''}</div>`:''}</div>`:'';const tags=(p.tags||parseProcTags(p.indicado||'')).map(normalizeProcTag).filter(Boolean);const badgeTags=tags.filter(t=>t.tipo==='marcador');const infoTags=tags.filter(t=>t.tipo!=='marcador').map(t=>({icon:t.tipo==='real'?'💰':'✦',label:getProcTagLabel(t),val:getProcTagValue(t)}));const infos=[p.duracao?{icon:'⏱',label:'Duração',val:p.duracao}:null,p.fixacao?{icon:'📅',label:'Duração do efeito',val:p.fixacao}:null,...infoTags].filter(Boolean);const infosHtml=infos.length?`<div class="proc-info-table">${infos.map(info=>`<div class="proc-info-row"><span class="proc-info-ico">${info.icon}</span><span class="proc-info-lbl">${info.label}</span><span class="proc-info-val">${info.val}</span></div>`).join('')}</div>`:'';const badgesHtml=badgeTags.length?`<div class="proc-badges">${badgeTags.map(tag=>`<div class="proc-badge">${tag.label?tag.label+': ':''}${tag.valor}</div>`).join('')}</div>`:'';const panel=document.getElementById('srvPanel');panel.innerHTML=`${galeriaHtml}<div class="proc-detail-name">${p.nome}</div><div class="proc-detail-cat"><div style="width:22px;height:1px;background:var(--rose);"></div><span>${p.aba}</span></div><p class="proc-detail-text">${p.descricao}</p>${badgesHtml}${precoHtml}${infosHtml}<button class="btn-back-proc" onclick="showServico('${p.aba}')">← Voltar</button>`;ativarGaleriaProc();setTimeout(()=>panel.scrollIntoView({behavior:'smooth',block:'start'}),50);}
@@ -2972,10 +3013,11 @@ function renderGrid(iso,targetId){
       extra=`<div class="wa-contact-row" onclick="event.stopPropagation()"><button type="button" class="wa-contact-btn" onclick="openWaContact('${phoneFull}','${msg}','normal')" title="Abrir no WhatsApp comum">💬 WhatsApp</button><button type="button" class="wa-contact-btn biz" onclick="openWaContact('${phoneFull}','${msg}','business')" title="Abrir no WhatsApp Business">💼 Business</button><button type="button" class="wa-contact-btn copy" onclick="copyClientPhone('${phoneFull}')" title="Copiar número">📋</button></div>`;
     }
     const card=document.createElement('div');
-    card.dataset.time=clock;card.dataset.status=st;card.style.animationDelay=`${idx*.04}s`;
-    card.className='slot-card'+(isPast&&!isAdmin?' past':'');
+    card.dataset.time=clock;card.dataset.status=st;card.dataset.iso=iso;card.style.animationDelay=`${idx*.04}s`;
+    card.className='slot-card'+(isPast&&!isAdmin?' past':'')+(isAdmin&&selectedSlots.has(`${iso}|${clock}`)?' selected':'');
+    const taxaTag=(targetId==='dezSlots'&&st==='Livre'&&dezFeeDay(iso))?`<span class="dez-taxa-tag">Taxa ${dezValorLabel(DEZ.valor)}</span>`:'';
     card.onclick=e=>handleSlotClick(e,card,iso,clock,st,reservedUntil,reg);
-    card.innerHTML=`<div class="slot-check" data-chk="true">✓</div><div class="slot-pip" style="background:${pipColor}"></div><div class="slot-time">${clock}</div><div class="slot-info"><div class="slot-status" style="color:${pipColor}">${stLabel}</div><div class="slot-client">${clientName}</div><div class="slot-dur" style="margin-top:1px;font-size:.58rem;opacity:.55;">${st!=='Livre'&&reg&&reg.telefone?'📞 '+reg.telefone:''} ${st!=='Livre'&&reg&&reg.codigo?' · 🎫 '+reg.codigo:''}</div><div class="slot-dur">${durLabel}</div>${capacityHtml}${extra}${expiredHtml}</div>`;
+    card.innerHTML=`<div class="slot-check" data-chk="true">✓</div><div class="slot-pip" style="background:${pipColor}"></div><div class="slot-time">${clock}</div>${taxaTag}<div class="slot-info"><div class="slot-status" style="color:${pipColor}">${stLabel}</div><div class="slot-client">${clientName}</div><div class="slot-dur" style="margin-top:1px;font-size:.58rem;opacity:.55;">${st!=='Livre'&&reg&&reg.telefone?'📞 '+reg.telefone:''} ${st!=='Livre'&&reg&&reg.codigo?' · 🎫 '+reg.codigo:''}</div><div class="slot-dur">${durLabel}</div>${capacityHtml}${extra}${expiredHtml}</div>`;
     container.appendChild(card);
     cur+=Math.max(30,durMin);idx++;
   }
@@ -2986,7 +3028,7 @@ function renderGrid(iso,targetId){
 function handleSlotClick(event,card,iso,clock,st,rUntil,reg){
   if(isAdmin){
     const isCheck=event.target.getAttribute('data-chk')==='true'||event.target.closest('[data-chk="true"]');
-    if(isCheck&&!card.closest('#dezSlots')){const key=`${iso}|${clock}`;if(selectedSlots.has(key)){selectedSlots.delete(key);card.classList.remove('selected');}else{selectedSlots.add(key);card.classList.add('selected');}updateMultiBar();return;}
+    if(isCheck){const key=`${iso}|${clock}`;if(selectedSlots.has(key)){selectedSlots.delete(key);card.classList.remove('selected');}else{selectedSlots.add(key);card.classList.add('selected');}updateMultiBar();return;}
     showAdminSlotSheet(iso,clock,st,reg);return;
   }
   if(st!=='Livre'){
@@ -3003,8 +3045,21 @@ function handleSlotClick(event,card,iso,clock,st,rUntil,reg){
   if(taxaDia(iso)>0){showDezPaymentSheet(iso,clock);return;}
   showBookingSheet(iso,clock);
 }
-function updateMultiBar(){const n=selectedSlots.size;const bar=document.getElementById('multiBar');if(!bar)return;if(!isAdmin||isUserView){bar.classList.remove('vis','has-sel');return;}bar.classList.add('vis');bar.classList.toggle('has-sel',n>0);const lbl=document.getElementById('selCount');if(lbl)lbl.textContent=n>0?`${n} horário${n>1?'s':''} selecionado${n>1?'s':''}`:'Toque nos horários para selecionar';['msClear','msBlock','msFree'].forEach(id=>{const b=document.getElementById(id);if(b)b.disabled=n===0;});}
-function selectAll(){document.querySelectorAll('.slot-card:not(.past)').forEach(c=>{const key=`${currentDay}|${c.dataset.time}`;selectedSlots.add(key);c.classList.add('selected');});updateMultiBar();}
+function updateMultiBar(){const n=selectedSlots.size;document.querySelectorAll('.multi-bar').forEach(bar=>{if(!isAdmin||isUserView){bar.classList.remove('vis','has-sel');return;}bar.classList.add('vis');bar.classList.toggle('has-sel',n>0);const lbl=bar.querySelector('.sel-count');if(lbl)lbl.textContent=n>0?`${n} horário${n>1?'s':''} selecionado${n>1?'s':''}`:'Toque nos horários para selecionar';bar.querySelectorAll('.ms-clear,.ms-block,.ms-free').forEach(b=>{b.disabled=n===0;});});}
+/** Seleciona só os horários LIVRES e futuros do dia exibido. Agendados e bloqueados ficam de fora para não serem sobrescritos. */
+function selectAll(scope='slotsContainer'){document.querySelectorAll(`#${scope} .slot-card[data-status="Livre"]`).forEach(c=>{if(slotPassado(c.dataset.iso,c.dataset.time))return;const key=`${c.dataset.iso}|${c.dataset.time}`;selectedSlots.add(key);c.classList.add('selected');});updateMultiBar();}
+/** true se o horário (dia + hora, fuso de Manaus) já passou. */
+function slotPassado(iso,clock){const hoje=getManausIsoDate(new Date());if(iso<hoje)return true;if(iso>hoje)return false;const[h,m]=clock.split(':').map(Number);return h*60+m<getManausMinutes(new Date());}
+/** Bloqueia de uma vez todos os horários LIVRES e futuros do dia exibido. Horários já agendados não são alterados. */
+async function blockDay(scope){
+  const cards=[...document.querySelectorAll(`#${scope} .slot-card[data-status="Livre"]`)].filter(c=>!slotPassado(c.dataset.iso,c.dataset.time));
+  if(!cards.length){toast('Não há horários livres para bloquear neste dia.','warn');return;}
+  const dia=formatManausLabel(cards[0].dataset.iso,{day:'2-digit',month:'long'});
+  if(!confirm(`Bloquear o dia inteiro (${dia})? ${cards.length} horário(s) livre(s) ficarão indisponíveis. Horários já agendados não serão alterados.`))return;
+  const updates=cards.map(c=>({data:c.dataset.iso,horario:c.dataset.time,status:'Bloqueado',cliente:'INDISPONÍVEL',password:adminPass}));
+  clearSelection();
+  await postUpdates(updates);
+}
 function clearSelection(){selectedSlots.clear();document.querySelectorAll('.slot-card.selected').forEach(c=>c.classList.remove('selected'));updateMultiBar();}
 async function blockSelected(){if(!selectedSlots.size)return;if(!confirm(`Bloquear ${selectedSlots.size} horário(s)?`))return;const updates=[...selectedSlots].map(k=>{const[d,t]=k.split('|');return{data:d,horario:t,status:'Bloqueado',cliente:'INDISPONÍVEL',password:adminPass};});clearSelection();await postUpdates(updates);}
 async function freeSelected(){if(!selectedSlots.size)return;if(!confirm(`Liberar ${selectedSlots.size} horário(s)?`))return;const updates=[...selectedSlots].map(k=>{const[d,t]=k.split('|');return{data:d,horario:t,status:'Livre',cliente:'',password:adminPass};});clearSelection();await postUpdates(updates);}
@@ -3342,7 +3397,7 @@ async function adminOcupar(iso,clock){
 // CONFIG
 function openConfig(){openSheet('Configurações','Expediente e Valor da Reserva (PIX)');document.getElementById('sheetBody').innerHTML=`<label class="f-label">Horário de início</label><input id="cfgS" class="f-inp" value="${srvCfg.start}" placeholder="08:00"><label class="f-label">Horário de término</label><input id="cfgE" class="f-inp" value="${srvCfg.end}" placeholder="20:00"><label class="f-label">Duração padrão (minutos)</label><input id="cfgD" class="f-inp" type="number" value="${srvCfg.duration}" min="30" step="15"><label class="f-label">Valor da Reserva (PIX)</label><input id="cfgP" class="f-inp" value="${(srvCfg.pix_value||'0.00').toString().replace('.',',')}" placeholder="25,50">`;document.getElementById('sheetActions').innerHTML=`<button id="btnSaveCfg" class="btn btn-primary" onclick="saveConfig()">Salvar configurações</button><button class="btn btn-secondary" onclick="closeSheet()">Cancelar</button>`;}
 async function saveConfig(){const btn=document.getElementById('btnSaveCfg');const s=document.getElementById('cfgS').value;const e=document.getElementById('cfgE').value;const d=parseInt(document.getElementById('cfgD').value,10);const p=document.getElementById('cfgP').value.replace(',','.').trim();if(btn){btn.textContent='⏱ Salvando...';btn.disabled=true;}const cbName='onCfg_'+Date.now();window[cbName]=(res)=>{if(res.status==='OK'||res.status==='ok'){const dur=Number.isFinite(d)&&d>0?d:srvCfg.duration;srvCfg={...srvCfg,start:s,end:e,duration:dur,pix_value:p};updateAdminStats();syncData();setTimeout(()=>{toast('Configurações salvas!','ok');closeSheet();},500);}else{toast('Erro ao salvar','err');if(btn){btn.textContent='Salvar configurações';btn.disabled=false;}}const sEl=document.getElementById('scr_cfg');if(sEl)sEl.remove();delete window[cbName];};const scr=document.createElement('script');scr.id='scr_cfg';scr.src=`${CFG.API_URL}?action=update_config&pass=${encodeURIComponent(adminPass)}&start=${encodeURIComponent(s)}&end=${encodeURIComponent(e)}&duration=${d}&pix_value=${encodeURIComponent(p)}&callback=${cbName}`;document.body.appendChild(scr);}
-function openBlockPanel(){openSheet('Bloqueios em Lote','Selecione uma data, marque os horários e use a barra para bloquear ou liberar.');document.getElementById('sheetBody').innerHTML=`<div class="info-box">🔒 <strong>Como usar:</strong><br>1. Feche este painel<br>2. Escolha a data no calendário<br>3. Toque nos horários desejados<br>4. Use a barra para Bloquear ou Liberar</div><div class="info-box" style="border-color:var(--rose);">💡 Para folga do dia inteiro, use <em>Selecionar Tudo</em> e depois <em>Bloquear</em>.</div>`;document.getElementById('sheetActions').innerHTML=`<button class="btn btn-primary" onclick="closeSheet()">Entendido</button>`;}
+function openBlockPanel(){openSheet('Bloqueios em Lote','Selecione uma data, marque os horários e use a barra para bloquear ou liberar.');document.getElementById('sheetBody').innerHTML=`<div class="info-box">🔒 <strong>Como usar:</strong><br>1. Feche este painel<br>2. Escolha a data no calendário<br>3. Toque nos horários desejados<br>4. Use a barra para Bloquear ou Liberar</div><div class="info-box" style="border-color:var(--rose);">💡 Para folga do dia inteiro, use o botão <em>Bloquear dia inteiro</em> na barra do dia.</div>`;document.getElementById('sheetActions').innerHTML=`<button class="btn btn-primary" onclick="closeSheet()">Entendido</button>`;}
 function openAgendadosSheet(){const bks=getFutureBookings().slice(0,100);const html=bks.length===0?'<div class="info-box">Nenhum cliente agendado.</div>':bks.map(r=>`<div class="log-entry" style="border-left-color:var(--st-ocupado)"><strong>${r.cliente||'—'}</strong><p style="margin:3px 0">📅 ${formatManausLabel(r.data,{day:'2-digit',month:'2-digit',year:'numeric'})} às <strong>${r.horario||'—'}</strong></p><div class="log-meta">📞 ${r.telefone||'—'}${r.codigo?' · 🎫 '+r.codigo:''}</div></div>`).join('');openSheet('Agendados',`${bks.length} cliente(s) confirmado(s).`);document.getElementById('sheetBody').innerHTML=html;document.getElementById('sheetActions').innerHTML=`<button class="btn btn-secondary" onclick="closeSheet()">Fechar</button>`;}
 function openProximoSheet(){const next=getNextOccupiedBooking();openSheet('Próximo atendimento','Detalhes do próximo cliente.');document.getElementById('sheetBody').innerHTML=next?`<div class="info-box" style="border-color:var(--gold);background:rgba(201,168,108,.07);"><strong>${next.cliente||'—'}</strong><br>📅 ${formatManausLabel(next.data,{weekday:'long',day:'2-digit',month:'long',year:'numeric'})}<br>🕐 ${next.horario||'—'}<br>📞 ${next.telefone||'—'}</div>`:'<div class="info-box">Nenhum atendimento futuro.</div>';document.getElementById('sheetActions').innerHTML=`<button class="btn btn-secondary" onclick="closeSheet()">Fechar</button>`;}
 /* ── LIVRES DO DIA ────────────────────────────────────────── */
@@ -3591,7 +3646,7 @@ window.onload=()=>{
     renderMyBookingBanner(); // banner de consulta da cliente
   });
   try{initWebNotifications();}catch{}
-  setInterval(()=>{if(currentDay)renderGrid(currentDay);if(publicMainTab==='dezembro')renderDezSection();renderMyBookingBanner();},60000);
+  setInterval(()=>{if(currentDay)renderGrid(currentDay);if(publicMainTab==='dezembro')renderDezSection();renderMyBookingBanner();const navEl=document.getElementById('publicMainNav');if(navEl&&navEl.dataset.mes!==getManausIsoDate().slice(0,7)){renderPublicMainNav();if(agendamentoOculto()&&publicMainTab==='agendamento')setPublicMainTab('dezembro');}},60000);
   setInterval(()=>{atualizarContagemDez();vigiarPixPendente();},1000);
 };
 
@@ -3690,7 +3745,7 @@ function renderDezSection(){
   if(title)title.textContent=formatManausLabel(mes+'-01',{month:'long',year:'numeric'}).replace(/^\w/,c=>c.toUpperCase());
   const intro=document.getElementById('dezIntro');
   if(intro)intro.innerHTML=Number(DEZ.valor)>0
-    ?`Reservas em dezembro têm <strong>taxa de ${dezValorLabel(DEZ.valor)}</strong> ${DEZ.mes_inteiro?'em todos os dias do mês':'nos dias marcados no calendário'}. Pague o PIX e seu horário é confirmado automaticamente.`
+    ?`<span class="dez-destaque">Reservas</span> em dezembro têm <strong>taxa de ${dezValorLabel(DEZ.valor)}</strong> ${DEZ.mes_inteiro?'em todos os dias do mês':'nos dias marcados no calendário'}. Pague o PIX e seu horário é confirmado automaticamente.`
     :'Veja todos os dias de dezembro. Os horários são reservados normalmente, sem taxa.';
   if(intro&&!DEZ.ativo&&adminTabAvailable())intro.innerHTML='<strong>Oculta para os clientes.</strong> Ative em Gerência, Agenda de Dezembro.<br>'+intro.innerHTML;
   const hoje=getManausIsoDate(new Date());
@@ -3699,10 +3754,13 @@ function renderDezSection(){
   for(let i=0;i<primeiro;i++)html+='<span class="dez-blank"></span>';
   for(let d=1;d<=total;d++){
     const iso=`${mes}-${pad2(d)}`;
-    const passado=iso<hoje, taxa=dezFeeDay(iso);
+    const passado=iso<hoje;
     const livres=passado?0:getAvailableSlotsForDay(iso).length;
-    const cls=['dez-day',taxa?'fee':'',passado?'past':'',iso===dezSelDay?'active':''].filter(Boolean).join(' ');
-    html+=`<button type="button" class="${cls}"${passado?' disabled':''} onclick="selectDezDay('${iso}')"><span class="dez-dn">${d}</span><span class="dez-dc">${passado?'—':livres+(livres===1?' livre':' livres')}</span>${taxa?`<span class="dez-fee">${dezValorLabel(DEZ.valor)}</span>`:''}</button>`;
+    const estado=passado?'':(livres===0?'esgotado':(livres<=5?'poucos':''));
+    const cls=['dez-day','cli-dia',estado,passado?'past':'',iso===dezSelDay?'active':''].filter(Boolean).join(' ');
+    const rotulo=passado?'—':(livres===0?'0 horários livres':`${livres} ${livres===1?'horário livre':'horários livres'}`);
+    const curto=passado?'—':`${livres} ${livres===1?'livre':'livres'}`;
+    html+=`<button type="button" class="${cls}"${passado?' disabled':''} onclick="selectDezDay('${iso}')"><span class="dez-dn">${d}</span><span class="dez-dc"><span class="dez-txt-full">${rotulo}</span><span class="dez-txt-short">${curto}</span></span></button>`;
   }
   grid.innerHTML=html;
   renderDezDay();
@@ -3710,6 +3768,7 @@ function renderDezSection(){
 
 function selectDezDay(iso){
   dezSelDay=iso;
+  clearSelection();
   renderDezSection();
   document.getElementById('dezDayWrap')?.scrollIntoView({behavior:'smooth',block:'start'});
 }
@@ -3725,9 +3784,10 @@ function renderDezDay(){
   const note=document.getElementById('dezDayNote');
   if(note&&clientLockIso()===dezSelDay)note.innerHTML='Este é o seu horário reservado. Toque no cartão para ver o PIX ou o status.';
   else if(note)note.innerHTML=dezFeeDay(dezSelDay)
-    ?`Taxa de reserva: <strong>${dezValorLabel(DEZ.valor)}</strong> · toque em um horário livre e pague o PIX para confirmar.`
+    ?`Toque em um horário livre e pague o PIX para confirmar. A taxa de reserva aparece em cada horário.`
     :'Sem taxa neste dia · toque em um horário livre para agendar.';
   renderGrid(dezSelDay,'dezSlots');
+  updateMultiBar();
 }
 
 /* ── Passo 1: dados da cliente ── */
