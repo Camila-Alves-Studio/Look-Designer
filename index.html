@@ -1897,6 +1897,42 @@ body.admin-on #logPanel{display:block;}
 .dez-sw.ok{border-color:#A9D3B2;background:#E3F2E6;}
 .dez-sw.low{border-color:#E8903A;background:#FFD9A8;}
 .dez-sw.full{border-color:#D3D3D3;background:#EFEFEF;}
+/* ── ADMIN: PIX · PAGAMENTOS (sub-abas em cartões) ── */
+.pix-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+.pix-tab b{font-weight:700;margin-left:5px;}
+.pix-filtros{margin-bottom:10px;}
+.pix-search{position:relative;margin-bottom:8px;}
+.pix-search .f-input{padding-left:32px;}
+.pix-lupa{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:.8rem;pointer-events:none;}
+.pix-datas{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;}
+.pix-datas label{display:flex;flex-direction:column;gap:3px;font-size:.6rem;color:var(--ink-lt);flex:1;min-width:120px;}
+.pix-limpar{background:none;border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:.62rem;color:var(--ink-mid);cursor:pointer;}
+.pix-resumo{font-size:.66rem;color:var(--ink-lt);margin:4px 0 10px;}
+.pix-card{display:flex;gap:12px;align-items:flex-start;background:var(--white);border:1px solid var(--border);border-left:4px solid var(--border);border-radius:12px;padding:12px;margin-bottom:10px;}
+.pix-card.pendente{border-left-color:#D99A1E;}
+.pix-card.recebido{border-left-color:#5D9E68;}
+.pix-card.expirado{border-left-color:#8a8a8a;}
+.pix-card.falha{border-left-color:#C94848;}
+.pix-card.confirmado{border-left-color:#5D9E68;background:#EAF5EC;animation:pixVerde .8s ease-out;}
+@keyframes pixVerde{from{background:#FFF4DC;}to{background:#EAF5EC;}}
+.pix-ico{flex:0 0 22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:800;margin-top:1px;}
+.pix-ok{color:#3F7A4A;}
+.pix-off{color:#8a8a8a;}
+.pix-spin{display:inline-block;width:18px;height:18px;border:3px solid rgba(217,154,30,.25);border-top-color:#D99A1E;border-radius:50%;animation:spin .7s linear infinite;}
+.pix-corpo{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;font-size:.68rem;}
+.pix-linha{display:flex;justify-content:space-between;gap:8px;align-items:baseline;}
+.pix-nome{font-weight:700;color:var(--ink);font-size:.74rem;word-break:break-word;}
+.pix-valor{font-weight:700;color:var(--ink);white-space:nowrap;}
+.pix-info{color:var(--ink-lt);word-break:break-word;}
+.pix-info strong{color:var(--ink-mid);font-weight:600;}
+.pix-tempo{color:var(--ink-mid);}
+.pix-cd{font-variant-numeric:tabular-nums;font-weight:700;color:#B07A0E;}
+.pix-tag{display:inline-block;font-size:.58rem;font-weight:700;border-radius:999px;padding:2px 8px;margin-top:2px;align-self:flex-start;}
+.pix-tag.ok{background:#EAF5EC;color:#3F7A4A;}
+.pix-tag.warn{background:#FFF4DC;color:#8A5A00;}
+.pix-tag.err{background:#FBE9E9;color:#C94848;}
+.pix-tag.off{background:#EFEFEF;color:#6b6b6b;}
+.pix-vazio{text-align:center;padding:24px 8px;color:var(--ink-lt);font-size:.7rem;}
 /* ── ADMIN: botão de imagem da agenda de dezembro (só no modo admin) ── */
 #dezAdminBar{display:none;justify-content:center;margin:4px 0 14px;}
 body.admin-on #dezAdminBar{display:flex;}
@@ -2199,6 +2235,7 @@ body.admin-on #dezAdminBar{display:flex;}
       <div class="admin-card" onclick="openClientesSheet()"><span class="ac-ico">👥</span><div class="ac-lbl">Clientes</div><div class="ac-desc">Ranking de frequência e contato</div></div>
       <div class="admin-card" onclick="openTaxaMesAdmin()"><span class="ac-ico">🧾</span><div class="ac-lbl">Taxa do mês</div><div class="ac-desc">Cobrança obrigatória no agendamento</div></div>
       <div class="admin-card" onclick="openDezAdmin()"><span class="ac-ico">🎄</span><div class="ac-lbl">Agenda de Dezembro</div><div class="ac-desc">Taxa de reserva e dias com cobrança</div></div>
+      <div class="admin-card" onclick="openPixAdmin()"><span class="ac-ico">💳</span><div class="ac-lbl">PIX · Pagamentos</div><div class="ac-desc">Pendentes, recebidos e expirados</div></div>
       <div class="admin-card" onclick="openConfig()"><span class="ac-ico">⚙️</span><div class="ac-lbl">Configurações</div><div class="ac-desc">Expediente e Valor da Reserva</div></div>
       <div class="admin-card" onclick="openServicosAdmin()"><span class="ac-ico">💅</span><div class="ac-lbl">Serviços</div><div class="ac-desc">Abas e procedimentos do studio</div></div>
       <div class="admin-card" onclick="openMidiaAdmin()"><span class="ac-ico">🖼️</span><div class="ac-lbl">Tela Principal</div><div class="ac-desc">Foto ou vídeo de apresentação</div></div>
@@ -4071,6 +4108,216 @@ async function carregarDezListaAdmin(){
   const cores={AGUARDANDO:'#9a7a3c',CONFIRMADO:'#5D9E68',EXPIRADO:'#8a8a8a',CANCELADO:'#8a8a8a',PAGO_SEM_VAGA:'#C94848'};
   const rotulos={AGUARDANDO:'Aguardando PIX',CONFIRMADO:'Pago · confirmado',EXPIRADO:'Expirado',CANCELADO:'Cancelado',PAGO_SEM_VAGA:'Pago sem vaga · reembolsar'};
   el.innerHTML=rows.slice(0,40).map(p=>`<div class="dez-list-row"><div class="dez-list-main"><strong>${htmlEsc((p.data||'').split('-').reverse().join('/'))} · ${htmlEsc(p.horario||'')}</strong><span>${htmlEsc(p.cliente||'')} · ${htmlEsc(p.telefone||'')}</span></div><div class="dez-list-side"><span style="color:${cores[p.estado]||'#8a8a8a'}">${rotulos[p.estado]||htmlEsc(p.estado)}</span><small>${dezValorLabel(p.valor)}</small></div></div>`).join('');
+}
+
+/* ══════════ ADMIN · PIX · PAGAMENTOS (pendentes · recebidos · expirados) ══════════ */
+let pixTab='pendentes',pixQuery='',pixDia='',pixMes='',pixData=null,pixOffset=0,pixPollId=null,pixBusy=false,pixPrev={},pixFlash={},pixUltimaForca=0;
+const PIX_POLL_MS=5000, PIX_FLASH_MS=6000;
+
+function pixSheetAberta(){
+  const ov=document.getElementById('overlay');
+  return !!ov&&ov.classList.contains('vis')&&document.getElementById('sheetTitle')?.textContent==='PIX · Pagamentos';
+}
+function brData(iso){return iso?String(iso).split('-').reverse().join('/'):'';}
+function pixMesBr(m){return m?String(m).split('-').reverse().join('/'):'';}
+
+function openPixAdmin(){
+  if(!isAdmin||isUserView){toast('Acesso restrito ao administrador','warn');return;}
+  pixPrev={};pixFlash={};pixData=null;
+  openSheet('PIX · Pagamentos','Pendentes, recebidos e expirados da cobrança PIX.');
+  document.getElementById('sheetBody').innerHTML=`
+    <div class="pix-tabs" id="pixTabs"></div>
+    <div class="pix-filtros">
+      <div class="pix-search"><span class="pix-lupa" aria-hidden="true">🔍</span><input class="f-input" id="pixBusca" type="search" placeholder="Buscar cliente, telefone ou código" value="${htmlEsc(pixQuery)}" oninput="setPixQuery(this.value)"></div>
+      <div class="pix-datas">
+        <label>Dia<input class="f-input" id="pixDiaIn" type="date" value="${htmlEsc(pixDia)}" onchange="setPixDia(this.value)"></label>
+        <label>Mês<input class="f-input" id="pixMesIn" type="month" value="${htmlEsc(pixMes)}" onchange="setPixMes(this.value)"></label>
+        <button type="button" class="pix-limpar" onclick="limparPixFiltros()">Limpar</button>
+      </div>
+    </div>
+    <div class="pix-resumo" id="pixResumo"></div>
+    <div id="pixLista"><div class="srv-empty"><p>Carregando...</p></div></div>`;
+  document.getElementById('sheetActions').innerHTML=`<button class="btn btn-primary" onclick="copiarPixLista()">Copiar lista filtrada</button><button class="btn btn-secondary" onclick="closeSheet()">Fechar</button>`;
+  renderPixTabs();
+  atualizarPixPainel();
+  iniciarPixPoll();
+}
+
+function iniciarPixPoll(){
+  if(pixPollId)clearInterval(pixPollId);
+  pixPollId=setInterval(()=>{
+    if(!pixSheetAberta()){clearInterval(pixPollId);pixPollId=null;return;}
+    atualizarPixPainel();
+  },PIX_POLL_MS);
+}
+
+async function atualizarPixPainel(){
+  if(pixBusy)return;
+  pixBusy=true;
+  let r=null;
+  try{r=await gasCall({action:'pix_painel'});}catch(e){r=null;}
+  pixBusy=false;
+  if(!pixSheetAberta())return;
+  if(!r||r.status!=='OK'){
+    if(!pixData){const el=document.getElementById('pixLista');if(el)el.innerHTML='<div class="srv-empty"><p>Não foi possível carregar os pagamentos. Tentando de novo…</p></div>';}
+    return;
+  }
+  pixOffset=(Number(r.serverMs)||Date.now())-Date.now();
+  const agora=Date.now();
+  const atual={};
+  (r.pendentes||[]).forEach(p=>{atual[p.ref]='pendente';});
+  (r.recebidos||[]).forEach(p=>{atual[p.ref]='recebido';});
+  (r.expirados||[]).forEach(p=>{atual[p.ref]='expirado';});
+  // carregamento âmbar → verde: cobrança que estava pendente e agora está paga
+  (r.recebidos||[]).forEach(p=>{
+    if(pixPrev[p.ref]==='pendente'){
+      pixFlash[p.ref]={item:p,until:agora+PIX_FLASH_MS};
+      toast(`PIX confirmado: ${p.cliente||'cliente'}`,'ok');
+    }
+  });
+  pixPrev=atual;
+  pixData=r;
+  renderPixTabs();
+  renderPixLista();
+}
+
+function renderPixTabs(){
+  const el=document.getElementById('pixTabs');if(!el)return;
+  const c={pendentes:pixData?.pendentes?.length||0,recebidos:pixData?.recebidos?.length||0,expirados:pixData?.expirados?.length||0};
+  el.innerHTML=[['pendentes','Pendentes'],['recebidos','Recebidos'],['expirados','Expirados']]
+    .map(([k,l])=>`<button type="button" class="hist-chip pix-tab${pixTab===k?' on':''}" onclick="setPixTab('${k}')">${l}<b>${c[k]}</b></button>`).join('');
+}
+function setPixTab(t){pixTab=t;renderPixTabs();renderPixLista();}
+function setPixQuery(v){pixQuery=v||'';renderPixLista();}
+function setPixDia(v){pixDia=v||'';renderPixLista();}
+function setPixMes(v){pixMes=v||'';renderPixLista();}
+function limparPixFiltros(){
+  pixQuery='';pixDia='';pixMes='';
+  ['pixBusca','pixDiaIn','pixMesIn'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  renderPixLista();
+}
+
+function pixItensDaAba(){
+  if(!pixData)return[];
+  if(pixTab==='pendentes'){
+    const refs=new Set((pixData.pendentes||[]).map(p=>p.ref));
+    const agora=Date.now();
+    const flashes=Object.values(pixFlash).filter(f=>f.until>agora&&!refs.has(f.item.ref)).map(f=>({...f.item,_flash:true}));
+    const pend=[...(pixData.pendentes||[])].sort((a,b)=>a.expiraMs-b.expiraMs);
+    return [...flashes,...pend];
+  }
+  if(pixTab==='recebidos')return [...(pixData.recebidos||[])].sort((a,b)=>b.pagoMs-a.pagoMs);
+  return [...(pixData.expirados||[])].sort((a,b)=>b.criadoMs-a.criadoMs);
+}
+function pixFiltrar(lista){
+  const q=pixQuery.trim().toLowerCase();
+  const qDig=q.replace(/\D/g,'');
+  return lista.filter(p=>{
+    if(q){
+      const hit=(p.cliente||'').toLowerCase().includes(q)||(p.codigo||'').toLowerCase().includes(q)||(qDig.length>=3&&(p.telefone||'').replace(/\D/g,'').includes(qDig));
+      if(!hit)return false;
+    }
+    const d=pixTab==='recebidos'?p.pagoDia:p.criadoDia;
+    if(pixDia)return d===pixDia;
+    if(pixMes)return (d||'').slice(0,7)===pixMes;
+    return true;
+  });
+}
+
+function renderPixCard(p,aba,flash){
+  const nome=htmlEsc(p.cliente||'Sem nome');
+  const tel=htmlEsc(p.telefone||'Sem telefone');
+  const cod=p.codigo?` · 🎫 ${htmlEsc(p.codigo)}`:'';
+  const ag=`${brData(p.data)} às ${htmlEsc(p.horario||'')}${p.duracao?` (${p.duracao} min)`:''}`;
+  const val=dezValorLabel(p.valor);
+  const topo=`<div class="pix-linha"><span class="pix-nome">${nome}</span><span class="pix-valor">${val}</span></div>`;
+  if(flash){
+    return `<div class="pix-card confirmado"><span class="pix-ico pix-ok">✓</span><div class="pix-corpo">${topo}
+      <div class="pix-info">${tel}${cod}</div>
+      <div class="pix-info">Pago às <strong>${htmlEsc(p.pagoHora||'')}</strong> · agendamento <strong>${ag}</strong></div>
+      <span class="pix-tag ok">PIX confirmado · horário ocupado</span></div></div>`;
+  }
+  if(aba==='pendentes'){
+    return `<div class="pix-card pendente"><span class="pix-ico"><span class="pix-spin" aria-label="Aguardando PIX"></span></span><div class="pix-corpo">${topo}
+      <div class="pix-info">${tel}${cod}</div>
+      <div class="pix-info">Agendamento: <strong>${ag}</strong></div>
+      <div class="pix-tempo">Iniciou ${htmlEsc(p.criadoHora||'')} · encerra ${htmlEsc(p.expiraHora||'')} · <span class="pix-cd" data-exp="${Number(p.expiraMs)||0}">--:--</span></div>
+      <span class="pix-tag warn">Aguardando pagamento</span></div></div>`;
+  }
+  if(aba==='recebidos'){
+    const semVaga=p.estado==='PAGO_SEM_VAGA';
+    return `<div class="pix-card ${semVaga?'falha':'recebido'}"><span class="pix-ico pix-ok">✓</span><div class="pix-corpo">${topo}
+      <div class="pix-info">${tel}${cod}</div>
+      <div class="pix-info">PIX recebido em <strong>${brData(p.pagoDia)} às ${htmlEsc(p.pagoHora||'')}</strong></div>
+      <div class="pix-info">Horário ocupado: <strong>${ag}</strong></div>
+      <span class="pix-tag ${semVaga?'err':'ok'}">${semVaga?'Pago sem vaga · reembolsar no Mercado Pago':'Confirmado'}</span></div></div>`;
+  }
+  return `<div class="pix-card expirado"><span class="pix-ico pix-off">⏱</span><div class="pix-corpo">${topo}
+    <div class="pix-info">${tel}${cod}</div>
+    <div class="pix-info">Iniciou <strong>${brData(p.criadoDia)} às ${htmlEsc(p.criadoHora||'')}</strong> · encerrou <strong>${htmlEsc(p.expiraHora||'')}</strong></div>
+    <div class="pix-info">Horário: <strong>${ag}</strong></div>
+    <span class="pix-tag off">${htmlEsc(p.motivo||'Sem pagamento no prazo')}</span></div></div>`;
+}
+
+function pixMsgVazia(){
+  const filtro=(pixQuery||pixDia||pixMes)?' Nenhum resultado com esses filtros.':'';
+  if(pixTab==='pendentes')return 'Nenhum PIX aguardando pagamento agora.'+filtro;
+  if(pixTab==='recebidos')return 'Nenhum PIX recebido.'+filtro;
+  return 'Nenhum PIX expirado.'+filtro;
+}
+
+function renderPixLista(){
+  const el=document.getElementById('pixLista');if(!el)return;
+  if(!pixData){el.innerHTML='<div class="srv-empty"><p>Carregando...</p></div>';return;}
+  const lista=pixFiltrar(pixItensDaAba());
+  const resumo=document.getElementById('pixResumo');
+  if(resumo){
+    if(pixTab==='recebidos'){
+      const tot=lista.reduce((a,p)=>a+(Number(p.valor)||0),0);
+      resumo.textContent=`${lista.length} PIX recebido(s) · total ${dezValorLabel(tot)}`;
+    }else{
+      resumo.textContent=pixTab==='pendentes'?`${lista.length} aguardando pagamento agora`:`${lista.length} sem pagamento no prazo`;
+    }
+  }
+  el.innerHTML=lista.length?lista.map(p=>renderPixCard(p,pixTab,!!p._flash)).join(''):`<div class="pix-vazio">${pixMsgVazia()}</div>`;
+  pixAtualizaTempos();
+}
+
+/** Atualiza só o texto da contagem de 30 min (sem refazer a lista). Retorna true se algum PIX venceu. */
+function pixAtualizaTempos(){
+  const agora=Date.now()+pixOffset;
+  let venceu=false;
+  document.querySelectorAll('#pixLista .pix-cd[data-exp]').forEach(el=>{
+    const falta=Math.floor((Number(el.getAttribute('data-exp'))-agora)/1000);
+    if(falta<=0){el.textContent='00:00';venceu=true;}
+    else el.textContent=String(Math.floor(falta/60)).padStart(2,'0')+':'+String(falta%60).padStart(2,'0');
+  });
+  return venceu;
+}
+
+function atualizarCronoPix(){
+  if(!pixSheetAberta())return;
+  const venceu=pixAtualizaTempos();
+  if(venceu&&!pixBusy&&Date.now()-pixUltimaForca>3000){pixUltimaForca=Date.now();atualizarPixPainel();}
+  let mudou=false;
+  Object.keys(pixFlash).forEach(k=>{if(pixFlash[k].until<=Date.now()){delete pixFlash[k];mudou=true;}});
+  if(mudou&&pixTab==='pendentes')renderPixLista();
+}
+setInterval(()=>{if(pixSheetAberta())atualizarCronoPix();},1000);
+
+function copiarPixLista(){
+  if(!pixData)return;
+  const lista=pixFiltrar(pixItensDaAba().filter(p=>!p._flash));
+  const rot={pendentes:'PIX pendentes',recebidos:'PIX recebidos',expirados:'PIX expirados'}[pixTab];
+  const filtro=pixDia?` · dia ${brData(pixDia)}`:(pixMes?` · mês ${pixMesBr(pixMes)}`:'');
+  const linhas=lista.map(p=>{
+    if(pixTab==='recebidos')return `${brData(p.pagoDia)} ${p.pagoHora} · ${p.cliente} · ${p.telefone} · ${dezValorLabel(p.valor)} · agendado ${brData(p.data)} ${p.horario}`;
+    if(pixTab==='pendentes')return `${p.criadoHora} → ${p.expiraHora} · ${p.cliente} · ${p.telefone} · agenda ${brData(p.data)} ${p.horario}`;
+    return `${brData(p.criadoDia)} ${p.criadoHora} → ${p.expiraHora} · ${p.cliente} · ${p.telefone} · agenda ${brData(p.data)} ${p.horario} · sem pagamento`;
+  }).join('\n');
+  const txt=`${rot}${filtro} · ${lista.length} registro(s)\n\n${linhas}`;
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(txt).then(()=>toast('Lista copiada!','ok')).catch(()=>toast('Não foi possível copiar','err'));
+  else toast('Não foi possível copiar','err');
 }
 
 </script>
