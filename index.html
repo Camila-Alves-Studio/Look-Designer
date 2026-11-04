@@ -1085,6 +1085,7 @@ body.admin-on::after{
   font-family:'Cormorant Garamond',serif;font-size:1.3rem;line-height:1;color:#2F7A3D;
   background:linear-gradient(180deg,#F7FFF8,#ECF9EF);border:1px solid rgba(111,181,125,.3);
 }
+button.free-chip{cursor:pointer;}
 .cli-search{margin-bottom:12px;}
 .cli-card{
   display:flex;gap:10px;align-items:flex-start;
@@ -1313,6 +1314,8 @@ body.admin-on #adminNav{display:flex;}
 .wa-contact-btn.biz{color:#0a7d5c;background:rgba(10,125,92,.08);border-color:rgba(10,125,92,.2);}
 .wa-contact-btn.biz:hover{background:rgba(10,125,92,.16);}
 .wa-contact-btn.copy{color:var(--ink-mid);background:var(--cream-2);border-color:var(--border);padding:4px 8px;}
+.wa-contact-btn.transf{color:#8A5A00;background:rgba(201,168,108,.14);border-color:rgba(201,168,108,.45);}
+.wa-contact-btn.transf:hover{background:rgba(201,168,108,.24);}
 .btn{
   width:100%;padding:16px;border-radius:var(--r-sm);border:none;
   font-family:'Outfit',sans-serif;font-size:.82rem;
@@ -2268,6 +2271,7 @@ body.admin-on #dezAdminBar{display:flex;}
       <div class="admin-card" onclick="openTaxaMesAdmin()"><span class="ac-ico">🧾</span><div class="ac-lbl">Taxa do mês</div><div class="ac-desc">Cobrança obrigatória no agendamento</div></div>
       <div class="admin-card" onclick="openDezAdmin()"><span class="ac-ico">🎄</span><div class="ac-lbl">Agenda de Dezembro</div><div class="ac-desc">Taxa de reserva e dias com cobrança</div></div>
       <div class="admin-card" onclick="openPixAdmin()"><span class="ac-ico">💳</span><div class="ac-lbl">PIX · Pagamentos</div><div class="ac-desc">Pendentes, recebidos e expirados</div></div>
+      <div class="admin-card" onclick="openTransferenciasAdmin()"><span class="ac-ico">🔁</span><div class="ac-lbl">TRANSFERENCIAS CLIENTE</div><div class="ac-desc">Trocas de horário e situação do pagamento</div></div>
       <div class="admin-card" onclick="openConfig()"><span class="ac-ico">⚙️</span><div class="ac-lbl">Configurações</div><div class="ac-desc">Expediente e Valor da Reserva</div></div>
       <div class="admin-card" onclick="openServicosAdmin()"><span class="ac-ico">💅</span><div class="ac-lbl">Serviços</div><div class="ac-desc">Abas e procedimentos do studio</div></div>
       <div class="admin-card" onclick="openMidiaAdmin()"><span class="ac-ico">🖼️</span><div class="ac-lbl">Tela Principal</div><div class="ac-desc">Foto ou vídeo de apresentação</div></div>
@@ -3243,6 +3247,7 @@ function renderGrid(iso,targetId){
       const msg=encWaText(`Olá, ${reg.cliente}! ✨ Sou a Camila do Studio Look Designer. Vi seu interesse no horário das ${clock} do dia ${iso.split('-').reverse().join('/')}. Posso te ajudar? 💗`);
       extra=`<div class="wa-contact-row" onclick="event.stopPropagation()"><button type="button" class="wa-contact-btn" onclick="openWaContact('${phoneFull}','${msg}','normal')" title="Abrir no WhatsApp comum">💬 WhatsApp</button><button type="button" class="wa-contact-btn biz" onclick="openWaContact('${phoneFull}','${msg}','business')" title="Abrir no WhatsApp Business">💼 Business</button><button type="button" class="wa-contact-btn copy" onclick="copyClientPhone('${phoneFull}')" title="Copiar número">📋</button></div>`;
     }
+    if(isAdmin&&reg&&st==='Ocupado')extra+=`<div class="wa-contact-row transf-row" onclick="event.stopPropagation()"><button type="button" class="wa-contact-btn transf" onclick="abrirTransferencia('${iso}','${clock}')" title="Transferir para outro horário livre">🔁 Transferir horário</button></div>`;
     const card=document.createElement('div');
     card.dataset.time=clock;card.dataset.status=st;card.dataset.iso=iso;card.style.animationDelay=`${idx*.04}s`;
     card.className='slot-card'+(isPast&&!isAdmin?' past':'')+(isAdmin&&selectedSlots.has(`${iso}|${clock}`)?' selected':'');
@@ -3625,6 +3630,95 @@ async function adminOcupar(iso,clock){
   }
 }
 
+/* ── TRANSFERÊNCIA DE HORÁRIO (admin) ───────────────────── */
+let transfCtx=null,transfLista=null,transfFiltro='todas';
+/** Abre a escolha de novo horário a partir do cartão do horário ocupado. */
+function abrirTransferencia(iso,clock){
+  if(!isAdmin||isUserView)return;
+  const reg=db.find(r=>String(r.data).substring(0,10)===iso&&String(r.horario).substring(0,5)===clock&&r.status==='Ocupado');
+  if(!reg){toast('Horário ocupado não encontrado. Atualize a agenda.','err');return;}
+  transfCtx={iso,clock,cliente:reg.cliente||'Cliente',duracao:parseInt(reg.duration||srvCfg.duration,10)||srvCfg.duration};
+  const hoje=getManausIsoDate(new Date());
+  openSheet('Transferir horário',`${transfCtx.cliente} · ${brData(iso)} às ${clock}`);
+  document.getElementById('sheetBody').innerHTML=`
+    <div class="info-box">Escolha um horário livre para <strong>${htmlEsc(transfCtx.cliente)}</strong>. O horário atual será liberado e a troca fica registrada em <strong>TRANSFERENCIAS CLIENTE</strong>, na Gerência.</div>
+    <label class="f-label">Novo dia</label>
+    <input type="date" id="trDia" class="f-inp" value="${iso>=hoje?iso:hoje}" min="${hoje}" onchange="renderTransfSlots()">
+    <label class="f-label">Horários livres (atendimento de ${fmtDur(transfCtx.duracao)})</label>
+    <div id="trSlots"></div>`;
+  document.getElementById('sheetActions').innerHTML=`<button class="btn btn-secondary" onclick="cancelarTransferencia()">Voltar</button>`;
+  renderTransfSlots();
+}
+function cancelarTransferencia(){transfCtx=null;closeSheet();}
+/** Lista os horários livres do dia escolhido que comportam a duração do atendimento. */
+function renderTransfSlots(){
+  const box=document.getElementById('trSlots'),inp=document.getElementById('trDia');
+  if(!box||!inp||!transfCtx)return;
+  const dia=inp.value;
+  if(!dia){box.innerHTML='<div class="info-box">Escolha um dia.</div>';return;}
+  const livres=getAvailableSlotsForDay(dia).filter(c=>getScheduleGapInfo(dia,c).gap>=transfCtx.duracao);
+  box.innerHTML=livres.length
+    ?`<div class="free-chips">${livres.map(c=>`<button type="button" class="free-chip" onclick="pedirTransferencia('${dia}','${c}')">${c}</button>`).join('')}</div>`
+    :`<div class="info-box">Nenhum horário livre com ${fmtDur(transfCtx.duracao)} de espaço neste dia.</div>`;
+}
+function pedirTransferencia(dia,clock){
+  const t=transfCtx;if(!t)return;
+  confirmar(`Transferir ${t.cliente} de ${brData(t.iso)} às ${t.clock} para ${brData(dia)} às ${clock}? O horário atual será liberado.`,()=>executarTransferencia(dia,clock));
+}
+async function executarTransferencia(dia,clock){
+  const t=transfCtx;if(!t)return;
+  let r=null;
+  try{r=await gasCall({action:'admin_transferir',data:t.iso,horario:t.clock,novo_data:dia,novo_horario:clock});}catch(e){r=null;}
+  if(r&&r.status==='OK'){
+    transfCtx=null;closeSheet();
+    toast(`${t.cliente} transferida para ${brData(dia)} às ${clock}.`,'ok');
+    await syncData();
+    return;
+  }
+  if(!r){transfCtx=null;closeSheet();toast('Sem resposta da agenda. Conferindo…','err');await syncData();return;}
+  toast(r.message||'Não foi possível transferir.','err');
+  if(['SLOT_TAKEN','NOT_OCCUPIED','NOT_FOUND','PAST','OUT_OF_HOURS'].includes(r.code)){transfCtx=null;closeSheet();await syncData();}
+  else renderTransfSlots();
+}
+
+/** Gerência · TRANSFERENCIAS CLIENTE: trocas de horário e situação do pagamento de cada cliente. */
+async function openTransferenciasAdmin(){
+  if(!adminTabAvailable())return;
+  transfFiltro='todas';
+  openSheet('TRANSFERENCIAS CLIENTE','Trocas de horário e situação do pagamento');
+  document.getElementById('sheetBody').innerHTML='<div class="srv-empty"><p>Carregando...</p></div>';
+  document.getElementById('sheetActions').innerHTML=`<button class="btn btn-secondary" onclick="closeSheet()">Fechar</button>`;
+  let r=null;
+  try{r=await gasCall({action:'transferencias_list'});}catch(e){r=null;}
+  if(!r||r.status!=='OK'){document.getElementById('sheetBody').innerHTML='<div class="info-box">Não foi possível carregar as transferências. Tente de novo.</div>';return;}
+  transfLista=r.transferencias||[];
+  renderTransferenciasLista();
+}
+function setTransfFiltro(f){transfFiltro=f;renderTransferenciasLista();}
+function renderTransferenciasLista(){
+  const body=document.getElementById('sheetBody');if(!body||!transfLista)return;
+  const L=transfLista;
+  const conta=k=>k==='todas'?L.length:L.filter(x=>x.situacao===k).length;
+  const chips=[['todas','Todas'],['PIX pago','PIX pago'],['Pago no local','Pago no local'],['Falta pagar','Falta pagar']]
+    .map(([k,l])=>`<button type="button" class="hist-chip${transfFiltro===k?' on':''}" onclick="setTransfFiltro('${k}')">${l} <b>${conta(k)}</b></button>`).join('');
+  const lista=L.filter(t=>transfFiltro==='todas'||t.situacao===transfFiltro);
+  const cards=lista.slice(0,200).map(t=>{
+    let pag;
+    if(t.situacao==='PIX pago')pag=`<span class="pix-tag ok">PIX pago</span><div class="log-meta">ID da transação: <strong>${htmlEsc(t.transacao||'não localizado')}</strong>${t.pagoEm?` · pago em ${htmlEsc(t.pagoEm)}`:''}</div>`;
+    else if(t.situacao==='Pago no local')pag=`<span class="pix-tag ok">Pago no local</span><div class="log-meta">${htmlEsc(t.detalhe)}</div>`;
+    else pag=`<span class="pix-tag warn">Falta pagar</span>`;
+    return `<div class="log-entry" style="border-left-color:var(--st-ocupado)">
+      <strong>${htmlEsc(t.cliente||'—')}</strong>
+      <p style="margin:3px 0">🔁 ${brData(t.dataOrig)} às <b>${htmlEsc(t.horarioOrig)}</b> → ${brData(t.dataNovo)} às <b>${htmlEsc(t.horarioNovo)}</b></p>
+      <div class="log-meta">Dia original: ${brData(t.dataOrig)} · Novo dia: ${brData(t.dataNovo)} · Registrado em ${htmlEsc(t.registrado)}</div>
+      <div style="margin-top:4px">${pag}</div>
+    </div>`;
+  }).join('');
+  body.innerHTML=`<div class="hist-filters">${chips}</div>
+    <div class="hist-summary"><div class="hs-item"><strong>${L.length}</strong><span>Transferências</span></div><div class="hs-item"><strong>${conta('PIX pago')}</strong><span>PIX pago</span></div><div class="hs-item"><strong>${conta('Falta pagar')}</strong><span>Falta pagar</span></div></div>
+    ${cards||'<div class="info-box">Nenhuma transferência neste filtro.</div>'}`;
+}
+
 // CONFIG
 function openConfig(){openSheet('Configurações','Expediente e Valor da Reserva (PIX)');document.getElementById('sheetBody').innerHTML=`<label class="f-label">Horário de início</label><input id="cfgS" class="f-inp" value="${srvCfg.start}" placeholder="08:00"><label class="f-label">Horário de término</label><input id="cfgE" class="f-inp" value="${srvCfg.end}" placeholder="20:00"><label class="f-label">Duração padrão (minutos)</label><input id="cfgD" class="f-inp" type="number" value="${srvCfg.duration}" min="30" step="15"><label class="f-label">Valor da Reserva (PIX)</label><input id="cfgP" class="f-inp" value="${(srvCfg.pix_value||'0.00').toString().replace('.',',')}" placeholder="25,50">`;document.getElementById('sheetActions').innerHTML=`<button id="btnSaveCfg" class="btn btn-primary" onclick="saveConfig()">Salvar configurações</button><button class="btn btn-secondary" onclick="closeSheet()">Cancelar</button>`;}
 async function saveConfig(){const btn=document.getElementById('btnSaveCfg');const s=document.getElementById('cfgS').value;const e=document.getElementById('cfgE').value;const d=parseInt(document.getElementById('cfgD').value,10);const p=document.getElementById('cfgP').value.replace(',','.').trim();if(btn){btn.textContent='⏱ Salvando...';btn.disabled=true;}const cbName='onCfg_'+Date.now();window[cbName]=(res)=>{if(res.status==='OK'||res.status==='ok'){const dur=Number.isFinite(d)&&d>0?d:srvCfg.duration;srvCfg={...srvCfg,start:s,end:e,duration:dur,pix_value:p};updateAdminStats();syncData();setTimeout(()=>{toast('Configurações salvas!','ok');closeSheet();},500);}else{toast('Erro ao salvar','err');if(btn){btn.textContent='Salvar configurações';btn.disabled=false;}}const sEl=document.getElementById('scr_cfg');if(sEl)sEl.remove();delete window[cbName];};const scr=document.createElement('script');scr.id='scr_cfg';scr.src=`${CFG.API_URL}?action=update_config&pass=${encodeURIComponent(adminPass)}&start=${encodeURIComponent(s)}&end=${encodeURIComponent(e)}&duration=${d}&pix_value=${encodeURIComponent(p)}&callback=${cbName}`;document.body.appendChild(scr);}
@@ -3865,7 +3959,7 @@ function initWebNotifications(){if(notifInit)return;try{window.OneSignalDeferred
 // ════════════════════════════════════════════════════
 /* Marcador de versão: serve pra conferir, dentro do app publicado, se a
    implantação do Apps Script já está com o arquivo mais novo. */
-const APP_BUILD='22/08/2026 · 10';
+const APP_BUILD='04/11/2026 · 11';
 window.onload=()=>{
   const bs=document.getElementById('appBuild');if(bs)bs.textContent=APP_BUILD;
   calcExperience();
