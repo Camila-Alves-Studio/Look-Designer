@@ -1856,6 +1856,10 @@ body.admin-on #logPanel{display:block;}
 .main-nav.is-5 .main-nav-btn{padding:12px 2px;gap:5px;}
 .main-nav.is-5 .nav-ico{width:32px;height:32px;font-size:14px;}
 .main-nav.is-5 .nav-copy strong{font-size:.52rem;letter-spacing:0;}
+#pixSection{display:none;padding:8px 16px 140px;}
+.main-nav.is-6 .main-nav-btn{padding:12px 2px;gap:5px;}
+.main-nav.is-6 .nav-ico{width:30px;height:30px;font-size:13px;}
+.main-nav.is-6 .nav-copy strong{font-size:.5rem;letter-spacing:0;}
 .dez-intro{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:14px 16px;margin-bottom:14px;font-size:.78rem;color:var(--ink-lt);line-height:1.5;text-align:center;}
 .dez-intro strong{color:var(--ink);}
 .dez-intro .dez-destaque{color:var(--deep-rose);font-weight:700;letter-spacing:.3px;text-transform:uppercase;font-size:.84rem;}
@@ -1953,6 +1957,9 @@ body.admin-on #dezAdminBar{display:flex;}
   .main-nav.is-5 .main-nav-btn{padding:11px 2px;gap:4px;}
   .main-nav.is-5 .nav-ico{width:28px;height:28px;font-size:13px;}
   .main-nav.is-5 .nav-copy strong{font-size:.46rem;}
+  .main-nav.is-6 .main-nav-btn{padding:11px 2px;gap:4px;}
+  .main-nav.is-6 .nav-ico{width:26px;height:26px;font-size:12px;}
+  .main-nav.is-6 .nav-copy strong{font-size:.42rem;}
   .dez-cal{gap:4px;}
   .dez-day{min-height:52px;}
   .dez-blank{min-height:52px;}
@@ -1973,6 +1980,15 @@ body.admin-on #dezAdminBar{display:flex;}
 /* ── TAXA DO MÊS NO AGENDAMENTO ─────────────────────── */
 .grid-taxa{display:block;font-size:.66rem;color:#9a7a3c;margin-top:4px;line-height:1.4;}
 .grid-taxa:empty{display:none;}
+/* ── PIX expirado: aviso e retorno do horário ── */
+.pix-exp-box{text-align:center;padding:8px 4px 4px;}
+.pix-exp-ico{width:52px;height:52px;margin:0 auto 10px;border-radius:50%;background:#FFF4DC;color:#8A5A00;font-weight:800;font-size:24px;line-height:52px;}
+.pix-exp-tit{font-weight:700;font-size:.82rem;color:var(--ink);margin-bottom:12px;}
+.pix-exp-data{font-size:.78rem;color:var(--ink-mid);}
+.pix-exp-hora{font-size:2rem;font-weight:700;color:var(--ink);margin:4px 0 10px;font-variant-numeric:tabular-nums;}
+.pix-exp-sub{font-size:.7rem;color:var(--ink-lt);line-height:1.5;}
+.pix-exp-banner{cursor:pointer;}
+.pix-exp-fechar{background:none;border:none;color:var(--ink-lt);font-size:.62rem;text-decoration:underline;cursor:pointer;padding:6px 0 0;}
 </style>
 </head>
 <body>
@@ -2221,6 +2237,22 @@ body.admin-on #dezAdminBar{display:flex;}
     </section>
   </section>
 
+  <!-- PIX · PAGAMENTOS (aba do admin, acesso rápido pela barra) -->
+  <section id="pixSection">
+    <div class="admin-title">✦ PIX · Pagamentos ✦</div>
+    <div class="pix-tabs" id="pixTabs"></div>
+    <div class="pix-filtros">
+      <div class="pix-search"><span class="pix-lupa" aria-hidden="true">🔍</span><input class="f-input" id="pixBusca" type="search" placeholder="Buscar cliente, telefone ou código" oninput="setPixQuery(this.value)"></div>
+      <div class="pix-datas">
+        <label>Dia<input class="f-input" id="pixDiaIn" type="date" onchange="setPixDia(this.value)"></label>
+        <label>Mês<input class="f-input" id="pixMesIn" type="month" onchange="setPixMes(this.value)"></label>
+        <button type="button" class="pix-limpar" onclick="limparPixFiltros()">Limpar</button>
+        <button type="button" class="pix-limpar" onclick="copiarPixLista()">Copiar lista</button>
+      </div>
+    </div>
+    <div class="pix-resumo" id="pixResumo"></div>
+    <div id="pixLista"><div class="srv-empty"><p>Carregando...</p></div></div>
+  </section>
   <!-- ADMIN -->
   <section id="adminPanel">
     <div class="admin-title">✦ Painel Administrativo ✦</div>
@@ -2771,6 +2803,7 @@ function renderMyBookingBanner(){
   const wrap=document.getElementById('myBookingBanner');
   if(!wrap)return;
   const booking=getActiveClientBooking();
+  if(!booking&&!(isAdmin&&!isUserView)&&getPixExpirado()){renderPixExpiradoBanner(wrap);return;}
   if(!booking||isAdmin&&!isUserView){
     wrap.style.display='none';
     wrap.innerHTML='';
@@ -2842,23 +2875,112 @@ function atualizarContagemDez(){
 /** Quando a contagem do PIX chega a zero: confere no servidor e libera a vaga se não foi pago. */
 function vigiarPixPendente(){
   const bk=getLocalBk();
-  if(!bk||!bk.pendente||pendenteExpirando||!bk.expiraEm)return;
+  if(!bk||!bk.pendente||pendenteExpirando||!bk.expiraEm||pixExpiracaoRef===bk.ref)return;
   if(Date.now()<new Date(bk.expiraEm).getTime())return;
   pendenteExpirando=true;
   onPendenteExpirou().finally(()=>{pendenteExpirando=false;});
 }
+/* ── PIX expirado: aviso para a cliente e retorno do horário ── */
+const PIX_EXP_KEY='pix_expirado_v1';
+let pixExpiracaoRef='';
+function getPixExpirado(){
+  try{
+    const v=JSON.parse(localStorage.getItem(PIX_EXP_KEY)||'null');
+    if(!v||!v.iso||!v.clock)return null;
+    // o aviso some sozinho quando o horário já passou (Manaus, UTC-4)
+    if(Date.now()>new Date(`${v.iso}T${v.clock}:00-04:00`).getTime())return null;
+    return v;
+  }catch{return null;}
+}
+function setPixExpirado(v){try{localStorage.setItem(PIX_EXP_KEY,JSON.stringify(v));}catch{}}
+function limparPixExpirado(){try{localStorage.removeItem(PIX_EXP_KEY);}catch{}}
+function dispensarPixExpirado(){limparPixExpirado();renderMyBookingBanner();}
+/** Horário livre para a cliente: reserva com PIX vencido já conta como livre. */
+function horarioLivreCliente(iso,clock){
+  const r=db.find(x=>String(x.data||'').substring(0,10)===iso&&String(x.horario||'').substring(0,5)===clock);
+  if(!r||String(r.status||'Livre')==='Livre')return true;
+  if(r.status==='Aguardando Pagamento'&&r.reservedUntil&&new Date(r.reservedUntil).getTime()<=Date.now())return true;
+  return false;
+}
+/** PIX venceu sem pagamento: guarda o aviso, solta a reserva local e atualiza a tela sozinha. */
+function marcarPixExpirado(info,ref){
+  const atual=getPixExpirado();
+  if(atual&&ref&&atual.ref===ref&&Date.now()-new Date(atual.expiradoEm).getTime()<10000)return;
+  const aviso={iso:info.iso,clock:info.clock,name:info.name||'',phone:info.phone||'',ref:ref||'',expiradoEm:new Date().toISOString()};
+  pixExpiracaoRef='';
+  pararVerificacaoDez();
+  clearClientBlock();
+  setPixExpirado(aviso);
+  mostrarPixExpiradoAgora(aviso);
+  renderMyBookingBanner();
+  syncData();
+}
+function mostrarPixExpiradoAgora(aviso){
+  const df=formatManausLabel(aviso.iso,{weekday:'long',day:'2-digit',month:'long'}).replace(/^\w/,c=>c.toUpperCase());
+  toast(`PIX expirado. ${df} às ${aviso.clock} voltou a ficar livre.`,'warn',7000);
+  const aberta=document.getElementById('overlay')?.classList.contains('vis')&&document.getElementById('sheetTitle')?.textContent==='Pague o PIX para confirmar';
+  if(!aberta)return; // sem a janela do PIX aberta, o aviso fica no topo da tela
+  openSheet('PIX não pago',`${df} às ${aviso.clock}`);
+  document.getElementById('sheetBody').innerHTML=`
+    <div class="pix-exp-box">
+      <div class="pix-exp-ico" aria-hidden="true">!</div>
+      <div class="pix-exp-tit">Seu PIX expirou sem pagamento</div>
+      <div class="pix-exp-data">${htmlEsc(df)}</div>
+      <div class="pix-exp-hora">${htmlEsc(aviso.clock)}</div>
+      <div class="pix-exp-sub">Este horário voltou a ficar livre. Você pode tentar de novo agora.</div>
+    </div>`;
+  document.getElementById('sheetActions').innerHTML=`<button class="btn btn-primary" onclick="tentarDeNovoPix()">Tentar de novo</button><button class="btn btn-secondary" onclick="closeSheet()">Fechar</button>`;
+}
+/** Aviso fixo no topo da tela da cliente (aparece mesmo com a janela do PIX fechada). */
+function renderPixExpiradoBanner(wrap){
+  const ex=getPixExpirado(); if(!ex)return;
+  const df=formatManausLabel(ex.iso,{weekday:'long',day:'2-digit',month:'long'}).replace(/^\w/,c=>c.toUpperCase());
+  wrap.style.display='block';
+  wrap.innerHTML=`
+    <div class="my-booking-banner pix-exp-banner" onclick="tentarDeNovoPix()">
+      <div class="my-booking-banner-top">
+        <div class="my-booking-banner-badge">PIX não pago</div>
+        <div class="my-booking-banner-status pend">Horário liberado</div>
+      </div>
+      <div class="my-booking-banner-body">
+        <div class="my-booking-banner-time">${htmlEsc(ex.clock)}</div>
+        <div class="my-booking-banner-divider"></div>
+        <div class="my-booking-banner-details">
+          <div class="my-booking-banner-date">${htmlEsc(df)}</div>
+          <div class="my-booking-banner-name">Toque para tentar de novo</div>
+        </div>
+      </div>
+      <button type="button" class="pix-exp-fechar" onclick="event.stopPropagation();dispensarPixExpirado()">Fechar aviso</button>
+    </div>`;
+}
+/** Botão "Tentar de novo": confere se o horário continua livre e reabre a reserva com os mesmos dados. */
+async function tentarDeNovoPix(){
+  const ex=getPixExpirado(); if(!ex)return;
+  closeSheet();
+  await syncData();
+  if(!horarioLivreCliente(ex.iso,ex.clock)){
+    limparPixExpirado(); renderMyBookingBanner();
+    toast('Esse horário já foi ocupado. Escolha outro horário livre.','warn',5000);
+    return;
+  }
+  setPublicMainTab('dezembro');
+  selectDezDay(ex.iso);
+  showDezPaymentSheet(ex.iso,ex.clock);
+}
+
 async function onPendenteExpirou(){
   const bk=getLocalBk();
   if(!bk||!bk.pendente)return;
   pararVerificacaoDez();
+  pixExpiracaoRef=bk.ref||'_';
   let s=null;
   try{s=await gasCall({action:'dez_status',ref:bk.ref});}catch(e){s=null;}
   const info={iso:bk.iso,clock:bk.clock,name:bk.name,phone:bk.phone};
-  if(s&&s.status==='OK'&&s.estado==='CONFIRMADO'){confirmarPagamentoDez(info,s.codigo||bk.token);return;}
-  clearClientBlock();
-  setDezStatus('❌ O tempo deste PIX acabou e o horário voltou a ficar livre. Escolha de novo se quiser.',true);
-  toast('O tempo do PIX acabou. O horário voltou a ficar livre.','warn',4500);
-  syncData();
+  if(s&&s.status==='OK'&&s.estado==='CONFIRMADO'){pixExpiracaoRef='';confirmarPagamentoDez(info,s.codigo||bk.token);return;}
+  if(s&&s.status==='OK'&&s.estado==='PAGO_SEM_VAGA'){pixExpiracaoRef='';clearClientBlock();setDezStatus('⚠️ Pagamento recebido, mas este horário já foi ocupado. Fale com o studio pelo WhatsApp para o reembolso.',true);syncData();return;}
+  if(s&&s.status==='OK'&&(s.estado==='EXPIRADO'||s.estado==='CANCELADO')){marcarPixExpirado(info,bk.ref);return;}
+  // o servidor ainda não fechou a cobrança: continua conferindo até o fim da tolerância
+  iniciarVerificacaoDez(bk.ref,info,bk.expiraEm);
 }
 
 /** Dezembro com reserva ativa: só o dia reservado aparece, as outras datas ficam fechadas. */
@@ -2931,12 +3053,12 @@ function mesAtualNome(){return formatManausLabel(getManausIsoDate(),{month:'long
 /** Em dezembro o agendamento deixa de aparecer na barra, porque a aba Dezembro já cumpre esse papel.
  *  Se a aba Dezembro estiver oculta para o cliente, o agendamento continua disponível para não travar a reserva. */
 function agendamentoOculto(){return getManausParts().month==='12'&&dezVisivel();}
-function renderPublicMainNav(){const wrap=document.getElementById('publicMainNav');if(!wrap)return;const T=getSiteTexts();const note=document.getElementById('publicMainNote');const hasCatalogo=ABAS.length>0;const hasPortfolio=PROCS.some(p=>parseFotos(p.fotos||p.imagem).length);const dezBtn=dezVisivel()?`<button class="main-nav-btn${DEZ.ativo?'':' is-off'}" data-tab="dezembro" onclick="setPublicMainTab('dezembro')" title="${DEZ.ativo?'Agenda de dezembro com taxa de reserva':'Oculta para os clientes. Ative no painel.'}"><span class="nav-ico">🎄</span><span class="nav-copy"><strong>Dezembro</strong></span></button>`:'';const agBtn=agendamentoOculto()?'':`<button class="main-nav-btn" data-tab="agendamento" onclick="setPublicMainTab('agendamento')" title="${htmlEsc(T.navBookingSub)}"><span class="nav-ico">📅</span><span class="nav-copy"><strong>${htmlEsc(T.navBooking)} - ${htmlEsc(mesAtualNome())}</strong></span></button>`;wrap.dataset.mes=getManausIsoDate().slice(0,7);wrap.innerHTML=`${dezBtn}<button class="main-nav-btn" data-tab="catalogo" onclick="setPublicMainTab('catalogo')"${hasCatalogo?'':' disabled'} title="${hasCatalogo?`${PROCS.length} ${htmlEsc(T.navCatalogSub)}`:'Em atualização'}"><span class="nav-ico">✦</span><span class="nav-copy"><strong>${htmlEsc(T.navCatalog)}</strong></span></button><button class="main-nav-btn" data-tab="portfolio" onclick="setPublicMainTab('portfolio')"${hasPortfolio?'':' disabled'} title="${hasPortfolio?htmlEsc(T.navPortfolioSub):'Sem imagens ainda'}"><span class="nav-ico">🖼</span><span class="nav-copy"><strong>${htmlEsc(T.navPortfolio)}</strong></span></button>${agBtn}${adminTabAvailable()?`<button class="main-nav-btn nav-adm" data-tab="gerencia" onclick="setPublicMainTab('gerencia')" title="Painel administrativo e configurações"><span class="nav-ico">🛠</span><span class="nav-copy"><strong>Gerência</strong></span></button>`:''}`;wrap.classList.toggle('is-4',!adminTabAvailable()&&!!DEZ.ativo);wrap.classList.toggle('is-5',adminTabAvailable());wrap.querySelectorAll('.main-nav-btn').forEach(b=>b.classList.toggle('active',b.getAttribute('data-tab')===publicMainTab));if(note)note.textContent=hasCatalogo?'':'Catálogo em atualização. O agendamento continua disponível.';}
+function renderPublicMainNav(){const wrap=document.getElementById('publicMainNav');if(!wrap)return;const T=getSiteTexts();const note=document.getElementById('publicMainNote');const hasCatalogo=ABAS.length>0;const hasPortfolio=PROCS.some(p=>parseFotos(p.fotos||p.imagem).length);const dezBtn=dezVisivel()?`<button class="main-nav-btn${DEZ.ativo?'':' is-off'}" data-tab="dezembro" onclick="setPublicMainTab('dezembro')" title="${DEZ.ativo?'Agenda de dezembro com taxa de reserva':'Oculta para os clientes. Ative no painel.'}"><span class="nav-ico">🎄</span><span class="nav-copy"><strong>Dezembro</strong></span></button>`:'';const agBtn=agendamentoOculto()?'':`<button class="main-nav-btn" data-tab="agendamento" onclick="setPublicMainTab('agendamento')" title="${htmlEsc(T.navBookingSub)}"><span class="nav-ico">📅</span><span class="nav-copy"><strong>${htmlEsc(T.navBooking)} - ${htmlEsc(mesAtualNome())}</strong></span></button>`;wrap.dataset.mes=getManausIsoDate().slice(0,7);wrap.innerHTML=`${dezBtn}<button class="main-nav-btn" data-tab="catalogo" onclick="setPublicMainTab('catalogo')"${hasCatalogo?'':' disabled'} title="${hasCatalogo?`${PROCS.length} ${htmlEsc(T.navCatalogSub)}`:'Em atualização'}"><span class="nav-ico">✦</span><span class="nav-copy"><strong>${htmlEsc(T.navCatalog)}</strong></span></button><button class="main-nav-btn" data-tab="portfolio" onclick="setPublicMainTab('portfolio')"${hasPortfolio?'':' disabled'} title="${hasPortfolio?htmlEsc(T.navPortfolioSub):'Sem imagens ainda'}"><span class="nav-ico">🖼</span><span class="nav-copy"><strong>${htmlEsc(T.navPortfolio)}</strong></span></button>${agBtn}${adminTabAvailable()?`<button class="main-nav-btn nav-adm" data-tab="pix" onclick="setPublicMainTab('pix')" title="PIX · Pagamentos: pendentes, recebidos e expirados"><span class="nav-ico">💳</span><span class="nav-copy"><strong>PIX</strong></span></button>`:''}${adminTabAvailable()?`<button class="main-nav-btn nav-adm" data-tab="gerencia" onclick="setPublicMainTab('gerencia')" title="Painel administrativo e configurações"><span class="nav-ico">🛠</span><span class="nav-copy"><strong>Gerência</strong></span></button>`:''}`;wrap.classList.toggle('is-4',!adminTabAvailable()&&!!DEZ.ativo);wrap.classList.toggle('is-6',adminTabAvailable());wrap.querySelectorAll('.main-nav-btn').forEach(b=>b.classList.toggle('active',b.getAttribute('data-tab')===publicMainTab));if(note)note.textContent=hasCatalogo?'':'Catálogo em atualização. O agendamento continua disponível.';}
 /** A Gerência é a 4ª aba: só existe pro admin e ocupa a tela sozinha,
  *  como as outras três. */
 function adminTabAvailable(){return !!isAdmin&&!isUserView;}
-function refreshPublicMainSections(){const catalog=document.getElementById('servicesSection');const portfolio=document.getElementById('portfolioSection');const booking=document.getElementById('bookingSection');const adm=document.getElementById('adminPanel');if(catalog)catalog.style.display=(publicMainTab==='catalogo'&&ABAS.length)?'block':'none';if(portfolio)portfolio.style.display=(publicMainTab==='portfolio')?'block':'none';if(booking)booking.style.display=publicMainTab==='agendamento'?'block':'none';if(adm)adm.style.display=(publicMainTab==='gerencia'&&adminTabAvailable())?'block':'none';const dez=document.getElementById('decemberSection');if(dez)dez.style.display=publicMainTab==='dezembro'&&dezVisivel()?'block':'none';}
-function setPublicMainTab(tab){const hasCatalogo=ABAS.length>0;const hasPortfolio=PROCS.some(p=>parseFotos(p.fotos||p.imagem).length);const validas=['catalogo','portfolio','agendamento'];if(dezVisivel())validas.push('dezembro');if(adminTabAvailable())validas.push('gerencia');publicMainTab=validas.includes(tab)?tab:'catalogo';if(publicMainTab!=='gerencia'){if(publicMainTab==='catalogo'&&!hasCatalogo)publicMainTab=hasPortfolio?'portfolio':'agendamento';if(publicMainTab==='portfolio'&&!hasPortfolio)publicMainTab=hasCatalogo?'catalogo':'agendamento';}if(publicMainTab==='agendamento'&&agendamentoOculto())publicMainTab='dezembro';document.querySelectorAll('.main-nav-btn').forEach(btn=>btn.classList.toggle('active',btn.getAttribute('data-tab')===publicMainTab));refreshPublicMainSections();if(publicMainTab==='catalogo'&&ABAS.length){const alvo=ABAS.some(a=>a.nome===abaPublicaAtiva)?abaPublicaAtiva:ABAS[0].nome;if(alvo)showServico(alvo);}if(publicMainTab==='portfolio')renderPortfolioSection();if(publicMainTab==='dezembro')renderDezSection();if(publicMainTab==='gerencia'){updateAdminStats();setupAdminStats();window.scrollTo({top:0,behavior:'smooth'});}applySiteTexts();}
+function refreshPublicMainSections(){const catalog=document.getElementById('servicesSection');const portfolio=document.getElementById('portfolioSection');const booking=document.getElementById('bookingSection');const adm=document.getElementById('adminPanel');if(catalog)catalog.style.display=(publicMainTab==='catalogo'&&ABAS.length)?'block':'none';if(portfolio)portfolio.style.display=(publicMainTab==='portfolio')?'block':'none';if(booking)booking.style.display=publicMainTab==='agendamento'?'block':'none';if(adm)adm.style.display=(publicMainTab==='gerencia'&&adminTabAvailable())?'block':'none';const dez=document.getElementById('decemberSection');if(dez)dez.style.display=publicMainTab==='dezembro'&&dezVisivel()?'block':'none';const pix=document.getElementById('pixSection');if(pix)pix.style.display=(publicMainTab==='pix'&&adminTabAvailable())?'block':'none';}
+function setPublicMainTab(tab){const hasCatalogo=ABAS.length>0;const hasPortfolio=PROCS.some(p=>parseFotos(p.fotos||p.imagem).length);const validas=['catalogo','portfolio','agendamento'];if(dezVisivel())validas.push('dezembro');if(adminTabAvailable()){validas.push('gerencia');validas.push('pix');}publicMainTab=validas.includes(tab)?tab:'catalogo';if(publicMainTab!=='gerencia'){if(publicMainTab==='catalogo'&&!hasCatalogo)publicMainTab=hasPortfolio?'portfolio':'agendamento';if(publicMainTab==='portfolio'&&!hasPortfolio)publicMainTab=hasCatalogo?'catalogo':'agendamento';}if(publicMainTab==='agendamento'&&agendamentoOculto())publicMainTab='dezembro';document.querySelectorAll('.main-nav-btn').forEach(btn=>btn.classList.toggle('active',btn.getAttribute('data-tab')===publicMainTab));refreshPublicMainSections();if(publicMainTab==='catalogo'&&ABAS.length){const alvo=ABAS.some(a=>a.nome===abaPublicaAtiva)?abaPublicaAtiva:ABAS[0].nome;if(alvo)showServico(alvo);}if(publicMainTab==='portfolio')renderPortfolioSection();if(publicMainTab==='dezembro')renderDezSection();if(publicMainTab==='pix')openPixTab();if(publicMainTab==='gerencia'){updateAdminStats();setupAdminStats();window.scrollTo({top:0,behavior:'smooth'});}applySiteTexts();}
 function renderServicesTabs(){const wrap=document.getElementById('servicesTabs');const panel=document.getElementById('srvPanel');renderPublicMainNav();renderPortfolioSection();if(!ABAS.length){if(publicMainTab==='catalogo')publicMainTab=PROCS.some(p=>parseFotos(p.fotos||p.imagem).length)?'portfolio':'agendamento';wrap.innerHTML='';panel.innerHTML=`<div class="srv-empty"><div class="srv-empty-ico">✦</div><p>Cadastre categorias para montar seu catálogo.</p></div>`;refreshPublicMainSections();return;}wrap.innerHTML=ABAS.map(a=>{const cnt=PROCS.filter(p=>p.aba===a.nome).length;return `<div class="srv-tab" data-aba="${htmlEsc(a.nome)}" onclick="showServico('${String(a.nome).replace(/'/g,"\\'")}')"><div class="srv-tab-ico">${a.emoji}</div><div class="srv-tab-name">${htmlEsc(a.nome)}</div><div class="srv-tab-cnt">${cnt} serviço${cnt!==1?'s':''}</div></div>`;}).join('');if(!ABAS.some(a=>a.nome===abaPublicaAtiva))abaPublicaAtiva=ABAS[0].nome;refreshPublicMainSections();if(publicMainTab==='catalogo'&&abaPublicaAtiva)showServico(abaPublicaAtiva);applySiteTexts();}
 function showServico(nome){abaPublicaAtiva=nome;document.querySelectorAll('.srv-tab').forEach(t=>t.classList.toggle('active',t.getAttribute('data-aba')===nome));const panel=document.getElementById('srvPanel');const procs=PROCS.filter(p=>p.aba===nome);const emoji=ABAS.find(a=>a.nome===nome)?.emoji||'✦';if(!procs.length){panel.innerHTML=`<div class="srv-panel-head">${emoji} ${nome}</div><div class="srv-rule"></div><div class="srv-empty"><div class="srv-empty-ico">${emoji}</div><p>Nenhum serviço cadastrado ainda.</p></div>`;return;}panel.innerHTML=`<div class="srv-panel-head">${emoji} ${nome}</div><div class="srv-rule"></div><div class="proc-list">`+procs.map(p=>{const idx=PROCS.indexOf(p);const posY=p.imgPosY??50;const thumb=p.imagem?`<div class="proc-thumb"><img class="img-lightbox" src="${mediaImageUrl(p.imagem,'card')}" alt="${htmlEsc(p.nome)}" style="object-position:center ${posY}%" onclick="event.stopPropagation();openImageLightbox(this.src,this.alt)"></div>`:`<div class="proc-thumb">${emoji}</div>`;return `<div class="proc-card" onclick="verProcDetalhe(${idx})">${thumb}<div class="proc-info"><div class="proc-name">${p.nome}</div><div class="proc-meta">${p.valor?formatarValor(p.valor)+' · ':''}${p.duracao||''}</div></div><span class="proc-arrow">›</span></div>`;}).join('')+'</div>';}
 function verProcDetalhe(idx){const p=PROCS[idx];const emoji=ABAS.find(a=>a.nome===p.aba)?.emoji||'✦';const posY=p.imgPosY??50;const alt=p.imgAltura??145;const fotos=(p.fotos&&p.fotos.length?p.fotos:parseFotos(p.imagem)).filter(Boolean);const galeriaHtml=fotos.length?`<div class="proc-gallery"><div class="proc-gallery-track" id="procGalTrack">${fotos.map((u,i)=>`<div class="proc-gallery-slide"><img class="img-lightbox" src="${mediaImageUrl(u,'detail')}" alt="${htmlEsc(p.nome)} — foto ${i+1}" style="height:${Math.max(alt,200)}px;object-fit:cover;object-position:center ${posY}%;" onclick="openImageLightbox(this.src,this.alt)"></div>`).join('')}</div>${fotos.length>1?`<div class="proc-gallery-dots">${fotos.map((_,i)=>`<span class="proc-gallery-dot${i===0?' active':''}"></span>`).join('')}</div>`:''}</div>`:`<div class="proc-gallery"><div class="proc-gallery-slide"><div class="proc-gallery-ph" style="height:120px;">${emoji}</div></div></div>`;const precoHtml=(p.valor||p.temManut)?`<div class="proc-price-grid">${p.valor?`<div class="proc-price-box primary"><div class="proc-price-label">Valor da sessão</div><div class="proc-price-val">${formatarValor(p.valor)}</div></div>`:''}${p.temManut?`<div class="proc-price-box secondary"><div class="proc-price-label">Manutenção</div><div class="proc-price-val">${p.manutValor?formatarValor(p.manutValor):'Consultar'}</div>${p.manutPrazo?`<div style="font-size:.58rem;color:var(--ink-lt);margin-top:2px;">🔄 ${p.manutPrazo}</div>`:''}</div>`:''}</div>`:'';const tags=(p.tags||parseProcTags(p.indicado||'')).map(normalizeProcTag).filter(Boolean);const badgeTags=tags.filter(t=>t.tipo==='marcador');const infoTags=tags.filter(t=>t.tipo!=='marcador').map(t=>({icon:t.tipo==='real'?'💰':'✦',label:getProcTagLabel(t),val:getProcTagValue(t)}));const infos=[p.duracao?{icon:'⏱',label:'Duração',val:p.duracao}:null,p.fixacao?{icon:'📅',label:'Duração do efeito',val:p.fixacao}:null,...infoTags].filter(Boolean);const infosHtml=infos.length?`<div class="proc-info-table">${infos.map(info=>`<div class="proc-info-row"><span class="proc-info-ico">${info.icon}</span><span class="proc-info-lbl">${info.label}</span><span class="proc-info-val">${info.val}</span></div>`).join('')}</div>`:'';const badgesHtml=badgeTags.length?`<div class="proc-badges">${badgeTags.map(tag=>`<div class="proc-badge">${tag.label?tag.label+': ':''}${tag.valor}</div>`).join('')}</div>`:'';const panel=document.getElementById('srvPanel');panel.innerHTML=`${galeriaHtml}<div class="proc-detail-name">${p.nome}</div><div class="proc-detail-cat"><div style="width:22px;height:1px;background:var(--rose);"></div><span>${p.aba}</span></div><p class="proc-detail-text">${p.descricao}</p>${badgesHtml}${precoHtml}${infosHtml}<button class="btn-back-proc" onclick="showServico('${p.aba}')">← Voltar</button>`;ativarGaleriaProc();setTimeout(()=>panel.scrollIntoView({behavior:'smooth',block:'start'}),50);}
@@ -3704,7 +3826,7 @@ function updateAppMode(){const body=document.body;const aN=document.getElementBy
      função rebaixaria a aba pra 'agendamento' achando que está vazio. */
   const trocouModo=modo!==lastAppMode;lastAppMode=modo;
   if(modo==='adm'&&trocouModo)setPublicMainTab('gerencia');
-  else if(modo!=='adm'&&publicMainTab==='gerencia')setPublicMainTab('agendamento');
+  else if(modo!=='adm'&&(publicMainTab==='gerencia'||publicMainTab==='pix'))setPublicMainTab('agendamento');
   else refreshPublicMainSections();
   updateDayExportButton();try{setupAdminNotifications();}catch{}}
 function setupAdminStats(){const wO=document.getElementById('wrapOcupado'),wA=document.getElementById('wrapAguard'),wN=document.getElementById('wrapNext'),wL=document.getElementById('wrapLivre');if(wO)wO.onclick=openAgendadosSheet;if(wA)wA.onclick=openHistoricoSheet;if(wN)wN.onclick=openProximoSheet;if(wL)wL.onclick=openLivresSheet;}
@@ -3904,6 +4026,7 @@ function showDezPaymentSheet(iso,clock){
   if(!isAdmin&&isClientBlocked()){showBlockedScreen();return;}
   const df=formatManausLabel(iso,{weekday:'long',day:'2-digit',month:'long'}).replace(/^\w/,c=>c.toUpperCase());
   let lb=null;try{lb=JSON.parse(localStorage.getItem('last_booking_v3')||'null');}catch{}
+  if(!lb)lb=getPixExpirado();
   openSheet('Reserva com taxa',`${df} às ${clock}`);
   document.getElementById('sheetBody').innerHTML=`
     <div class="info-box" style="background:rgba(201,168,108,.1);border-color:var(--gold);">
@@ -3935,6 +4058,7 @@ async function gerarPixDez(iso,clock){
     if(r?.code==='SLOT_TAKEN')syncData();
     restaurar();return;
   }
+  limparPixExpirado();
   mostrarPixDez(r,{iso,clock,name,phone});
 }
 
@@ -3988,14 +4112,14 @@ function iniciarVerificacaoDez(ref,info,expiraEm){
   const tick=async()=>{
     dezPollTimer=null;
     if(dezPollRef!==ref)return;
-    if(Date.now()>limite){dezPollRef='';setDezStatus('⌛ O tempo deste PIX acabou. Escolha o horário de novo para gerar outro.',true);return;}
+    if(Date.now()>limite){marcarPixExpirado(info,ref);return;}
     let s=null;
     try{s=await gasCall({action:'dez_status',ref});}catch(e){s=null;}
     if(dezPollRef!==ref)return;
     if(s&&s.status==='OK'){
       if(s.estado==='CONFIRMADO'){confirmarPagamentoDez(info,s.codigo);return;}
       if(s.estado==='PAGO_SEM_VAGA'){dezPollRef='';clearClientBlock();setDezStatus('⚠️ Pagamento recebido, mas este horário já foi ocupado. Fale com o studio pelo WhatsApp para o reembolso.',true);syncData();return;}
-      if(s.estado==='CANCELADO'||s.estado==='EXPIRADO'){dezPollRef='';clearClientBlock();setDezStatus('❌ Este PIX não foi pago e expirou. Escolha o horário novamente.',true);syncData();return;}
+      if(s.estado==='CANCELADO'||s.estado==='EXPIRADO'){marcarPixExpirado(info,ref);return;}
     }
     dezPollTimer=setTimeout(tick,6000);
   };
@@ -4005,6 +4129,7 @@ function iniciarVerificacaoDez(ref,info,expiraEm){
 /* ── Passo 5: pagamento aprovado → horário confirmado ── */
 function confirmarPagamentoDez(info,token){
   pararVerificacaoDez();
+  limparPixExpirado();pixExpiracaoRef='';
   localStorage.setItem('last_booking_v3',JSON.stringify({token,iso:info.iso,clock:info.clock,phone:normalizePhone(info.phone),name:info.name,pago:true}));
   localStorage.setItem('last_booking_timestamp',Date.now().toString());
   const df=formatManausLabel(info.iso,{weekday:'long',day:'2-digit',month:'long'}).replace(/^\w/,c=>c.toUpperCase());
@@ -4114,39 +4239,30 @@ async function carregarDezListaAdmin(){
 let pixTab='pendentes',pixQuery='',pixDia='',pixMes='',pixData=null,pixOffset=0,pixPollId=null,pixBusy=false,pixPrev={},pixFlash={},pixUltimaForca=0;
 const PIX_POLL_MS=5000, PIX_FLASH_MS=6000;
 
-function pixSheetAberta(){
-  const ov=document.getElementById('overlay');
-  return !!ov&&ov.classList.contains('vis')&&document.getElementById('sheetTitle')?.textContent==='PIX · Pagamentos';
-}
 function brData(iso){return iso?String(iso).split('-').reverse().join('/'):'';}
 function pixMesBr(m){return m?String(m).split('-').reverse().join('/'):'';}
 
-function openPixAdmin(){
-  if(!isAdmin||isUserView){toast('Acesso restrito ao administrador','warn');return;}
-  pixPrev={};pixFlash={};pixData=null;
-  openSheet('PIX · Pagamentos','Pendentes, recebidos e expirados da cobrança PIX.');
-  document.getElementById('sheetBody').innerHTML=`
-    <div class="pix-tabs" id="pixTabs"></div>
-    <div class="pix-filtros">
-      <div class="pix-search"><span class="pix-lupa" aria-hidden="true">🔍</span><input class="f-input" id="pixBusca" type="search" placeholder="Buscar cliente, telefone ou código" value="${htmlEsc(pixQuery)}" oninput="setPixQuery(this.value)"></div>
-      <div class="pix-datas">
-        <label>Dia<input class="f-input" id="pixDiaIn" type="date" value="${htmlEsc(pixDia)}" onchange="setPixDia(this.value)"></label>
-        <label>Mês<input class="f-input" id="pixMesIn" type="month" value="${htmlEsc(pixMes)}" onchange="setPixMes(this.value)"></label>
-        <button type="button" class="pix-limpar" onclick="limparPixFiltros()">Limpar</button>
-      </div>
-    </div>
-    <div class="pix-resumo" id="pixResumo"></div>
-    <div id="pixLista"><div class="srv-empty"><p>Carregando...</p></div></div>`;
-  document.getElementById('sheetActions').innerHTML=`<button class="btn btn-primary" onclick="copiarPixLista()">Copiar lista filtrada</button><button class="btn btn-secondary" onclick="closeSheet()">Fechar</button>`;
+/** Cartão na Gerência e barra inferior: abre a aba PIX · Pagamentos. */
+function openPixAdmin(){setPublicMainTab('pix');}
+
+/** Abre a aba: sincroniza filtros, mostra o último estado e começa a atualizar sozinho. */
+function openPixTab(){
+  if(!adminTabAvailable())return;
+  const b=document.getElementById('pixBusca');if(b)b.value=pixQuery;
+  const d=document.getElementById('pixDiaIn');if(d)d.value=pixDia;
+  const m=document.getElementById('pixMesIn');if(m)m.value=pixMes;
   renderPixTabs();
+  renderPixLista();
   atualizarPixPainel();
   iniciarPixPoll();
 }
+/** A aba só consulta o servidor enquanto estiver na tela. */
+function pixVisivel(){return publicMainTab==='pix'&&adminTabAvailable();}
 
 function iniciarPixPoll(){
   if(pixPollId)clearInterval(pixPollId);
   pixPollId=setInterval(()=>{
-    if(!pixSheetAberta()){clearInterval(pixPollId);pixPollId=null;return;}
+    if(!pixVisivel()){clearInterval(pixPollId);pixPollId=null;return;}
     atualizarPixPainel();
   },PIX_POLL_MS);
 }
@@ -4157,7 +4273,7 @@ async function atualizarPixPainel(){
   let r=null;
   try{r=await gasCall({action:'pix_painel'});}catch(e){r=null;}
   pixBusy=false;
-  if(!pixSheetAberta())return;
+  if(!pixVisivel())return;
   if(!r||r.status!=='OK'){
     if(!pixData){const el=document.getElementById('pixLista');if(el)el.innerHTML='<div class="srv-empty"><p>Não foi possível carregar os pagamentos. Tentando de novo…</p></div>';}
     return;
@@ -4296,14 +4412,14 @@ function pixAtualizaTempos(){
 }
 
 function atualizarCronoPix(){
-  if(!pixSheetAberta())return;
+  if(!pixVisivel())return;
   const venceu=pixAtualizaTempos();
   if(venceu&&!pixBusy&&Date.now()-pixUltimaForca>3000){pixUltimaForca=Date.now();atualizarPixPainel();}
   let mudou=false;
   Object.keys(pixFlash).forEach(k=>{if(pixFlash[k].until<=Date.now()){delete pixFlash[k];mudou=true;}});
   if(mudou&&pixTab==='pendentes')renderPixLista();
 }
-setInterval(()=>{if(pixSheetAberta())atualizarCronoPix();},1000);
+setInterval(()=>{if(pixVisivel())atualizarCronoPix();},1000);
 
 function copiarPixLista(){
   if(!pixData)return;
