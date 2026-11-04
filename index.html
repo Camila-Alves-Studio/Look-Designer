@@ -2211,7 +2211,7 @@ body.admin-on #dezAdminBar{display:flex;}
     <div class="dez-cal" id="dezCalGrid"></div>
     <div class="dez-legend">
       <span><i class="dez-sw ok"></i> Disponível</span>
-      <span><i class="dez-sw low"></i> Últimos 5 horários</span>
+      <span><i class="dez-sw low"></i> Últimos 7 horários</span>
       <span><i class="dez-sw full"></i> Esgotado</span>
     </div>
     <div id="dezAdminBar">
@@ -2639,7 +2639,7 @@ function buildDezMonthExportNode(mes){
     let bg='#FFFFFF',bd='rgba(196,132,138,.18)',num='#2A2020',qtd='',qtdCol='#2E6B3C',rot='&nbsp;',rotCol='#5D9E68';
     if(passado){bg='#F6F3F1';bd='rgba(0,0,0,.04)';num='#BDB4B4';qtd='—';qtdCol='#BDB4B4';}
     else if(livres===0){bg='#F0F0F0';bd='#D3D3D3';num='#8F8F8F';qtd='0';qtdCol='#8F8F8F';rot='Esgotado';rotCol='#8F8F8F';}
-    else if(livres<=5){bg='linear-gradient(180deg,#FFF3E4,#FFD9A8)';bd='#E8903A';num='#7A3D0C';qtd=String(livres);qtdCol='#9A4A0F';rot=livres===1?'livre':'livres';rotCol='#9A4A0F';}
+    else if(livres<=7){bg='linear-gradient(180deg,#FFF3E4,#FFD9A8)';bd='#E8903A';num='#7A3D0C';qtd=String(livres);qtdCol='#9A4A0F';rot=livres===1?'livre':'livres';rotCol='#9A4A0F';}
     else{bg='linear-gradient(180deg,#F7FFF8,#ECF9EF)';bd='rgba(111,181,125,.45)';qtd=String(livres);rot=livres===1?'livre':'livres';}
     celulas.push(`<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:118px;padding:12px 4px;border-radius:20px;background:${bg};border:1px solid ${bd};"><div style="font-family:'Cormorant Garamond',serif;font-size:30px;line-height:1;color:${num};">${d}</div><div style="font-size:40px;font-weight:700;line-height:1;margin-top:10px;color:${qtdCol};">${qtd}</div><div style="font-size:13px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-top:8px;color:${rotCol};">${rot}</div></div>`);
   }
@@ -2649,7 +2649,7 @@ function buildDezMonthExportNode(mes){
   const resumoMes=`${totalLivres} ${totalLivres===1?'horário livre':'horários livres'} no mês`;
   const mount=document.createElement('div');
   mount.style.cssText='position:fixed;left:-10000px;top:0;z-index:-1;padding:0;margin:0;';
-  mount.innerHTML=`<div id="dezMonthExportVisual" style="width:1080px;padding:42px;background:#F7F0E8;color:#2A2020;font-family:'Outfit',sans-serif;border-radius:36px;overflow:hidden;"><div style="padding:34px 36px 38px;border-radius:30px;background:#FFFDFB;border:1px solid rgba(196,132,138,.14);"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:24px;margin-bottom:26px;"><div><div style="font-size:16px;font-weight:700;letter-spacing:5px;text-transform:uppercase;color:#C9A86C;margin-bottom:14px;">Studio de Cílios</div><div style="font-family:'Cormorant Garamond',serif;font-size:82px;letter-spacing:4px;line-height:.88;color:#2A2020;">LOOK <span style="color:#C4848A;">DESIGNER</span></div><div style="margin-top:18px;font-size:22px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:#5D9E68;">Horários livres por dia</div></div><div style="min-width:340px;padding:22px 26px;border-radius:24px;background:#2A2020;color:#FFFFFF;text-align:right;"><div style="font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.68);margin-bottom:10px;white-space:nowrap;">${resumoMes}</div><div style="font-family:'Cormorant Garamond',serif;font-size:40px;line-height:1.02;white-space:nowrap;">${tituloMes}</div></div></div><div style="margin-bottom:24px;border-top:1px solid rgba(196,132,138,.18);"></div><div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px;">${cabecalho}${vazios}${celulas.join('')}</div><div style="display:flex;gap:26px;justify-content:center;flex-wrap:wrap;margin-top:22px;font-size:16px;color:#5C4F4F;">${legendaItem('#ECF9EF','rgba(111,181,125,.6)','Disponível')}${legendaItem('#FFD9A8','#E8903A','Últimos 5 horários')}${legendaItem('#F0F0F0','#D3D3D3','Esgotado')}</div><div style="margin-top:24px;padding-top:18px;border-top:1px solid rgba(196,132,138,.14);display:flex;align-items:center;justify-content:space-between;gap:18px;"><div><div style="font-size:18px;letter-spacing:3px;text-transform:uppercase;color:#5D9E68;font-weight:700;">Agende pelo WhatsApp</div><div style="font-size:14px;color:#9A8A8A;margin-top:6px;">Atualizado em ${atualizado}</div></div><div style="font-size:34px;font-weight:700;color:#2A2020;">${waFmt}</div></div></div></div>`;
+  mount.innerHTML=`<div id="dezMonthExportVisual" style="width:1080px;padding:42px;background:#F7F0E8;color:#2A2020;font-family:'Outfit',sans-serif;border-radius:36px;overflow:hidden;"><div style="padding:34px 36px 38px;border-radius:30px;background:#FFFDFB;border:1px solid rgba(196,132,138,.14);"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:24px;margin-bottom:26px;"><div><div style="font-size:16px;font-weight:700;letter-spacing:5px;text-transform:uppercase;color:#C9A86C;margin-bottom:14px;">Studio de Cílios</div><div style="font-family:'Cormorant Garamond',serif;font-size:82px;letter-spacing:4px;line-height:.88;color:#2A2020;">LOOK <span style="color:#C4848A;">DESIGNER</span></div><div style="margin-top:18px;font-size:22px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:#5D9E68;">Horários livres por dia</div></div><div style="min-width:340px;padding:22px 26px;border-radius:24px;background:#2A2020;color:#FFFFFF;text-align:right;"><div style="font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.68);margin-bottom:10px;white-space:nowrap;">${resumoMes}</div><div style="font-family:'Cormorant Garamond',serif;font-size:40px;line-height:1.02;white-space:nowrap;">${tituloMes}</div></div></div><div style="margin-bottom:24px;border-top:1px solid rgba(196,132,138,.18);"></div><div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px;">${cabecalho}${vazios}${celulas.join('')}</div><div style="display:flex;gap:26px;justify-content:center;flex-wrap:wrap;margin-top:22px;font-size:16px;color:#5C4F4F;">${legendaItem('#ECF9EF','rgba(111,181,125,.6)','Disponível')}${legendaItem('#FFD9A8','#E8903A','Últimos 7 horários')}${legendaItem('#F0F0F0','#D3D3D3','Esgotado')}</div><div style="margin-top:24px;padding-top:18px;border-top:1px solid rgba(196,132,138,.14);display:flex;align-items:center;justify-content:space-between;gap:18px;"><div><div style="font-size:18px;letter-spacing:3px;text-transform:uppercase;color:#5D9E68;font-weight:700;">Agende pelo WhatsApp</div><div style="font-size:14px;color:#9A8A8A;margin-top:6px;">Atualizado em ${atualizado}</div></div><div style="font-size:34px;font-weight:700;color:#2A2020;">${waFmt}</div></div></div></div>`;
   return mount;
 }
 async function saveDezMonthImage(){
@@ -4069,10 +4069,13 @@ function renderDezSection(){
   const title=document.getElementById('dezMonthTitle');
   if(title)title.textContent=formatManausLabel(mes+'-01',{month:'long',year:'numeric'}).replace(/^\w/,c=>c.toUpperCase());
   const intro=document.getElementById('dezIntro');
-  if(intro)intro.innerHTML=Number(DEZ.valor)>0
+  const admin=adminTabAvailable();
+  const avisoAdmin=(admin&&!DEZ.ativo)?'<strong>Oculta para os clientes.</strong> Ative em Gerência, Agenda de Dezembro.':'';
+  const textoCliente=Number(DEZ.valor)>0
     ?`<span class="dez-destaque">Reservas</span> em dezembro têm <strong>taxa de ${dezValorLabel(DEZ.valor)}</strong> ${DEZ.mes_inteiro?'em todos os dias do mês':'nos dias marcados no calendário'}. Pague o PIX e seu horário é confirmado automaticamente.`
     :'Veja todos os dias de dezembro. Os horários são reservados normalmente, sem taxa.';
-  if(intro&&!DEZ.ativo&&adminTabAvailable())intro.innerHTML='<strong>Oculta para os clientes.</strong> Ative em Gerência, Agenda de Dezembro.<br>'+intro.innerHTML;
+  // No admin o texto de taxa para clientes não aparece; só o aviso de agenda oculta, quando for o caso
+  if(intro){intro.innerHTML=admin?avisoAdmin:textoCliente;intro.style.display=(admin&&!avisoAdmin)?'none':'';}
   const hoje=getManausIsoDate(new Date());
   const primeiro=new Date(y,m-1,1).getDay(), total=new Date(y,m,0).getDate();
   let html=DEZ_WD.map(d=>`<span class="dez-wd">${d}</span>`).join('');
@@ -4081,7 +4084,7 @@ function renderDezSection(){
     const iso=`${mes}-${pad2(d)}`;
     const passado=iso<hoje;
     const livres=passado?0:getAvailableSlotsForDay(iso).length;
-    const estado=passado?'':(livres===0?'esgotado':(livres<=5?'poucos':''));
+    const estado=passado?'':(livres===0?'esgotado':(livres<=7?'poucos':''));
     const cls=['dez-day','cli-dia',estado,passado?'past':'',iso===dezSelDay?'active':''].filter(Boolean).join(' ');
     const rotulo=passado?'—':(livres===0?'0 horários livres':`${livres} ${livres===1?'horário livre':'horários livres'}`);
     const curto=passado?'—':`${livres} ${livres===1?'livre':'livres'}`;
