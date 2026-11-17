@@ -1992,6 +1992,41 @@ body.admin-on #dezAdminBar{display:flex;}
 .pix-exp-sub{font-size:.7rem;color:var(--ink-lt);line-height:1.5;}
 .pix-exp-banner{cursor:pointer;}
 .pix-exp-fechar{background:none;border:none;color:var(--ink-lt);font-size:.62rem;text-decoration:underline;cursor:pointer;padding:6px 0 0;}
+/* ── TEMA DE NATAL (ligado/desligado pelo admin) ── */
+body.tema-natal{
+  --rose:#8b181d;--deep-rose:#6f0f11;--rose-bright:#b02a30;--blush:#f4e2d3;
+  --gold:#e6be9a;--gold-lt:#f3d9bb;--gold-deep:#9c6b35;--gold-bright:#f6dcc0;
+  --green:#325632;--green-deep:#1d351d;--green-soft:#e4ecdc;
+  --cream:#fbf4ea;--cream-2:#f1e5d3;
+  --st-livre:#3f7a3f;--st-ocupado:#8b181d;
+  --border:rgba(139,24,29,.18);--border-strong:rgba(139,24,29,.32);
+  --sh-rose:0 14px 36px rgba(111,15,17,.2);--sh-gold:0 10px 28px rgba(156,107,53,.22);
+  background-image:radial-gradient(ellipse at 0% 0%,rgba(139,24,29,.12),transparent 45%),radial-gradient(ellipse at 100% 100%,rgba(50,86,50,.14),transparent 50%);
+}
+body.tema-natal .topbar-tag::after{content:" 🎄";}
+#natalFx{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:6000;}
+#natalFx .natal-garland{position:fixed;top:0;left:0;right:0;height:13px;background:linear-gradient(#244824,#1d351d);box-shadow:0 2px 6px rgba(29,53,29,.35);}
+#natalFx .natal-garland::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 10px 5px at 50% 50%,#325632 62%,transparent 66%) 0 0/24px 13px repeat-x;}
+#natalFx .nb-bulb{position:fixed;top:10px;width:9px;height:12px;border-radius:50% 50% 45% 45%;box-shadow:0 0 7px 1px currentColor;animation:natalBlink 2.2s ease-in-out infinite;}
+#natalFx .nf-pine{position:fixed;bottom:-4px;width:76px;height:90px;opacity:.9;}
+#natalFx .nf-pine-l{left:-8px;}
+#natalFx .nf-pine-r{right:-8px;transform:scaleX(-1);}
+#natalFx .nf-snow{position:absolute;top:-2em;color:rgba(29,53,29,.3);animation:natalFall linear infinite;will-change:transform;}
+#natalFx .nf-star{position:absolute;color:#b8873f;text-shadow:0 0 6px rgba(230,190,154,.9);animation:natalTwinkle ease-in-out infinite;}
+@keyframes natalBlink{0%,100%{opacity:1;}50%{opacity:.4;}}
+@keyframes natalFall{to{transform:translate3d(var(--dx,0),110vh,0);}}
+@keyframes natalTwinkle{0%,100%{opacity:.2;transform:scale(.8);}50%{opacity:1;transform:scale(1.15);}}
+/* Bola de Natal (interativa) */
+#natalBola{position:fixed;left:0;top:0;width:58px;height:58px;z-index:6200;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;outline:none;will-change:transform;}
+#natalBola.dragging{cursor:grabbing;}
+#natalBola .nb-spin{position:absolute;inset:0;will-change:transform;}
+#natalBola .nb-body{position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 34% 30%,#d9574d 0,#b02a30 18%,#8b181d 52%,#6f0f11 100%);box-shadow:inset -7px -9px 16px rgba(0,0,0,.3),inset 3px 4px 8px rgba(255,255,255,.2),0 12px 20px rgba(29,53,29,.35);transition:filter .2s;}
+#natalBola:hover .nb-body{filter:brightness(1.08);}
+#natalBola:focus-visible .nb-body{box-shadow:0 0 0 3px #e6be9a,0 0 0 5px #8b181d;}
+#natalBola .nb-cap{position:absolute;left:50%;top:-7px;width:16px;height:13px;margin-left:-8px;border-radius:4px 4px 3px 3px;background:linear-gradient(90deg,#c9a06a,#f3d9bb 50%,#c9a06a);box-shadow:0 1px 2px rgba(0,0,0,.25);}
+#natalBola .nb-band{position:absolute;left:4%;right:4%;top:50%;height:6px;margin-top:-3px;border-radius:3px;background:linear-gradient(90deg,transparent,#e6be9a 12%,#e6be9a 88%,transparent);opacity:.9;}
+#natalBola .nb-shine{position:absolute;left:18%;top:13%;width:24%;height:14%;border-radius:50%;background:rgba(255,255,255,.6);transform:rotate(-32deg);}
+@media (prefers-reduced-motion:reduce){#natalFx .nb-bulb,#natalFx .nf-star{animation:none;}#natalFx .nf-snow{display:none;}}
 </style>
 </head>
 <body>
@@ -2267,7 +2302,8 @@ body.admin-on #dezAdminBar{display:flex;}
       <div class="stat-item" style="border-left:1px solid rgba(255,255,255,.1);padding-left:8px;cursor:pointer;" id="wrapNext"><span class="stat-num" id="statNext" style="font-size:1.1rem;color:var(--rose);">—</span><span class="stat-lbl">Próximo</span></div>
     </div>
     <div class="admin-cards">
-      <div class="admin-card" onclick="openClientesSheet()"><span class="ac-ico">👥</span><div class="ac-lbl">Clientes</div><div class="ac-desc">Ranking de frequência e contato</div></div>
+      <div class="admin-card" onclick="toggleTemaNatalAdmin()"><span class="ac-ico">🎄</span><div class="ac-lbl">Tema de Natal</div><div class="ac-desc" id="acTemaNatalDesc">—</div></div>
+       <div class="admin-card" onclick="openClientesSheet()"><span class="ac-ico">👥</span><div class="ac-lbl">Clientes</div><div class="ac-desc">Ranking de frequência e contato</div></div>
       <div class="admin-card" onclick="openTaxaMesAdmin()"><span class="ac-ico">🧾</span><div class="ac-lbl">Taxa do mês</div><div class="ac-desc">Cobrança obrigatória no agendamento</div></div>
       <div class="admin-card" onclick="openDezAdmin()"><span class="ac-ico">🎄</span><div class="ac-lbl">Agenda de Dezembro</div><div class="ac-desc">Taxa de reserva e dias com cobrança</div></div>
       <div class="admin-card" onclick="openPixAdmin()"><span class="ac-ico">💳</span><div class="ac-lbl">PIX · Pagamentos</div><div class="ac-desc">Pendentes, recebidos e expirados</div></div>
@@ -2604,6 +2640,7 @@ function getSiteTexts(){let saved={};try{saved=JSON.parse(localStorage.getItem(S
 function setText(sel,val){const el=document.querySelector(sel);if(el&&val!==undefined)el.textContent=val;}
 function applySiteTexts(){
   const T=getSiteTexts();
+  setTemaNatal(!!T.temaNatal);atualizarCardTemaNatal();
   document.title='LOOK DESIGNER | '+T.topbarTag;
   setText('.topbar-tag',T.topbarTag);
   const heroTitle=document.querySelector('.hero-title');if(heroTitle)heroTitle.innerHTML=htmlEsc(T.heroTitle).replace(/Cílios|Cilios/i,m=>`<em>${m}</em>`);
@@ -3053,6 +3090,170 @@ async function renameProcAba(old,neu){await gasPost('renameProcAba',{oldName:old
 async function deleteAbaProcs(nome){await gasPost('deleteAbaProcs',{abaNome:nome});}
 async function persistMedia(tipo,url,posY,alt){if(tipo==='foto'){await gasPost('setFoto',{url});await gasPost('setMidiaConfig',{tipoMidia:'foto'});await gasPost('setFotoConfig',{posY,altura:alt});saveCachedMedia('foto',url,posY,alt);}else{await gasPost('setVideo',{url});await gasPost('setMidiaConfig',{tipoMidia:'video'});saveCachedMedia('video',url);}}
 async function saveLocationConfig(url,titulo){LOCATION_CFG={url:(url||DEFAULT_LOCATION.url).trim()||DEFAULT_LOCATION.url,titulo:(titulo||DEFAULT_LOCATION.titulo).trim()||DEFAULT_LOCATION.titulo};writeLocationCache(LOCATION_CFG);renderPortfolioSection();await gasPost('setLocalizacao',LOCATION_CFG);}
+/* ── Tema de Natal: cenário (luzes, árvores, neve, estrelas) + bola interativa ── */
+const NATAL_GRAVIDADE=2400, NATAL_QUIQUE=0.62;
+const NATAL_PINHEIRO='<path d="M60 6 L86 44 L74 44 L100 82 L88 82 L114 120 L6 120 L32 82 L20 82 L46 44 L34 44Z" fill="#1d351d"/><path d="M60 26 L76 50 L44 50Z" fill="#325632"/><rect x="54" y="120" width="12" height="20" fill="#6f0f11"/><circle cx="48" cy="72" r="4" fill="#8b181d"/><circle cx="76" cy="98" r="4" fill="#e6be9a"/><circle cx="40" cy="104" r="3.5" fill="#e6be9a"/><circle cx="84" cy="68" r="3.5" fill="#8b181d"/><path d="M60 0 L62.5 5 L68 5.5 L64 9 L65.2 14.5 L60 11.6 L54.8 14.5 L56 9 L52 5.5 L57.5 5Z" fill="#e6be9a"/>';
+let natalBola=null, natalResize=null;
+
+function natalFxCreate(){
+  const fx=document.createElement('div');
+  fx.id='natalFx';fx.setAttribute('aria-hidden','true');
+  const gar=document.createElement('div');gar.className='natal-garland';fx.appendChild(gar);
+  const cores=['#8b181d','#e6be9a','#b02a30'];
+  for(let i=0;i<14;i++){
+    const b=document.createElement('span');
+    b.className='nb-bulb';
+    const c=cores[i%cores.length];
+    b.style.left=(i*7.1+2).toFixed(1)+'%';
+    b.style.background=c;b.style.color=c;
+    b.style.animationDelay=(-Math.random()*2.2).toFixed(2)+'s';
+    fx.appendChild(b);
+  }
+  fx.insertAdjacentHTML('beforeend','<svg class="nf-pine nf-pine-l" viewBox="0 0 120 140">'+NATAL_PINHEIRO+'</svg><svg class="nf-pine nf-pine-r" viewBox="0 0 120 140">'+NATAL_PINHEIRO+'</svg>');
+  for(let i=0;i<16;i++){
+    const f=document.createElement('span');
+    f.className='nf-snow';f.textContent='❄';
+    f.style.left=(Math.random()*100).toFixed(1)+'%';
+    f.style.fontSize=(10+Math.random()*12).toFixed(0)+'px';
+    f.style.animationDuration=(9+Math.random()*9).toFixed(1)+'s';
+    f.style.animationDelay=(-Math.random()*16).toFixed(1)+'s';
+    f.style.setProperty('--dx',(Math.random()*40-20).toFixed(0)+'px');
+    fx.appendChild(f);
+  }
+  for(let i=0;i<8;i++){
+    const st=document.createElement('span');
+    st.className='nf-star';st.textContent='✦';
+    st.style.left=(Math.random()*96+2).toFixed(1)+'%';
+    st.style.top=(Math.random()*65+5).toFixed(1)+'%';
+    st.style.fontSize=(9+Math.random()*6).toFixed(0)+'px';
+    st.style.animationDuration=(2+Math.random()*2).toFixed(1)+'s';
+    st.style.animationDelay=(-Math.random()*4).toFixed(1)+'s';
+    fx.appendChild(st);
+  }
+  document.body.appendChild(fx);
+}
+
+/* Bola de Natal: arraste e solte para jogar. Quica nas bordas, cai com gravidade e para no chão. */
+function natalBolaBounds(s){return{maxX:Math.max(0,window.innerWidth-s.size),maxY:Math.max(0,window.innerHeight-s.size)};}
+function natalBolaDraw(s){
+  s.el.style.transform='translate3d('+s.x.toFixed(1)+'px,'+s.y.toFixed(1)+'px,0)';
+  s.spin.style.transform='rotate('+s.ang.toFixed(1)+'deg)';
+}
+function natalBolaWake(s){
+  if(s.running)return;
+  s.running=true;s.last=performance.now();
+  s.raf=requestAnimationFrame(t=>natalBolaStep(s,t));
+}
+function natalBolaStep(s,t){
+  if(natalBola!==s||!s.running)return;
+  const dt=Math.min(0.033,Math.max(0,(t-s.last)/1000));
+  s.last=t;
+  if(!s.drag&&dt>0){
+    const b=natalBolaBounds(s);
+    s.vy+=NATAL_GRAVIDADE*dt;
+    s.x+=s.vx*dt;s.y+=s.vy*dt;
+    s.vx*=Math.pow(0.8,dt);
+    if(s.x<0){s.x=0;s.vx=-s.vx*NATAL_QUIQUE;}
+    else if(s.x>b.maxX){s.x=b.maxX;s.vx=-s.vx*NATAL_QUIQUE;}
+    if(s.y<0){s.y=0;s.vy=-s.vy*NATAL_QUIQUE;}
+    let noChao=false;
+    if(s.y>=b.maxY){
+      s.y=b.maxY;noChao=true;
+      s.vy=-s.vy*NATAL_QUIQUE;
+      if(Math.abs(s.vy)<60)s.vy=0;
+      s.vx*=Math.pow(0.12,dt);
+    }
+    s.ang+=(s.vx*dt/(s.size/2))*(180/Math.PI);
+    if(noChao&&s.vy===0&&Math.abs(s.vx)<10){
+      s.vx=0;natalBolaDraw(s);s.running=false;return;
+    }
+  }
+  natalBolaDraw(s);
+  s.raf=requestAnimationFrame(tt=>natalBolaStep(s,tt));
+}
+function natalBolaCreate(){
+  const el=document.createElement('div');
+  el.id='natalBola';el.setAttribute('role','button');el.setAttribute('tabindex','0');
+  el.setAttribute('aria-label','Bola de Natal: arraste para jogar. Enter ou Espaço dá um impulso.');
+  el.title='Arraste para jogar a bola';
+  el.innerHTML='<div class="nb-spin"><div class="nb-cap"></div><div class="nb-body"></div><div class="nb-band"></div><div class="nb-shine"></div></div>';
+  document.body.appendChild(el);
+  const S=58;
+  const s={el,spin:el.firstElementChild,size:S,x:window.innerWidth-S-18,y:Math.max(24,window.innerHeight*0.2),vx:0,vy:0,ang:0,drag:null,pts:[],raf:0,last:0,running:false};
+  natalBola=s;
+  el.addEventListener('pointerdown',e=>{
+    if(e.button!==0)return;
+    e.preventDefault();
+    el.setPointerCapture(e.pointerId);
+    s.drag={dx:e.clientX-s.x,dy:e.clientY-s.y};
+    s.pts=[{x:s.x,y:s.y,t:performance.now()}];
+    s.vx=0;s.vy=0;
+    el.classList.add('dragging');
+    natalBolaWake(s);
+  });
+  el.addEventListener('pointermove',e=>{
+    if(!s.drag)return;
+    const b=natalBolaBounds(s);
+    s.x=Math.min(Math.max(e.clientX-s.drag.dx,0),b.maxX);
+    s.y=Math.min(Math.max(e.clientY-s.drag.dy,0),b.maxY);
+    const now=performance.now();
+    s.pts.push({x:s.x,y:s.y,t:now});
+    s.pts=s.pts.filter(p=>now-p.t<=150);
+    natalBolaDraw(s);
+  });
+  const soltar=()=>{
+    if(!s.drag)return;
+    s.drag=null;el.classList.remove('dragging');
+    const now=performance.now();
+    const ult=s.pts[s.pts.length-1];
+    if(s.pts.length>=2&&ult&&now-ult.t<=80){
+      const a=s.pts[0],dt=Math.max(0.016,(ult.t-a.t)/1000);
+      s.vx=Math.max(-2600,Math.min(2600,(ult.x-a.x)/dt));
+      s.vy=Math.max(-2600,Math.min(2600,(ult.y-a.y)/dt));
+    }else{s.vx=0;s.vy=0;}
+    s.pts=[];
+    natalBolaWake(s);
+  };
+  el.addEventListener('pointerup',soltar);
+  el.addEventListener('pointercancel',soltar);
+  el.addEventListener('keydown',e=>{
+    if(e.key==='Enter'||e.key===' '){
+      e.preventDefault();
+      s.vy=-1100;s.vx=(Math.random()<.5?-1:1)*(280+Math.random()*320);
+      natalBolaWake(s);
+    }
+  });
+  natalResize=()=>{const b=natalBolaBounds(s);s.x=Math.min(s.x,b.maxX);s.y=Math.min(s.y,b.maxY);natalBolaDraw(s);natalBolaWake(s);};
+  window.addEventListener('resize',natalResize);
+  natalBolaDraw(s);
+  natalBolaWake(s);
+}
+function natalBolaDestroy(){
+  if(!natalBola)return;
+  natalBola.running=false;cancelAnimationFrame(natalBola.raf);
+  natalBola.el.remove();
+  if(natalResize)window.removeEventListener('resize',natalResize);
+  natalResize=null;natalBola=null;
+}
+function setTemaNatal(on){
+  document.body.classList.toggle('tema-natal',!!on);
+  if(!on){const fx=document.getElementById('natalFx');if(fx)fx.remove();natalBolaDestroy();return;}
+  if(!document.getElementById('natalFx'))natalFxCreate();
+  if(!natalBola)natalBolaCreate();
+}
+function atualizarCardTemaNatal(){
+  const el=document.getElementById('acTemaNatalDesc');
+  if(el)el.textContent=getSiteTexts().temaNatal?'Ligado · toque para desligar':'Desligado · toque para ativar';
+}
+function toggleTemaNatalAdmin(){
+  if(!isAdmin||isUserView){toast('Acesso restrito ao administrador','warn');return;}
+  const ligar=!getSiteTexts().temaNatal;
+  confirmar(ligar?'Ativar o tema de Natal para as clientes?':'Desativar o tema de Natal?',()=>{
+    let atual={};try{atual=JSON.parse(localStorage.getItem(SITE_TEXTS_KEY)||'{}')||{};}catch{}
+    saveSiteTexts({...atual,temaNatal:ligar});
+    toast(ligar?'Tema de Natal ativado.':'Tema de Natal desativado.','ok');
+  });
+}
 function saveSiteTexts(obj){localStorage.setItem(SITE_TEXTS_KEY,JSON.stringify(obj));applySiteTexts();gasPost('setSiteTextos',{dados:JSON.stringify(obj)}).catch(()=>toast('Textos salvos neste aparelho. Publique o Apps Script para sincronizar.','warn'));}
 
 // ════════════════════════════════════════════════════
