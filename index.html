@@ -2027,6 +2027,10 @@ body.tema-natal .topbar-tag::after{content:" 🎄";}
 #natalBola .nb-band{position:absolute;left:4%;right:4%;top:50%;height:6px;margin-top:-3px;border-radius:3px;background:linear-gradient(90deg,transparent,#e6be9a 12%,#e6be9a 88%,transparent);opacity:.9;}
 #natalBola .nb-shine{position:absolute;left:18%;top:13%;width:24%;height:14%;border-radius:50%;background:rgba(255,255,255,.6);transform:rotate(-32deg);}
 @media (prefers-reduced-motion:reduce){#natalFx .nb-bulb,#natalFx .nf-star{animation:none;}#natalFx .nf-snow{display:none;}}
+/* Botão de parar a música (aparece só enquanto toca, perto da bola) */
+#natalStopMusica{position:fixed;left:0;top:0;z-index:6300;display:none;align-items:center;gap:6px;padding:6px 12px;border:1px solid rgba(230,190,154,.55);border-radius:999px;background:rgba(29,53,29,.92);color:#f6dcc0;font-size:.62rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;cursor:pointer;box-shadow:0 6px 16px rgba(29,53,29,.3);white-space:nowrap;}
+#natalStopMusica:hover{background:#325632;}
+#natalStopMusica:focus-visible{outline:2px solid #e6be9a;outline-offset:2px;}
 </style>
 </head>
 <body>
@@ -3092,6 +3096,8 @@ async function persistMedia(tipo,url,posY,alt){if(tipo==='foto'){await gasPost('
 async function saveLocationConfig(url,titulo){LOCATION_CFG={url:(url||DEFAULT_LOCATION.url).trim()||DEFAULT_LOCATION.url,titulo:(titulo||DEFAULT_LOCATION.titulo).trim()||DEFAULT_LOCATION.titulo};writeLocationCache(LOCATION_CFG);renderPortfolioSection();await gasPost('setLocalizacao',LOCATION_CFG);}
 /* ── Tema de Natal: cenário (luzes, árvores, neve, estrelas) + bola interativa ── */
 const NATAL_GRAVIDADE=1500, NATAL_QUIQUE=0.8;
+/* Música que toca ao mover a bola. Caminho relativo ao c.html (mesma pasta do nata.mp3 no GitHub Pages). */
+const NATAL_MUSICA_URL='nata.mp3';
 const NATAL_PINHEIRO='<path d="M60 6 L86 44 L74 44 L100 82 L88 82 L114 120 L6 120 L32 82 L20 82 L46 44 L34 44Z" fill="#1d351d"/><path d="M60 26 L76 50 L44 50Z" fill="#325632"/><rect x="54" y="120" width="12" height="20" fill="#6f0f11"/><circle cx="48" cy="72" r="4" fill="#8b181d"/><circle cx="76" cy="98" r="4" fill="#e6be9a"/><circle cx="40" cy="104" r="3.5" fill="#e6be9a"/><circle cx="84" cy="68" r="3.5" fill="#8b181d"/><path d="M60 0 L62.5 5 L68 5.5 L64 9 L65.2 14.5 L60 11.6 L54.8 14.5 L56 9 L52 5.5 L57.5 5Z" fill="#e6be9a"/>';
 let natalBola=null, natalResize=null;
 
@@ -3138,6 +3144,7 @@ function natalBolaBounds(s){return{maxX:Math.max(0,window.innerWidth-s.size),max
 function natalBolaDraw(s){
   s.el.style.transform='translate3d('+s.x.toFixed(1)+'px,'+s.y.toFixed(1)+'px,0)';
   s.spin.style.transform='rotate('+s.ang.toFixed(1)+'deg)';
+  natalBtnPosicionar(s);
 }
 function natalBolaWake(s){
   if(s.running)return;
@@ -3179,13 +3186,21 @@ function natalBolaCreate(){
   el.innerHTML='<div class="nb-spin"><div class="nb-cap"></div><div class="nb-body"></div><div class="nb-band"></div><div class="nb-shine"></div></div>';
   document.body.appendChild(el);
   const S=58;
-  const s={el,spin:el.firstElementChild,size:S,x:window.innerWidth-S-18,y:Math.max(24,window.innerHeight*0.2),vx:0,vy:0,ang:0,drag:null,pts:[],raf:0,last:0,running:false};
+  const s={el,spin:el.firstElementChild,size:S,x:window.innerWidth-S-18,y:Math.max(24,window.innerHeight*0.2),vx:0,vy:0,ang:0,drag:null,pts:[],raf:0,last:0,running:false,musica:null,musicaErro:false};
+  s.musica=new Audio(NATAL_MUSICA_URL);s.musica.preload='none';
+  s.btn=document.createElement('button');s.btn.type='button';s.btn.id='natalStopMusica';
+  s.btn.textContent='■ Parar música';s.btn.setAttribute('aria-label','Parar a música de Natal');
+  s.btn.style.display='none';document.body.appendChild(s.btn);
+  s.btn.addEventListener('click',()=>{s.musica.pause();s.musica.currentTime=0;natalBtnMostrar(s,false);});
+  s.musica.addEventListener('playing',()=>natalBtnMostrar(s,true));
+  ['pause','ended','emptied','error'].forEach(ev=>s.musica.addEventListener(ev,()=>natalBtnMostrar(s,false)));
   natalBola=s;
   el.addEventListener('pointerdown',e=>{
     if(e.button!==0)return;
     e.preventDefault();
     el.setPointerCapture(e.pointerId);
     s.drag={dx:e.clientX-s.x,dy:e.clientY-s.y};
+    if(s.musicaErro){s.musicaErro=false;s.musica.load();}
     s.pts=[{x:s.x,y:s.y,t:performance.now()}];
     s.vx=0;s.vy=0;
     el.classList.add('dragging');
@@ -3193,6 +3208,7 @@ function natalBolaCreate(){
   });
   el.addEventListener('pointermove',e=>{
     if(!s.drag)return;
+    natalTocarMusica(s);
     const b=natalBolaBounds(s);
     s.x=Math.min(Math.max(e.clientX-s.drag.dx,0),b.maxX);
     s.y=Math.min(Math.max(e.clientY-s.drag.dy,0),b.maxY);
@@ -3220,6 +3236,7 @@ function natalBolaCreate(){
     if(e.key==='Enter'||e.key===' '){
       e.preventDefault();
       s.vy=-1100;s.vx=(Math.random()<.5?-1:1)*(280+Math.random()*320);
+      natalTocarMusica(s);
       natalBolaWake(s);
     }
   });
@@ -3228,9 +3245,36 @@ function natalBolaCreate(){
   natalBolaDraw(s);
   natalBolaWake(s);
 }
+/* Botão de parar: aparece só enquanto a música toca, acompanhando a bola. */
+function natalBtnMostrar(s,on){
+  if(!s.btn)return;
+  s.btn.style.display=on?'inline-flex':'none';
+  if(on)natalBtnPosicionar(s);
+}
+function natalBtnPosicionar(s){
+  const b=s.btn;
+  if(!b||b.style.display==='none')return;
+  const w=b.offsetWidth,h=b.offsetHeight;
+  let left=s.x+s.size/2-w/2;
+  left=Math.min(Math.max(left,8),window.innerWidth-w-8);
+  let top=s.y-h-8;
+  if(top<8)top=s.y+s.size+8;
+  top=Math.min(Math.max(top,8),window.innerHeight-h-8);
+  b.style.transform='translate3d('+left.toFixed(1)+'px,'+top.toFixed(1)+'px,0)';
+}
+/* Toca a música a partir do início; não reinicia se já estiver tocando. Falha silenciosa se o arquivo faltar. */
+function natalTocarMusica(s){
+  const a=s&&s.musica;
+  if(!a||!a.paused||s.musicaErro)return;
+  if(a.ended)a.currentTime=0;
+  const p=a.play();
+  if(p&&p.catch)p.catch(()=>{s.musicaErro=true;});
+}
 function natalBolaDestroy(){
   if(!natalBola)return;
   natalBola.running=false;cancelAnimationFrame(natalBola.raf);
+  if(natalBola.btn)natalBola.btn.remove();
+  if(natalBola.musica){natalBola.musica.pause();natalBola.musica.removeAttribute('src');natalBola.musica.load();}
   natalBola.el.remove();
   if(natalResize)window.removeEventListener('resize',natalResize);
   natalResize=null;natalBola=null;
