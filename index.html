@@ -2657,7 +2657,7 @@ function applySiteTexts(){
 }
 
 // EXPORT IMAGE
-function getAvailableSlotsForDay(iso){const now=new Date(),todayIso=getManausIsoDate(now),curMins=getManausMinutes(now);const[sH,sM]=srvCfg.start.split(':').map(Number),[eH,eM]=srvCfg.end.split(':').map(Number);let cur=sH*60+sM,end=eH*60+eM;const slots=[];while(cur<end){const hh=String(Math.floor(cur/60)).padStart(2,'0'),mm=String(cur%60).padStart(2,'0'),clock=`${hh}:${mm}`;const isPast=(iso<todayIso)||(iso===todayIso&&cur<curMins);const reg=db.find(r=>String(r.data).substring(0,10)===iso&&String(r.horario).substring(0,5)===clock);let st=reg?reg.status:'Livre',durMin=reg?parseInt(reg.duration||srvCfg.duration):srvCfg.duration;const reservedUntil=reg?reg.reservedUntil:null;let isExpired=false;if(st==='Aguardando Pagamento'&&reservedUntil&&new Date()>new Date(reservedUntil))isExpired=true;if(st==='Aguardando Pagamento'&&isExpired)st='Livre';if(st==='Livre'){const nextOcc=db.filter(r=>String(r.data).substring(0,10)===iso&&r.status!=='Livre').map(r=>{const[h,m]=String(r.horario).substring(0,5).split(':').map(Number);return h*60+m;}).filter(m=>m>cur).sort((a,b)=>a-b)[0];if(nextOcc!==undefined){const gap=nextOcc-cur;if(gap<durMin){cur=nextOcc;continue;}}if(!isPast)slots.push(clock);}cur+=Math.max(30,durMin||30);}return slots;}
+function getAvailableSlotsForDay(iso){const now=new Date(),todayIso=getManausIsoDate(now),curMins=getManausMinutes(now);const[sH,sM]=srvCfg.start.split(':').map(Number),[eH,eM]=srvCfg.end.split(':').map(Number);let cur=sH*60+sM,end=eH*60+eM;const slots=[];while(cur<end){const hh=String(Math.floor(cur/60)).padStart(2,'0'),mm=String(cur%60).padStart(2,'0'),clock=`${hh}:${mm}`;const isPast=(iso<todayIso)||(iso===todayIso&&cur<curMins);const reg=db.find(r=>String(r.data).substring(0,10)===iso&&String(r.horario).substring(0,5)===clock);let st=reg?reg.status:'Livre',durMin=(reg&&reg.status!=='Livre')?parseInt(reg.duration||srvCfg.duration):srvCfg.duration;const reservedUntil=reg?reg.reservedUntil:null;let isExpired=false;if(st==='Aguardando Pagamento'&&reservedUntil&&new Date()>new Date(reservedUntil))isExpired=true;if(st==='Aguardando Pagamento'&&isExpired)st='Livre';if(st==='Livre'){const nextOcc=db.filter(r=>String(r.data).substring(0,10)===iso&&r.status!=='Livre').map(r=>{const[h,m]=String(r.horario).substring(0,5).split(':').map(Number);return h*60+m;}).filter(m=>m>cur).sort((a,b)=>a-b)[0];if(nextOcc!==undefined){const gap=nextOcc-cur;if(gap<durMin){cur=nextOcc;continue;}}if(!isPast)slots.push(clock);}cur+=Math.max(30,durMin||30);}return slots;}
 function refreshGridHead(){if(currentDay)renderGridHead(currentDay);}
 function updateDayExportButton(){const btn=document.getElementById('saveDayBtn');if(!btn)return;if(!isAdmin||isUserView){btn.style.display='none';return;}btn.style.display='';const title=document.getElementById('saveDayBtnTitle');const badge=document.getElementById('saveDayBtnBadge');const enabled=!!currentDay&&typeof html2canvas==='function';const count=enabled?getAvailableSlotsForDay(currentDay).length:0;btn.disabled=!enabled;if(title)title.textContent=enabled?'Baixar imagem':'Escolha um dia';if(badge){badge.textContent=String(count);badge.classList.toggle('zero',count===0);}btn.title=!currentDay?'Selecione uma data no calendário':(typeof html2canvas!=='function'?'Gerador de imagem indisponível — recarregue a página':(count>0?`Gera uma imagem com os ${count} horário(s) livre(s) deste dia para enviar no WhatsApp`:'Nenhum horário livre neste dia — a imagem sairá avisando isso'));}
 function setDayExportButtonLoading(v){const btn=document.getElementById('saveDayBtn');if(!btn)return;btn.disabled=!!v;const t=document.getElementById('saveDayBtnTitle');if(t)t.textContent=v?'Gerando...':'Baixar imagem';const b=document.getElementById('saveDayBtnBadge');if(b)b.textContent=v?'…':String(currentDay?getAvailableSlotsForDay(currentDay).length:0);}
@@ -3466,7 +3466,7 @@ function renderGrid(iso,targetId){
     const hh=String(Math.floor(cur/60)).padStart(2,'0'),mm=String(cur%60).padStart(2,'0'),clock=`${hh}:${mm}`;
     const isPast=(iso<todayIso)||(iso===todayIso&&cur<curMins);
     const reg=db.find(r=>String(r.data).substring(0,10)===iso&&String(r.horario).substring(0,5)===clock);
-    let st=reg?reg.status:'Livre',durMin=reg?parseInt(reg.duration||srvCfg.duration):srvCfg.duration;
+    let st=reg?reg.status:'Livre',durMin=(reg&&reg.status!=='Livre')?parseInt(reg.duration||srvCfg.duration):srvCfg.duration;
     if(isPast&&!isAdmin){cur+=Math.max(15,durMin||30);continue;}
     const reservedUntil=reg?reg.reservedUntil:null,logMsg=reg?reg.log:null;
     const isMyBooking=!!(lastBooking&&reg&&(String(reg.codigo||'')===String(lastBooking.token||'')||(lastBooking.iso===iso&&lastBooking.clock===clock)));
@@ -3739,7 +3739,7 @@ function showBlockedScreen(){
 function showAdminSlotSheet(iso,clock,st,reg){
   currentGapInfo=getScheduleGapInfo(iso,clock);
   const gap=currentGapInfo.gap,next=currentGapInfo.next;
-  const curDur=reg?parseInt(reg.duration||srvCfg.duration):srvCfg.duration;
+  const curDur=(reg&&reg.status!=='Livre')?parseInt(reg.duration||srvCfg.duration):srvCfg.duration;
   const durOpts=[30,45,60,75,90,120].map(d=>{
     const fits=d<=gap;
     return `<div class="dur-opt${(curDur===d&&fits)?' sel':''}${fits?'':' disabled'}" onclick="selectDur(this,${d})">${fmtDur(d)}</div>`;
