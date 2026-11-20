@@ -2429,6 +2429,8 @@ const CFG = {
   CLOUD_PRESET: "ca7utdc9"
 };
 const APP_TIME_ZONE = 'America/Manaus';
+const MAX_AGENDAMENTOS_CLIENTE = 2;   // horários ativos por cliente; para mais, fala com a Camila
+const MY_BK_KEY = 'my_bookings_v1';
 const EMOJIS = ['👁','✨','💆','💅','🌸','🌺','💄','💋','🪷','🌷','⭐','✦','🦋','🌟','💎','🪞','🧖','🧴','🪄','🎀','🌙','☀️','🌈','🍃','🌿','🪻','💐','🌻','🫧','🧸'];
 const CACHE = { abas: 'look_abas_v1', procs: 'look_procs_v1', location: 'look_location_v1' };
 const DEFAULT_LOCATION = {
@@ -2760,9 +2762,8 @@ async function syncData(){
     await new Promise((res,rej)=>{
       const s=document.createElement('script');
       window[cb]=r=>{delete window[cb];s.remove();if(r.status==='OK')res(r);else rej();};
-      let savedToken='';
-      try{savedToken=JSON.parse(localStorage.getItem('last_booking_v3')||'null')?.token||'';}catch{}
-      const tokenParam=savedToken?`&client_token=${encodeURIComponent(savedToken)}`:'';
+      const savedTokens=[...new Set([...getMinhasReservasLocal().map(x=>x.token),(getLocalBk()?.token||'')])].filter(Boolean).join(',');
+      const tokenParam=savedTokens?`&client_token=${encodeURIComponent(savedTokens)}`:'';
       s.src=`${CFG.API_URL}?pass=${encodeURIComponent(adminPass)}${tokenParam}&_t=${Date.now()}&callback=${cb}`;
       s.onerror=rej;document.body.appendChild(s);setTimeout(rej,10000);
     }).then(r=>{
@@ -2800,87 +2801,109 @@ function getLocalBk(){try{return JSON.parse(localStorage.getItem('last_booking_v
 function localPendenteAtivo(){const bk=getLocalBk();return !!(bk&&bk.pendente&&bk.expiraEm&&Date.now()<new Date(bk.expiraEm).getTime());}
 function fmtMMSS(ms){const s=Math.max(0,Math.floor(ms/1000));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');}
 
-function getActiveClientBooking(){
-  if(isAdmin&&!isUserView)return null;
+/* ── Agendamentos da cliente neste aparelho (até MAX_AGENDAMENTOS_CLIENTE) ──
+   my_bookings_v1 guarda {token,iso,clock,pago} de cada horário marcado aqui.
+   O estado real (ocupado, PIX no prazo, horário já passado) vem da agenda do servidor. */
+function getMinhasReservasLocal(){
+  try{const v=JSON.parse(localStorage.getItem(MY_BK_KEY)||'null');if(Array.isArray(v))return v;}catch{}
+  // migração: quem agendou com a versão anterior só tem o último horário em last_booking_v3
   const bk=getLocalBk();
-  if(!bk)return null;
-  // Vale tanto a vaga já paga (Ocupado) quanto a que ainda aguarda o PIX
-  const rec=db.find(r=>String(r.codigo||'')===String(bk.token||'')&&(r.status==='Ocupado'||r.status==='Aguardando Pagamento'));
-  if(rec&&rec.status==='Aguardando Pagamento'){
-    // PIX não pago no prazo: a reserva deixa de valer e o horário volta a ficar livre
-    if(!rec.reservedUntil||new Date(rec.reservedUntil).getTime()<=Date.now())return null;
-    return{...bk,...rec};
-  }
-  if(rec){
-    // Se o horário (com a duração do serviço) já passou, deixa de ser "ativa"
-    const iso=String(rec.data||bk.iso||'').substring(0,10);
-    const clock=String(rec.horario||bk.clock||'').substring(0,5);
-    if(!isBookingUpcoming(iso,clock,rec.duration)){clearClientBlock();return null;}
-    return{...bk,...rec};
-  }
-  // Logo após gerar o PIX, antes da agenda recarregar, usa o que ficou salvo no aparelho
-  if(!agendaCarregada&&bk.pendente&&localPendenteAtivo())return{...bk,status:'Aguardando Pagamento',reservedUntil:bk.expiraEm};
-  return null;
+  const list=(bk&&bk.token&&bk.iso&&bk.clock)?[{token:bk.token,iso:bk.iso,clock:bk.clock,pago:!!bk.pago}]:[];
+  setMinhasReservasLocal(list);
+  return list;
 }
-/** Data (YYYY-MM-DD) da reserva ativa da cliente; '' se não há reserva ativa. */
-function clientLockIso(){const b=getActiveClientBooking();return b?String(b.data||b.iso||'').substring(0,10):'';}
+function setMinhasReservasLocal(list){try{localStorage.setItem(MY_BK_KEY,JSON.stringify(list));}catch{}}
+function lembrarReserva(token,iso,clock){
+  if(!token||!iso||!clock)return;
+  const list=getMinhasReservasLocal().filter(x=>!(x.iso===iso&&x.clock===clock));
+  list.push({token,iso,clock,pago:false});
+  setMinhasReservasLocal(list);
+}
+function marcarReservaPaga(token){setMinhasReservasLocal(getMinhasReservasLocal().map(x=>x.token===token?{...x,pago:true}:x));}
+/** Reservas ativas da cliente neste aparelho, com o estado vindo da agenda do servidor (ordem cronológica). */
+function getMyBookings(){
+  if(isAdmin&&!isUserView)return [];
+  if(!agendaCarregada){
+    // antes da primeira sincronização, mostra o PIX pendente salvo no aparelho
+    const bk=getLocalBk();
+    if(bk&&bk.pendente&&localPendenteAtivo())return [{token:bk.token,iso:bk.iso,clock:bk.clock,pago:false,status:'Aguardando Pagamento',row:{cliente:bk.name||'',telefone:bk.phone||'',reservedUntil:bk.expiraEm,duration:srvCfg.duration}}];
+    return [];
+  }
+  const out=[];
+  getMinhasReservasLocal().forEach(m=>{
+    const r=db.find(x=>String(x.data||'').substring(0,10)===m.iso&&String(x.horario||'').substring(0,5)===m.clock);
+    if(!r)return;
+    // se o código visível for outro, a vaga foi ocupada por outra cliente depois
+    const cod=String(r.codigo||'');
+    if(cod&&!/^\*+$/.test(cod)&&cod!==m.token)return;
+    const st=String(r.status||'');
+    const ativo=st==='Ocupado'||(st==='Aguardando Pagamento'&&!!r.reservedUntil&&new Date(r.reservedUntil).getTime()>Date.now());
+    if(!ativo||!isBookingUpcoming(m.iso,m.clock,r.duration))return;
+    out.push({token:m.token,iso:m.iso,clock:m.clock,pago:!!m.pago,status:st==='Ocupado'?'Ocupado':'Aguardando Pagamento',row:r});
+  });
+  return out.sort((a,b)=>a.iso===b.iso?a.clock.localeCompare(b.clock):a.iso.localeCompare(b.iso));
+}
+/** true quando a cliente já tem o máximo de horários ativos. */
+function clientLimitReached(){return getMyBookings().length>=MAX_AGENDAMENTOS_CLIENTE;}
+/** Datas (YYYY-MM-DD) dos horários da cliente, só quando o limite foi atingido; [] caso contrário. */
+function clientLockDates(){
+  const b=getMyBookings();
+  if(b.length<MAX_AGENDAMENTOS_CLIENTE)return [];
+  return [...new Set(b.map(x=>x.iso))].sort();
+}
 
 /** Compara a reserva do aparelho com a agenda do servidor a cada sync. */
 function reconciliarBookingLocal(){
+  // Tira do aparelho os horários que já não estão ativos (liberados, expirados ou já passados)
+  if(agendaCarregada)setMinhasReservasLocal(getMyBookings().map(({token,iso,clock,pago})=>({token,iso,clock,pago})));
   const bk=getLocalBk();
-  if(!bk)return;
+  if(!bk||!bk.pendente)return;
   const rec=db.find(x=>String(x.codigo||'')===String(bk.token||'')&&(x.status==='Ocupado'||x.status==='Aguardando Pagamento'));
-  if(bk.pendente){
-    if(rec&&rec.status==='Ocupado'){
-      // PIX aprovado enquanto a cliente estava fora da tela
-      localStorage.setItem('last_booking_v3',JSON.stringify({token:bk.token,iso:bk.iso,clock:bk.clock,phone:bk.phone,name:bk.name,pago:true}));
-      localStorage.setItem('last_booking_timestamp',Date.now().toString());
-      toast('Pagamento aprovado! Seu horário está confirmado ✨','ok',4000);
-      return;
-    }
-    const aindaReservada=!!(rec&&rec.status==='Aguardando Pagamento'&&rec.reservedUntil&&new Date(rec.reservedUntil).getTime()>Date.now());
-    if(!aindaReservada){clearClientBlock();return;}
-    if(dezPollRef!==bk.ref)iniciarVerificacaoDez(bk.ref,{iso:bk.iso,clock:bk.clock,name:bk.name,phone:bk.phone},bk.expiraEm);
+  if(rec&&rec.status==='Ocupado'){
+    // PIX aprovado enquanto a cliente estava fora da tela
+    localStorage.setItem('last_booking_v3',JSON.stringify({token:bk.token,iso:bk.iso,clock:bk.clock,phone:bk.phone,name:bk.name,pago:true}));
+    marcarReservaPaga(bk.token);
+    toast('Pagamento aprovado! Seu horário está confirmado ✨','ok',4000);
     return;
   }
-  const still=db.find(x=>String(x.codigo||'')===String(bk.token||'')&&x.status==='Ocupado');
-  const bIso=String(still?.data||bk.iso||'').substring(0,10);
-  const bClock=String(still?.horario||bk.clock||'').substring(0,5);
-  // Limpa o bloqueio local se o agendamento não existe mais OU se a data/hora já passou
-  if(!still||!isBookingUpcoming(bIso,bClock,still?.duration))clearClientBlock();
+  const aindaReservada=!!(rec&&rec.status==='Aguardando Pagamento'&&rec.reservedUntil&&new Date(rec.reservedUntil).getTime()>Date.now());
+  if(!aindaReservada){clearClientBlock();return;}
+  if(dezPollRef!==bk.ref)iniciarVerificacaoDez(bk.ref,{iso:bk.iso,clock:bk.clock,name:bk.name,phone:bk.phone},bk.expiraEm);
 }
 
 function renderMyBookingBanner(){
   const wrap=document.getElementById('myBookingBanner');
   if(!wrap)return;
-  const booking=getActiveClientBooking();
-  if(!booking&&!(isAdmin&&!isUserView)&&getPixExpirado()){renderPixExpiradoBanner(wrap);return;}
-  if(!booking||isAdmin&&!isUserView){
+  const bookings=getMyBookings();
+  if(!bookings.length){
+    if(!(isAdmin&&!isUserView)&&getPixExpirado()){renderPixExpiradoBanner(wrap);return;}
     wrap.style.display='none';
     wrap.innerHTML='';
     return;
   }
-  const iso=String(booking.data||booking.iso||'').substring(0,10);
-  const dateLabel=formatManausLabel(iso,{weekday:'long',day:'2-digit',month:'long'}).replace(/^\w/,c=>c.toUpperCase());
-  const clock=booking.horario||booking.clock||'';
-  const clientName=booking.cliente||booking.name||'';
-  const pendente=booking.status==='Aguardando Pagamento';
-  const pago=!pendente&&(!!booking.pago||dezFeeDay(iso));
-  const statusTxt=pendente?'Aguardando pagamento':(pago?'PIX confirmado':'Confirmado');
-  const expiraIso=booking.expiraEm||booking.reservedUntil||'';
   wrap.style.display='block';
-  wrap.innerHTML=`
-    <div class="my-booking-banner" onclick="${pendente?'abrirPixPendente()':'openMyBookingDetail()'}">
+  wrap.innerHTML=bookings.map(bookingBannerHtml).join('')+(bookings.length>=MAX_AGENDAMENTOS_CLIENTE?limiteAvisoHtml():'');
+  atualizarContagemDez();
+}
+/** Cartão de um horário da cliente no topo da agenda (PIX pendente abre o PIX; confirmado abre os detalhes). */
+function bookingBannerHtml(b){
+  const dateLabel=formatManausLabel(b.iso,{weekday:'long',day:'2-digit',month:'long'}).replace(/^\w/,c=>c.toUpperCase());
+  const pendente=b.status==='Aguardando Pagamento';
+  const pago=!pendente&&(!!b.pago||dezFeeDay(b.iso));
+  const statusTxt=pendente?'Aguardando pagamento':(pago?'PIX confirmado':'Confirmado');
+  const expiraIso=b.row.reservedUntil||'';
+  return `
+    <div class="my-booking-banner" onclick="${pendente?'abrirPixPendente()':`openMyBookingDetail('${b.token}')`}">
       <div class="my-booking-banner-top">
         <div class="my-booking-banner-badge">Seu agendamento</div>
         <div class="my-booking-banner-status${pendente?' pend':''}">${statusTxt}</div>
       </div>
       <div class="my-booking-banner-body">
-        <div class="my-booking-banner-time">${clock}</div>
+        <div class="my-booking-banner-time">${b.clock}</div>
         <div class="my-booking-banner-divider"></div>
         <div class="my-booking-banner-details">
           <div class="my-booking-banner-date">${dateLabel}</div>
-          <div class="my-booking-banner-name">${htmlEsc(clientName)}</div>
+          <div class="my-booking-banner-name">${htmlEsc(b.row.cliente||'')}</div>
         </div>
         <div class="my-booking-banner-arrow">›</div>
       </div>
@@ -2890,20 +2913,18 @@ function renderMyBookingBanner(){
           :'Toque para ver detalhes e informações de pagamento'}
       </div>
     </div>`;
-  atualizarContagemDez();
 }
-
-function openMyBookingDetail(){
-  const booking=getActiveClientBooking();
-  if(!booking)return;
-  if(booking.status==='Aguardando Pagamento'){abrirPixPendente();return;}
-  const iso=booking.data||booking.iso;
-  const clock=booking.horario||booking.clock||'';
-  const name=booking.cliente||booking.name||'';
-  const phone=booking.telefone||booking.phone||'';
-  const token=booking.codigo||booking.token||'';
-  const df=formatManausLabel(iso,{weekday:'long',day:'2-digit',month:'long'}).replace(/^\w/,c=>c.toUpperCase());
-  showConfirmationSheet(name,phone,iso,clock,df,token,false);
+function waLimiteUrl(){return `https://wa.me/${CFG.WA}?text=${encodeURIComponent('Olá, Camila! Gostaria de agendar outro horário.')}`;}
+function limiteAvisoHtml(){
+  return `<div style="font-size:.78rem;color:var(--ink-mid);text-align:center;margin:12px 0 4px;">Você já tem ${MAX_AGENDAMENTOS_CLIENTE} horários marcados. Para agendar mais, <a href="${waLimiteUrl()}" target="_blank" rel="noopener" style="color:var(--deep-rose);">fale com a Camila pelo WhatsApp</a>.</div>`;
+}
+function openMyBookingDetail(token){
+  const lista=getMyBookings();
+  const b=lista.find(x=>x.token===token)||lista[0];
+  if(!b)return;
+  if(b.status==='Aguardando Pagamento'){abrirPixPendente();return;}
+  const df=formatManausLabel(b.iso,{weekday:'long',day:'2-digit',month:'long'}).replace(/^\w/,c=>c.toUpperCase());
+  showConfirmationSheet(b.row.cliente||'',b.row.telefone||'',b.iso,b.clock,df,b.token,false);
 }
 
 /** Reabre a tela do PIX pendente (QR + copia e cola) com a contagem até expirar. */
@@ -3034,16 +3055,14 @@ async function onPendenteExpirou(){
   iniciarVerificacaoDez(bk.ref,info,bk.expiraEm);
 }
 
-/** Dezembro com reserva ativa: só o dia reservado aparece, as outras datas ficam fechadas. */
-function dezLockedView(lockIso){
+/** Dezembro com o limite de agendamentos atingido: só os dias da cliente aparecem; as outras datas ficam fechadas. */
+function dezLockedView(locks){
   const intro=document.getElementById('dezIntro');
   const grid=document.getElementById('dezCalGrid');
-  const bk=getActiveClientBooking()||{};
-  const dataTxt=formatManausLabel(lockIso,{weekday:'long',day:'2-digit',month:'long'});
-  const pend=bk.status==='Aguardando Pagamento';
-  if(intro)intro.innerHTML=`Você já tem um horário reservado para <strong>${htmlEsc(dataTxt)} às ${htmlEsc(bk.horario||bk.clock||'')}</strong>${pend?', aguardando o pagamento do PIX':''}. Enquanto essa reserva estiver ativa, as outras datas ficam indisponíveis.`;
-  if(grid)grid.innerHTML='';
-  dezSelDay=lockIso;
+  const reservas=getMyBookings().map(b=>`<strong>${htmlEsc(formatManausLabel(b.iso,{weekday:'long',day:'2-digit',month:'long'}))} às ${htmlEsc(b.clock)}</strong>`).join(' e ');
+  if(intro)intro.innerHTML=`Você já tem ${MAX_AGENDAMENTOS_CLIENTE} horários reservados: ${reservas}. Para agendar mais, <a href="${waLimiteUrl()}" target="_blank" rel="noopener">fale com a Camila pelo WhatsApp</a>.`;
+  if(grid)grid.innerHTML=locks.map(iso=>`<button type="button" class="dez-day cli-dia${iso===dezSelDay?' active':''}" onclick="selectDezDay('${iso}')"><span class="dez-dn">${Number(iso.slice(8,10))}</span><span class="dez-dc"><span class="dez-txt-full">${htmlEsc(formatManausLabel(iso,{weekday:'long'}))}</span></span></button>`).join('');
+  if(!locks.includes(dezSelDay))dezSelDay=locks[0];
   renderDezDay();
 }
 
@@ -3405,18 +3424,19 @@ async function uploadCmsFoto(){if(!cmsMediaPend)return;const btn=document.getEle
 // ════════════════════════════════════════════════════
 //  DAYS & GRID
 // ════════════════════════════════════════════════════
-function isClientBlocked(){const bk=getLocalBk();if(bk&&bk.pendente)return localPendenteAtivo();const ts=Number(localStorage.getItem('last_booking_timestamp')||'0');return ts>0&&(Date.now()-ts)<12*60*60*1000;}
+/** Bloqueia novos agendamentos só enquanto um PIX pendente estiver no prazo. O limite de horários é outro controle (clientLimitReached). */
+function isClientBlocked(){return localPendenteAtivo();}
 function clearClientBlock(){localStorage.removeItem('last_booking_timestamp');localStorage.removeItem('last_booking_v3');}
 function getNextOccupiedBooking(){const curIso=getManausIsoDate(new Date());const curMins=getManausMinutes(new Date());return db.filter(r=>r.status==='Ocupado').map(r=>{const[h,m]=String(r.horario||'00:00').split(':').map(Number);return{...r,mins:h*60+m};}).filter(r=>r.data>curIso||(r.data===curIso&&r.mins>=curMins)).sort((a,b)=>a.data===b.data?a.mins-b.mins:a.data.localeCompare(b.data))[0]||null;}
 function getFutureBookings(){const curIso=getManausIsoDate(new Date());const curMins=getManausMinutes(new Date());return db.filter(r=>r.status==='Ocupado').map(r=>{const[h,m]=String(r.horario||'00:00').split(':').map(Number);return{...r,mins:h*60+m};}).filter(r=>r.data>curIso||(r.data===curIso&&r.mins>=curMins)).sort((a,b)=>a.data===b.data?a.mins-b.mins:a.data.localeCompare(b.data));}
 function getPastBookings(){const curIso=getManausIsoDate(new Date());const curMins=getManausMinutes(new Date());return db.filter(r=>r.status==='Ocupado').map(r=>{const[h,m]=String(r.horario||'00:00').split(':').map(Number);return{...r,mins:h*60+m};}).filter(r=>r.data<curIso||(r.data===curIso&&r.mins<curMins)).sort((a,b)=>b.data===a.data?b.mins-a.mins:b.data.localeCompare(a.data));}
 function renderDays(){
   const c=document.getElementById('dayScroller');c.innerHTML='';
-  // Com reserva ativa (PIX pendente ou pago), a cliente só vê o dia reservado
-  const lock=clientLockIso();
-  if(lock&&currentDay!==lock){currentDay='';document.getElementById('gridSection')?.classList.remove('vis');}
+  // Com o limite de agendamentos atingido, a cliente só vê os dias em que tem horário
+  const locks=clientLockDates();
+  if(locks.length&&!locks.includes(currentDay)){currentDay='';document.getElementById('gridSection')?.classList.remove('vis');}
   const dias=[];
-  if(lock)dias.push(parseIsoDateLocal(lock));
+  if(locks.length)locks.forEach(iso=>dias.push(parseIsoDateLocal(iso)));
   else{const base=parseIsoDateLocal(getManausIsoDate(new Date()));for(let i=0;i<14;i++){const d=new Date(base);d.setDate(base.getDate()+i);dias.push(d);}}
   dias.forEach(d=>{const iso=formatLocalIsoDate(d);const el=document.createElement('div');el.className='day-pill'+(iso===currentDay?' active':'');el.onclick=()=>selectDay(iso);const dw=new Intl.DateTimeFormat('pt-BR',{timeZone:APP_TIME_ZONE,weekday:'short'}).format(d).replace('.','').toUpperCase();const dm=new Intl.DateTimeFormat('pt-BR',{timeZone:APP_TIME_ZONE,month:'short'}).format(d).replace('.','').toUpperCase();el.innerHTML=`<div class="dp-w">${dw}</div><div class="dp-n">${d.getDate()}</div><div class="dp-m">${dm}</div>`;c.appendChild(el);});
 }
@@ -3450,10 +3470,9 @@ function renderGrid(iso,targetId){
   const logContainer=document.getElementById('logEntries');
   if(!targetId)logContainer.innerHTML='';
   const now=new Date(),todayIso=getManausIsoDate(now),curMins=getManausMinutes(now);
-  const lastBooking=JSON.parse(localStorage.getItem('last_booking_v3')||'null');
-  // Só considera a reserva salva como "ativa" (bloqueando a grade) se ela ainda estiver
-  // por vir — uma reserva cuja data/hora já passou não deve mais impedir novos agendamentos.
-  const hasActiveBooking=!isAdmin&&!!getActiveClientBooking();
+  const minhas=isAdmin?[]:getMyBookings();
+  // Com o limite atingido, a grade mostra só os horários da cliente
+  const limiteAtingido=!isAdmin&&minhas.length>=MAX_AGENDAMENTOS_CLIENTE;
   const[sH,sM]=srvCfg.start.split(':').map(Number);
   const[eH,eM]=srvCfg.end.split(':').map(Number);
   let cur=sH*60+sM,end=eH*60+eM;
@@ -3466,10 +3485,10 @@ function renderGrid(iso,targetId){
     let st=reg?reg.status:'Livre',durMin=(reg&&reg.status!=='Livre')?parseInt(reg.duration||srvCfg.duration):srvCfg.duration;
     if(isPast&&!isAdmin){cur+=Math.max(15,durMin||30);continue;}
     const reservedUntil=reg?reg.reservedUntil:null,logMsg=reg?reg.log:null;
-    const isMyBooking=!!(lastBooking&&reg&&(String(reg.codigo||'')===String(lastBooking.token||'')||(lastBooking.iso===iso&&lastBooking.clock===clock)));
+    const isMyBooking=!isAdmin&&minhas.some(b=>b.iso===iso&&b.clock===clock);
     if(!isAdmin){
-      if(hasActiveBooking){if(!isMyBooking){cur+=Math.max(15,durMin||30);continue;}}
-      else{if(st!=='Livre'){cur+=Math.max(15,durMin||30);continue;}}
+      if(limiteAtingido){if(!isMyBooking){cur+=Math.max(15,durMin||30);continue;}}
+      else if(st!=='Livre'&&!isMyBooking){cur+=Math.max(15,durMin||30);continue;}
     }
     if(st==='Livre'){const nextOcc=db.filter(r=>String(r.data).substring(0,10)===iso&&r.status!=='Livre').map(r=>{const[h,m]=r.horario.split(':').map(Number);return h*60+m;}).filter(m=>m>cur).sort((a,b)=>a-b)[0];if(nextOcc!==undefined){const gap=nextOcc-cur;if(gap<durMin){cur=nextOcc;continue;}}}
     const pipColor={'Livre':'var(--st-livre)','Aguardando Pagamento':'var(--st-aguard)','Ocupado':'var(--st-ocupado)','Bloqueado':'var(--st-block)'}[st]||'var(--st-block)';
@@ -3516,13 +3535,12 @@ function handleSlotClick(event,card,iso,clock,st,rUntil,reg){
     showAdminSlotSheet(iso,clock,st,reg);return;
   }
   if(st!=='Livre'){
-    // Toca na própria reserva → abre detalhe com PIX informativo
-    const lb=JSON.parse(localStorage.getItem('last_booking_v3')||'null');
-    const isMy=lb&&lb.iso===iso&&lb.clock===clock;
-    if(isMy){
-      if(lb.pendente){abrirPixPendente();return;}
+    // Toca na própria reserva → abre detalhe (PIX pendente ou confirmação)
+    const mine=getMyBookings().find(b=>b.iso===iso&&b.clock===clock);
+    if(mine){
+      if(mine.status==='Aguardando Pagamento'){abrirPixPendente();return;}
       const df=formatManausLabel(iso,{weekday:'long',day:'2-digit',month:'long'}).replace(/^\w/,c=>c.toUpperCase());
-      showConfirmationSheet(lb.name||reg?.cliente||'',reg?.telefone||lb.phone||'',iso,clock,df,reg?.codigo||lb.token,false);
+      showConfirmationSheet(mine.row.cliente||'',mine.row.telefone||'',iso,clock,df,mine.token,false);
     }
     return;
   }
@@ -3576,6 +3594,7 @@ async function confirmBooking(iso,clock,df){
   if(!name||!phone){alert('Preencha todos os campos.');return;}
   if(!isPhoneBRValid(phone)){alert('Informe seu WhatsApp com DDD, por exemplo (92) 99999-9999.');return;}
   if(!isAdmin&&isClientBlocked()){showBlockedScreen();return;}
+  if(!isAdmin&&clientLimitReached()){showLimiteScreen();return;}
 
   // Mostra loading no botão
   const btn=document.querySelector('#sheetActions .btn-primary');
@@ -3604,6 +3623,7 @@ async function confirmBooking(iso,clock,df){
   }
 
   if(!res||res.status!=='OK'||!res.booking){
+    if(res?.code==='LIMIT_REACHED'){showLimiteScreen();syncData();return;}
     alert(res?.message||'Esse horário não está mais disponível. Escolha outro horário livre.');
     await syncData();
     if(btn){btn.innerHTML='Confirmar agendamento';btn.disabled=false;}
@@ -3614,9 +3634,9 @@ async function confirmBooking(iso,clock,df){
   db=db.filter(r=>!(String(r.data).substring(0,10)===iso&&String(r.horario).substring(0,5)===clock));
   db.push({...res.booking,data:iso,horario:clock,status:'Ocupado',cliente:name,telefone:phone,codigo:savedToken,duration:srvCfg.duration});
 
-  // Salva no localStorage (controla o bloqueio de 12h e o banner)
+  // Guarda o horário no aparelho (controla o limite e o banner) e o último agendamento para preencher os dados
+  lembrarReserva(savedToken,iso,clock);
   localStorage.setItem('last_booking_v3',JSON.stringify({token:savedToken,iso,clock,phone:normalizedPhone,name}));
-  localStorage.setItem('last_booking_timestamp',Date.now().toString());
 
   // Mostra a tela de confirmação com PIX como informativo
   showConfirmationSheet(name,phone,iso,clock,df,savedToken,true);
@@ -3716,17 +3736,18 @@ function showBlockedScreen(){
     atualizarContagemDez();
     return;
   }
-  const ts=Number(localStorage.getItem('last_booking_timestamp')||'0');
-  const rem=Math.max(0,(ts+12*60*60*1000)-Date.now());
-  const rH=Math.floor(rem/3600000),rM=Math.floor((rem%3600000)/60000);
-  openSheet('Agendamento indisponível','Cada cliente pode ter apenas um horário ativo por vez.');
+  showLimiteScreen();
+}
+
+/** Limite de horários atingido: a cliente fala com a Camila para marcar mais. */
+function showLimiteScreen(){
+  openSheet('Limite de agendamentos',`Cada cliente pode ter até ${MAX_AGENDAMENTOS_CLIENTE} horários marcados ao mesmo tempo.`);
   document.getElementById('sheetBody').innerHTML=`
     <div class="info-box" style="border-color:var(--rose);background:rgba(196,132,138,.04);">
-      Você já possui um horário agendado.<br><br>
-      Para marcar outro, aguarde <strong>${rH}h ${rM}min</strong> ou
-      peça à Camila que libere sua vaga atual.
+      Você já tem <strong>${MAX_AGENDAMENTOS_CLIENTE} horários agendados</strong>.<br><br>
+      Para marcar mais um, entre em contato com a Camila pelo WhatsApp.
     </div>
-    <a href="https://wa.me/${CFG.WA}?text=${encodeURIComponent('Olá, Camila! Preciso de ajuda com meu agendamento.')}" target="_blank" class="wa-link">
+    <a href="${waLimiteUrl()}" target="_blank" class="wa-link">
       💬 Falar com a Camila
     </a>`;
   document.getElementById('sheetActions').innerHTML=`<button class="btn btn-secondary" onclick="closeSheet()">Fechar</button>`;
@@ -4309,12 +4330,15 @@ async function salvarTaxaMes(){
 function dezValorLabel(v){return 'R$ '+Number(v||0).toFixed(2).replace('.',',');}
 function dezFeeDay(iso){const s=String(iso||'').substring(0,10);if(!DEZ.ativo||!(Number(DEZ.valor)>0)||!DEZ.mes||s.indexOf(DEZ.mes+'-')!==0)return false;return !!DEZ.mes_inteiro||(DEZ.dias||[]).includes(s);}
 /** Mostra "Pago via PIX" (sem o PIX manual antigo) quando a reserva veio do Mercado Pago. */
-function dezPagoLocal(token){try{const lb=JSON.parse(localStorage.getItem('last_booking_v3')||'null');return !!(lb&&lb.pago&&String(lb.token)===String(token));}catch{return false;}}
+function dezPagoLocal(token){
+  if(getMinhasReservasLocal().some(x=>String(x.token)===String(token)&&x.pago))return true;
+  try{const lb=JSON.parse(localStorage.getItem('last_booking_v3')||'null');return !!(lb&&lb.pago&&String(lb.token)===String(token));}catch{return false;}
+}
 
 function renderDezSection(){
   const grid=document.getElementById('dezCalGrid');if(!grid)return;
-  const lockIso=clientLockIso();
-  if(lockIso){dezLockedView(lockIso);return;}
+  const locks=clientLockDates();
+  if(locks.length){dezLockedView(locks);return;}
   const mes=dezMesRef();
   const[y,m]=mes.split('-').map(Number);
   const title=document.getElementById('dezMonthTitle');
@@ -4361,7 +4385,7 @@ function renderDezDay(){
   set('dezDayWeekday',wd.charAt(0).toUpperCase()+wd.slice(1));
   set('dezDayDate',formatManausLabel(dezSelDay,{day:'2-digit',month:'long'}));
   const note=document.getElementById('dezDayNote');
-  if(note&&clientLockIso()===dezSelDay)note.innerHTML='Este é o seu horário reservado. Toque no cartão para ver o PIX ou o status.';
+  if(note&&clientLockDates().includes(dezSelDay))note.innerHTML='Este é um dos seus horários reservados. Toque no cartão para ver o PIX ou o status.';
   else if(note)note.innerHTML=dezFeeDay(dezSelDay)
     ?`Toque em um horário livre e pague o PIX para confirmar. A taxa de reserva aparece em cada horário.`
     :'Sem taxa neste dia · toque em um horário livre para agendar.';
@@ -4372,6 +4396,7 @@ function renderDezDay(){
 /* ── Passo 1: dados da cliente ── */
 function showDezPaymentSheet(iso,clock){
   if(!isAdmin&&isClientBlocked()){showBlockedScreen();return;}
+  if(!isAdmin&&clientLimitReached()){showLimiteScreen();return;}
   const df=formatManausLabel(iso,{weekday:'long',day:'2-digit',month:'long'}).replace(/^\w/,c=>c.toUpperCase());
   let lb=null;try{lb=JSON.parse(localStorage.getItem('last_booking_v3')||'null');}catch{}
   if(!lb)lb=getPixExpirado();
@@ -4393,6 +4418,7 @@ function showDezPaymentSheet(iso,clock){
 /* ── Passo 2: cria a cobrança no servidor (vaga fica aguardando) ── */
 async function gerarPixDez(iso,clock){
   if(!isAdmin&&isClientBlocked()){showBlockedScreen();return;}
+  if(!isAdmin&&clientLimitReached()){showLimiteScreen();return;}
   const name=(document.getElementById('bName')?.value||'').trim();
   const phone=(document.getElementById('bPhone')?.value||'').trim();
   if(!name||!phone){toast('Preencha nome e WhatsApp','warn');return;}
@@ -4403,6 +4429,7 @@ async function gerarPixDez(iso,clock){
   let r=null;
   try{r=await gasCall({action:'dez_pix',data:iso,horario:clock,nome:name,telefone:phone});}catch(e){r=null;}
   if(!r||r.status!=='OK'||!r.pix){
+    if(r?.code==='LIMIT_REACHED'){closeSheet();showLimiteScreen();syncData();return;}
     toast(r?.message||'Não foi possível gerar o PIX. Tente novamente.','err',4500);
     if(r?.code==='SLOT_TAKEN')syncData();
     restaurar();return;
@@ -4416,7 +4443,7 @@ function salvarPendentePix(r,info){
   const p=r.pix;
   try{
     localStorage.setItem('last_booking_v3',JSON.stringify({token:r.codigo||'',ref:r.ref||'',iso:info.iso,clock:info.clock,phone:normalizePhone(info.phone),name:info.name,pago:false,pendente:true,expiraEm:p.expira_em,valor:p.valor,copia:p.copia_cola||'',qr:p.qr_base64||''}));
-    localStorage.setItem('last_booking_timestamp',Date.now().toString());
+    lembrarReserva(r.codigo||'',info.iso,info.clock);
   }catch{}
 }
 
@@ -4480,7 +4507,8 @@ function confirmarPagamentoDez(info,token){
   pararVerificacaoDez();
   limparPixExpirado();pixExpiracaoRef='';
   localStorage.setItem('last_booking_v3',JSON.stringify({token,iso:info.iso,clock:info.clock,phone:normalizePhone(info.phone),name:info.name,pago:true}));
-  localStorage.setItem('last_booking_timestamp',Date.now().toString());
+  lembrarReserva(token,info.iso,info.clock);
+  marcarReservaPaga(token);
   const df=formatManausLabel(info.iso,{weekday:'long',day:'2-digit',month:'long'}).replace(/^\w/,c=>c.toUpperCase());
   toast('Pagamento aprovado! Seu horário está confirmado ✨','ok',4000);
   showConfirmationSheet(info.name,info.phone,info.iso,info.clock,df,token,true);
